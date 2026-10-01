@@ -1,0 +1,23 @@
+{
+  "name": "s17-enroll-baby",
+  "version": "1.0.0",
+  "description": "",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "dev:front": "npm run dev --workspace=frontend",
+    "dev:back": "npm run dev --workspace=backend",
+    "dev": "concurrently \"npm run dev:back\" \"npm run dev:front\"",
+    "build:front": "npm run build --workspace=frontend",
+    "build:back": "npm run build --workspace=backend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}

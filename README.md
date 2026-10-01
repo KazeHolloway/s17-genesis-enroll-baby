@@ -18,8 +18,15 @@ Plateforme permettant de créer et suivre le dossier d'un nouveau-né dès sa na
   - [Public visé](#public-visé)
   - [Stack technique](#stack-technique)
   - [Structure du projet](#structure-du-projet)
-  - [Installation locale](#installation-locale)
-  - [Déploiement](#déploiement)
+  - [Prérequis](#prérequis)
+  - [Installation](#installation)
+  - [Démarrage en Développement](#démarrage-en-développement)
+    - [1. Lancer le Front et le Back en simultané (Recommandé)](#1-lancer-le-front-et-le-back-en-simultané-recommandé)
+    - [2. Lancer uniquement le Backend](#2-lancer-uniquement-le-backend)
+    - [3. Lancer uniquement le Frontend](#3-lancer-uniquement-le-frontend)
+  - [Gestion des Dépendances (npm Workspaces)](#gestion-des-dépendances-npm-workspaces)
+  - [Build / Production](#build--production)
+  - [Bonnes Pratiques de Contribution](#bonnes-pratiques-de-contribution)
   - [Comment utiliser](#comment-utiliser)
   - [Organisation de la Squad 6 - Genesis](#organisation-de-la-squad-6---genesis)
   - [Répartition des tâches et avancement de l'équipe FullStack](#répartition-des-tâches-et-avancement-de-léquipe-fullstack)
@@ -71,6 +78,9 @@ s17-genesis-enroll-baby/
 │   │   │
 │   │   ├── controllers/
 │   │   │
+│   │   ├── database/
+│   │   │   └── Base_de_donnees.sql
+│   │   │
 │   │   ├── middlewares/
 │   │   │
 │   │   ├── routes/
@@ -91,63 +101,154 @@ s17-genesis-enroll-baby/
 │   ├── src/
 │   │   ├── assets/
 │   │   │   ├── hero.png
+│   │   │   ├── react.svg
 │   │   │   └── vite.svg
 │   │   │
 │   │   ├── components/
 │   │   │
-│   │   ├── pages/
-│   │   │   └── creation-compte-parent/
-│   │   │       ├── CreationCompteParent.css
-│   │   │       └── CreationCompteParent.jsx
+│   │   ├── lib/
+│   │   │   └── types.ts
 │   │   │
-│   │   ├── styles/
-│   │   │   └── global.css
+│   │   ├── pages/
+│   │   │
+│   │   ├── services/
+│   │   │   └── api.ts
 │   │   │
 │   │   ├── App.css
-│   │   ├── App.jsx
+│   │   ├── App.tsx
 │   │   ├── index.css
-│   │   └── main.jsx
+│   │   └── main.tsx
 │   │
 │   ├── eslint.config.js
 │   ├── index.html
 │   ├── package-lock.json
 │   ├── package.json
-│   └── vite.config.js
+│   ├── README.md
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
 │
 ├── .gitignore
+├── package-lock.json
+├── package.json
 └── README.md
 ```
 
-## Installation locale
+## Prérequis
+
+Assurez-vous d'avoir installé sur votre machine :
+
+- **Node.js** : `v18.x` ou supérieur (recommandé : `v20.x`)
+- **npm** : `v9.x` ou supérieur (fourni avec Node.js)
+- **Git**
+
+---
+
+## Installation
+
+1. **Cloner le projet :**
+
+   ```bash
+   git clone <URL_DU_REPO_GITHUB>
+   cd anroll-baby
+   ```
+
+2. **Installer toutes les dépendances (Front + Back) en une seule commande :**
+   À la racine du projet, lancez :
+
+   ```bash
+   npm install
+   ```
+
+   > _Grâce aux Workspaces npm, cette commande installe automatiquement les dépendances de la racine, de `frontend/` et de `backend/` dans le dossier `node_modules` principal._
+
+3. **Configurer les variables d'environnement :**
+   - Créez un fichier `.env` dans le dossier `backend/` (en vous basant sur `backend/.env.example`).
+   - Créez un fichier `.env` dans le dossier `frontend/` si nécessaire.
+
+---
+
+---
+
+## Démarrage en Développement
+
+Pour travailler sereinement, vous avez plusieurs options :
+
+### 1. Lancer le Front et le Back en simultané (Recommandé)
+
+Depuis la racine du projet :
 
 ```bash
-git clone https://github.com/KazeHolloway/s17-genesis-enroll-baby.git
-cd s17-genesis-enroll-baby
-```
-
-**Frontend**
-
-```bash
-cd frontend
-npm install
 npm run dev
 ```
 
-L'application démarre sur `http://localhost:5173`.
+Cette commande lance à la fois l'API Backend et le serveur Frontend React dans le même terminal via `concurrently`.
 
-**Backend**
+### 2. Lancer uniquement le Backend
 
 ```bash
-cd backend
-npm install
-npm run dev
+npm run dev:back
 ```
 
-L'API démarre sur `http://localhost:3000`.
+_(Le serveur tourne généralement sur `http://localhost:5000`)_
 
-## Déploiement
+### 3. Lancer uniquement le Frontend
 
-*(à compléter une fois la plateforme d'hébergement choisie)*
+```bash
+npm run dev:front
+```
+
+_(L'application client tourne généralement sur `http://localhost:5173`)_
+
+---
+
+## Gestion des Dépendances (npm Workspaces)
+
+Pour ajouter un nouveau package, il faut spécifier le workspace ciblé depuis la racine du monorepo :
+
+- **Ajouter un paquet au Backend :**
+
+  ```bash
+  npm install <nom-du-paquet> --workspace=backend
+  ```
+
+- **Ajouter un paquet au Frontend :**
+
+  ```bash
+  npm install <nom-du-paquet> --workspace=frontend
+  ```
+
+- **Ajouter un outil de développement global (à la racine) :**
+
+  ```bash
+  npm install <nom-du-paquet> -D
+  ```
+
+---
+
+## Build / Production
+
+Pour compiler les projets avant un déploiement :
+
+```bash
+# Compile le frontend (Vite)
+npm run build:front
+
+# Compile le backend (si applicable)
+npm run build:back
+```
+
+---
+
+## Bonnes Pratiques de Contribution
+
+1. **Branches Git :** Créez une branche par fonctionnalité en respectant le nommage :
+   - Ex: `feature/US-01-enregistrement-enfant`
+   - Ex: `fix/US-04-compte-a-rebours`
+2. **Commits :** Faites des commits clairs et explicites.
+3. **Pull Requests :** Soumettez votre PR vers `develop` pour relecture avant fusion.
+
 
 ## Comment utiliser
 
