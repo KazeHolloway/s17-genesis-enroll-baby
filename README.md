@@ -57,40 +57,65 @@ Enroll-Baby est construit comme si l'établissement de santé et l'état civil �
 ## Stack technique
 
 - ReactJS (Vite)
-- *(backend et base de données préciser plus tard)*
+- Node.js / Express (API REST)
+- PostgreSQL
 
 ## Structure du projet
 
 ```
 s17-genesis-enroll-baby/
-├── public/
-│   ├── favicon.svg
-│   └── icons.svg
 │
-├── src/
-│   ├── assets/
-│   │   ├── hero.png
-│   │   └── vite.svg
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   │
+│   │   ├── controllers/
+│   │   │
+│   │   ├── middlewares/
+│   │   │
+│   │   ├── routes/
+│   │   │
+│   │   ├── utils/
+│   │   │
+│   │   ├── app.js
+│   │   └── server.js
 │   │
-│   ├── components/
+│   ├── package-lock.json
+│   └── package.json
+│
+├── frontend/
+│   ├── public/
+│   │   ├── favicon.svg
+│   │   └── icons.svg
 │   │
-│   ├── pages/
+│   ├── src/
+│   │   ├── assets/
+│   │   │   ├── hero.png
+│   │   │   └── vite.svg
+│   │   │
+│   │   ├── components/
+│   │   │
+│   │   ├── pages/
+│   │   │   └── creation-compte-parent/
+│   │   │       ├── CreationCompteParent.css
+│   │   │       └── CreationCompteParent.jsx
+│   │   │
+│   │   ├── styles/
+│   │   │   └── global.css
+│   │   │
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
 │   │
-│   ├── styles/
-│   │   └── global.css
-│   │
-│   ├── App.css
-│   ├── App.jsx
-│   ├── index.css
-│   └── main.jsx
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   └── vite.config.js
 │
 ├── .gitignore
-├── eslint.config.js
-├── index.html
-├── package-lock.json
-├── package.json
-├── README.md
-└── vite.config.js
+└── README.md
 ```
 
 ## Installation locale
@@ -98,11 +123,27 @@ s17-genesis-enroll-baby/
 ```bash
 git clone https://github.com/KazeHolloway/s17-genesis-enroll-baby.git
 cd s17-genesis-enroll-baby
+```
+
+**Frontend**
+
+```bash
+cd frontend
 npm install
 npm run dev
 ```
 
-L'application démarre en local (voir le terminal pour le port exact, généralement `http://localhost:5173`).
+L'application démarre sur `http://localhost:5173`.
+
+**Backend**
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+L'API démarre sur `http://localhost:3000`.
 
 ## Déploiement
 
@@ -120,11 +161,11 @@ L'application démarre en local (voir le terminal pour le port exact, générale
 | **Business Analyst** | Mircelia Théolinda KOUTCHIKA |
 | **Business Analyst** | Wisdom Fortuné PENZAMOY OWORO |
 | **Repo Admin & Développeur Fullstack** | Christophe Darly MASSAMBA BOUESSO |
-| **Développeur Fullstack** | Dorcasse Benicia MOUSSANA |
+| **Lead & Développeuse Fullstack** | Dorcasse Benicia MOUSSANA |
 | **Développeur Fullstack** | Aristote BABA |
 | **Développeur Fullstack** | Rolvi MIKOLO |
 | **Développeur Fullstack** | Val Clancy PEDRO |
-| **Développeur Fullstack** | Brichelvie Jeannelle OWALA |
+| **Développeuse Fullstack** | Brichelvie Jeannelle OWALA |
 
 ## Répartition des tâches et avancement de l'équipe FullStack
 
@@ -143,5 +184,4 @@ L'application démarre en local (voir le terminal pour le port exact, générale
 
 ## Liens
 
-- Repository : https://github.com/KazeHolloway/s17-genesis-enroll-baby
-- README : https://kazeholloway.github.io/s17-genesis-enroll-baby/
+- [Lien vers le repository](https://github.com/KazeHolloway/s17-genesis-enroll-baby)
