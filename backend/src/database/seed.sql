@@ -2,7 +2,7 @@
 -- SEED DE DÉVELOPPEMENT LOCAL (seed.sql)
 -- ============================================================================
 
--- 1. Référentiels fixes (Vaccins et Calendrier
+-- 1. Référentiels fixes (Vaccins et Calendrier)
 
 -- Insertion des vaccins de base
 INSERT INTO public.vaccins (id, code, nom, description) VALUES
@@ -29,3 +29,11 @@ INSERT INTO public.etablissements (id, nom, ville, adresse, telephone) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 SELECT pg_catalog.setval('public.etablissements_id_seq', 1, true);
+
+-- 3. Agent de maternité de test (mot de passe : Agent123!)
+INSERT INTO public.utilisateurs (id, nom_complet, telephone, mot_de_passe_hash, role, etablissement_id) VALUES
+(1, 'Agent Test', '+242060000001', '$2b$10$TuVGpZKCamvwgVgkyFixZ.BzPwu1Qoy.KmYRT8lHS6Uhd/RcTdriW', 'agent_maternite', 1)
+ON CONFLICT (id) DO NOTHING;
+
+-- Ajustement de la séquence des utilisateurs
+SELECT pg_catalog.setval('public.utilisateurs_id_seq', 1, true);
