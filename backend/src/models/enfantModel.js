@@ -25,8 +25,8 @@ export const createNewborn = async (data) => {
   const result = await pool.query(
     `INSERT INTO enfants
        (nom, prenom, sexe, date_naissance, lieu_naissance, photo_url,
-        poids_naissance, taille_naissance, etablissement_id, agent_id)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        poids_naissance, taille_naissance, statut_vital, etablissement_id, agent_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      RETURNING *`,
     [
       data.nom,
@@ -37,7 +37,8 @@ export const createNewborn = async (data) => {
       data.photo_url,
       data.poids_naissance,
       data.taille_naissance,
-      data.statut_vital,
+      // Sans statut vital envoyé, on applique la valeur par défaut 'vivant'
+      data.statut_vital ?? 'vivant',
       data.etablissement_id,
       data.agent_id,
     ]
