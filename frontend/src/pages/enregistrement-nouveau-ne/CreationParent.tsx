@@ -1,4 +1,5 @@
 import {useState} from 'react'
+import "./formulaire.css";
 
 function CreationParent() {
     const [nom, setNom] = useState("");
@@ -9,6 +10,37 @@ function CreationParent() {
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+   
+        const nom=formData.get("nom");
+        const prenom=formData.get("prenom");
+        const telephone=formData.get("telephone");
+        const adresse=formData.get("adresse");
+        const email=formData.get("email");
+
+        if(typeof nom!=="string"
+            ||typeof prenom!=="string"
+            ||typeof email!=="string"
+            ||typeof adresse!=="string"
+            ||typeof telephone!=="string"
+        ){
+            return;
+        }
+        type dataParent={
+            nom:string,
+            prenom:string,
+            telephone:string,
+            email:string,
+            adresse:string
+        }
+        const dataparent:dataParent={
+            nom:nom,
+            prenom:prenom,
+            telephone:telephone,
+            email:email,
+            adresse:adresse
+        }
+
     }
 
     return (

@@ -1,5 +1,5 @@
-import {useState} from 'react'
-
+import {useState} from 'react';
+import "./formulaire.css";
 
 function CreationBaby(){
     const [name,setName]=useState("");
@@ -15,19 +15,59 @@ function CreationBaby(){
    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
         const formData = new FormData(event.currentTarget);
-        const data=Object.fromEntries(formData.entries());
+  
+
+        const nom=formData.get("nom");
+        const prenom=formData.get("prenom");
+        const sexe=formData.get("sexe");
+        const date_naissance=formData.get("date_naissance");
+        const lieu_naissance=formData.get("lieu_naissance");
+        const statut_vital=formData.get("statut_vital");
+        const taille_naissance=Number(formData.get("taille_naissance"));
+        const poids_naissance=Number(formData.get("poids_naissance"));
+        const photo=formData.get("photo");
+        
+        if(typeof nom!=="string"
+        || typeof prenom!=="string" 
+        ||typeof sexe!=="string"
+        ||typeof date_naissance!=="string"
+        ||typeof lieu_naissance!=="string"
+        ||typeof statut_vital!=="string"){
+            return;
+        }
+
+        if(Number.isNaN(poids_naissance)||Number.isNaN(taille_naissance)){
+            return;
+        }
+
+        if(!(photo instanceof File)){
+            return;
+        }
+
         type BabyData={
             nom:string,
             prenom:string,
             sexe:string,
-            taille:number,
-            poids:number,
+            taille_naissance:number,
+            poids_naissance:number,
             date_naissance:string,
             lieu_naissance:string,
             statut_vital:string,
             photo:File
         }
-        console.log(data);
+        const babydata:BabyData={
+            nom:nom,
+            prenom:prenom,
+            sexe:sexe,
+            taille_naissance:taille_naissance,
+            poids_naissance:poids_naissance,
+            statut_vital:statut_vital,
+            date_naissance:date_naissance,
+            lieu_naissance:lieu_naissance,
+            photo:photo
+        }
+        console.log(babydata);
+
         }
     return (
         <>
@@ -49,8 +89,8 @@ function CreationBaby(){
                 onChange={(event)=>setSex(event.target.value)}
                 >
                     <option value="">Selectionner le sexe du nouveau-né</option>
-                    <option value="Masculin">Masculin</option>
-                    <option value="Feminin">Féminin</option>
+                    <option value="M">Masculin</option>
+                    <option value="F">Féminin</option>
                 </select>
 
                 <label htmlFor="date-naissance">Date de naissance:</label>
@@ -63,13 +103,13 @@ function CreationBaby(){
                     value={birthplace} onChange={(event)=>setBirthPlace(event.target.value)}
                  />
                 
-                <label htmlFor="poids">Poids(en kg):</label>
-                <input placeholder="Entrez le poids" type="number" id="poids" name="poids"
+                <label htmlFor="poids_naissance">Poids à la naissance(en kg):</label>
+                <input placeholder="Entrez le poids_naissance" type="number" id="poids_naissance" name="poids_naissance"
                     value={weight} onChange={(event)=>setWeight(event.target.value)}
                 />
                 
-                <label htmlFor="taille">Taille(en cm):</label>
-                <input placeholder="Entrez la taille" type="number" id="taille" name='taille'
+                <label htmlFor="taille_naissance">Taille à la naissance(en cm):</label>
+                <input placeholder="Entrez la taille_naissance" type="number" id="taille_naissance" name='taille_naissance'
                     value={height} onChange={(event)=>setHeight(event.target.value)}
                 />
 
