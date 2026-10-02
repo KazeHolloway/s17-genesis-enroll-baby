@@ -37,6 +37,7 @@ export const createNewborn = async (data) => {
       data.photo_url,
       data.poids_naissance,
       data.taille_naissance,
+      data.statut_vital,
       data.etablissement_id,
       data.agent_id,
     ]

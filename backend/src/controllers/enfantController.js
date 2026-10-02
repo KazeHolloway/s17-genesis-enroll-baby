@@ -56,6 +56,13 @@ export const create = async (req, res) => {
   try {
     const { nom, prenom, sexe, date_naissance } = req.body;
 
+    //Validation du statut vital
+    if(statut_vital && !['vivant', 'mort_ne', 'decede'].includes(statut_vital)) {
+        return res.status(400).json({
+            message: 'statut vital invalide (valeurs autorisées: vivant, mort_ne, decede)'
+        })
+    }
+
     if (!nom || !prenom || !sexe || !date_naissance) {
       return res.status(400).json({
         message: 'Nom, prénom, sexe et date de naissance sont obligatoires',
