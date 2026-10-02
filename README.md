@@ -79,7 +79,10 @@ s17-genesis-enroll-baby/
 │   │   ├── controllers/
 │   │   │
 │   │   ├── database/
-│   │   │   └── Base_de_donnees.sql
+│   │   │   ├── archive/
+│   │   │   │   └── Base_de_donnees.sql
+│   │   │   ├── schema.sql
+│   │   │   └── seed.sql
 │   │   │
 │   │   ├── middlewares/
 │   │   │

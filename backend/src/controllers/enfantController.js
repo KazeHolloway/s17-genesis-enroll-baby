@@ -54,14 +54,7 @@ export const getById = async (req, res) => {
 // POST /api/enfants
 export const create = async (req, res) => {
   try {
-    const { nom, prenom, sexe, date_naissance } = req.body;
-
-    //Validation du statut vital
-    if(statut_vital && !['vivant', 'mort_ne', 'decede'].includes(statut_vital)) {
-        return res.status(400).json({
-            message: 'statut vital invalide (valeurs autorisées: vivant, mort_ne, decede)'
-        })
-    }
+    const { nom, prenom, sexe, date_naissance, statut_vital } = req.body;
 
     if (!nom || !prenom || !sexe || !date_naissance) {
       return res.status(400).json({
@@ -70,6 +63,13 @@ export const create = async (req, res) => {
     }
     if (sexe !== 'M' && sexe !== 'F') {
       return res.status(400).json({ message: 'Le sexe doit être M ou F' });
+    }
+
+    // Validation du statut vital (facultatif, 'vivant' par défaut)
+    if (statut_vital && !['vivant', 'mort_ne', 'decede'].includes(statut_vital)) {
+      return res.status(400).json({
+        message: 'Statut vital invalide (valeurs autorisées : vivant, mort_ne, decede)',
+      });
     }
 
     const enfant = await createNewborn({
