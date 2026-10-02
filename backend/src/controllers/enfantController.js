@@ -4,7 +4,7 @@ import {
   createNewborn,
   updateNewborn,
   deleteNewborn,
-} from '../models/enfant.model.js';
+} from '../models/enfantModel.js';
 
 // Gère les erreurs PostgreSQL les plus courantes
 const handleError = (error, res) => {
