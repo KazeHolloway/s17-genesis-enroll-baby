@@ -49,9 +49,11 @@ Enroll-Baby est construit comme si l'établissement de santé et l'état civil �
 - [x] Créer son compte à partir du code d'accès remis à la maternité
 - [x] Se connecter
 - [x] Consulter le calendrier vaccinal de son enfant
+- [x] Consulter son espace parent (informations essentielles, déclaration, prochaine démarche)
+- [x] Voir les rappels des échéances de son enfant
 
 ### Espace établissement de santé
-- [ ]
+- [x] Générer le dossier imprimable du nouveau-né
 
 ### Espace état civil
 - [ ]
