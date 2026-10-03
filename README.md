@@ -46,7 +46,9 @@ Enroll-Baby est construit comme si l'établissement de santé et l'état civil �
 *(à compléter au fil du sprint, une fois le backlog du BA disponible*
 
 ### Espace parents
-- [ ]
+- [x] Créer son compte à partir du code d'accès remis à la maternité
+- [x] Se connecter
+- [x] Consulter le calendrier vaccinal de son enfant
 
 ### Espace établissement de santé
 - [ ]
