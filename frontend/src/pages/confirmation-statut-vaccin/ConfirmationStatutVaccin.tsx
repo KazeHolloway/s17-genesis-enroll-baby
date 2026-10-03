@@ -143,7 +143,7 @@ const ConfirmationStatutVaccin = () => {
 
   return (
     <div className="container-confirmation">
-      <h1>Confirmation du statut d'un vaccin administré</h1>
+      <div className="header"><h1>Confirmation du statut d'un vaccin administré</h1><p className="header-subtitle">Suivez et mettez à jour le statut vaccinal.</p></div>
 
       <section className="form-section">
         <h2>Filtrer par enfant</h2>
