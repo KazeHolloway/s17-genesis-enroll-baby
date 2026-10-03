@@ -4,6 +4,8 @@ import {
   createNewborn,
   updateNewborn,
   deleteNewborn,
+  findDuplicateNewborn,
+  registerNewborn,
 } from '../models/enfantModel.js';
 import { createDossier } from '../models/dossierModel.js';
 import { genererCodeAcces, hacherCodeAcces } from '../utils/codeAcces.js';
