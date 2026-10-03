@@ -37,3 +37,11 @@ ON CONFLICT (id) DO NOTHING;
 
 -- Ajustement de la séquence des utilisateurs
 SELECT pg_catalog.setval('public.utilisateurs_id_seq', 1, true);
+
+-- 4. Administrateur de test (mot de passe : Admin123!)
+INSERT INTO public.utilisateurs (id, nom_complet, telephone, mot_de_passe_hash, role) VALUES
+(2, 'Admin Test', '+242060000002', '$2b$10$FQl3WyfIJR2qJKOcnDQ8QeefCziknGP0CrDzp2mXdP/BPTO9YqdmW', 'admin')
+ON CONFLICT (id) DO NOTHING;
+
+-- Ajustement de la séquence des utilisateurs
+SELECT pg_catalog.setval('public.utilisateurs_id_seq', 2, true);
