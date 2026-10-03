@@ -8,6 +8,7 @@ import dossierRoute from './routes/dossierRoute.js';
 import authRoute from './routes/authRoute.js';
 import parentRoute from './routes/parentRoute.js';
 import calendrierRoute from './routes/calendrierRoute.js';
+import imprimableRoute from './routes/imprimableRoute.js';
 
 
 dotenv.config();
@@ -25,6 +26,7 @@ app.use('/api/dossiers', dossierRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/parents', parentRoute);
 app.use('/api/calendrier-vaccinal', calendrierRoute);
+app.use('/api/imprimable', imprimableRoute);
 
 // --- Route de test de santé (Health check) ---
 app.get('/api/health', (req, res) => {
