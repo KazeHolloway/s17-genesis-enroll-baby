@@ -1,10 +1,10 @@
-import RendezVousSuivi from './pages/rendez-vous-de-suivi/RendezVousSuivi'
+import ConfirmationStatutVaccin from './pages/confirmation-statut-vaccin/ConfirmationStatutVaccin'
 import './App.css'
 
 function App(){
   return(
     <>
-      <RendezVousSuivi />
+      <ConfirmationStatutVaccin />
     </>
   )
 }
