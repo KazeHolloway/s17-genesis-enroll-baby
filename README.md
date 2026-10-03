@@ -54,6 +54,7 @@ Enroll-Baby est construit comme si l'établissement de santé et l'état civil �
 
 ### Espace établissement de santé
 - [x] Générer le dossier imprimable du nouveau-né
+- [x] Consulter les statistiques de natalité et de mortalité de l'établissement
 
 ### Espace état civil
 - [ ]
