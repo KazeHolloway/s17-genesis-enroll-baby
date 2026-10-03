@@ -24,8 +24,8 @@ export const getDossierById = async (id) => {
 };
 
 //  POST : Créer un dossier pour un enfant
-export const createDossier = async (enfant_id, numero_dossier, code_acces_hash, code_expire_at) => {
-  const result = await pool.query(
+export const createDossier = async (enfant_id, numero_dossier, code_acces_hash, code_expire_at, db= pool) => {
+  const result = await db.query(
     `INSERT INTO dossiers (enfant_id, numero_dossier, code_acces_hash, code_expire_at)
      VALUES ($1, $2, $3, $4)
      RETURNING *;`,

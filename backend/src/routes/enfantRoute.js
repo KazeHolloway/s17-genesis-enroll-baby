@@ -5,6 +5,7 @@ import {
   create,
   update,
   remove,
+  register,
 } from '../controllers/enfantController.js';
 import { authentifier, autoriser } from '../middlewares/auth.js';
 
@@ -16,6 +17,7 @@ router.use(authentifier);
 router.get('/', autoriser('agent_maternite', 'admin'), getAll);
 router.get('/:id', autoriser('agent_maternite', 'admin'), getById);
 router.post('/', autoriser('agent_maternite', 'admin'), create);
+router.post('/enregistrement', autoriser('agent_maternite'), register)
 router.put('/:id', autoriser('agent_maternite', 'admin'), update);
 router.delete('/:id', autoriser('admin'), remove);
 
