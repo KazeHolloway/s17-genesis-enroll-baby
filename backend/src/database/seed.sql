@@ -2,6 +2,9 @@
 -- SEED DE DÉVELOPPEMENT LOCAL (seed.sql)
 -- ============================================================================
 
+-- Dit à PostgreSQL de lire le fichier en UTF-8 (important pour les caractères accentués)
+SET client_encoding = 'UTF8';
+
 -- 1. Référentiels fixes (Vaccins et Calendrier)
 
 -- Insertion des vaccins de base
