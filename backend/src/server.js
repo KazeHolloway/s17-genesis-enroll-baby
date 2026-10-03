@@ -9,7 +9,7 @@ pool.query('SELECT NOW()')
     console.log('Connexion à la base de données PostgreSQL réussie!');
     
     app.listen(PORT, () => {
-      console.log(`Serveur démarré sur le port http://localhost:${PORT} 🎯`);
+      console.log(`Serveur démarré sur le port http://localhost:${PORT} `);
     });
   })
   .catch((err) => {

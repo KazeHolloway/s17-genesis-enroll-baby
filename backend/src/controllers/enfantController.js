@@ -5,6 +5,9 @@ import {
   updateNewborn,
   deleteNewborn,
 } from '../models/enfantModel.js';
+import { createDossier } from '../models/dossierModel.js';
+import { genererCodeAcces, hacherCodeAcces } from '../utils/codeAcces.js';
+import { nettoyerTelephone } from './parentController.js';
 
 // Gère les erreurs PostgreSQL les plus courantes
 const handleError = (error, res) => {
@@ -122,6 +125,64 @@ export const remove = async (req, res) => {
     }
 
     res.status(200).json({ message: 'Nouveau-né supprimé' });
+  } catch (error) {
+    handleError(error, res);
+  }
+};
+
+// POST /api/enfants/enregistrement
+export const register = async (req, res) => {
+  try {
+    const { enfant, parents } = req.body;
+
+    if (!enfant || !enfant.nom || !enfant.prenom || !enfant.sexe || !enfant.date_naissance) {
+      return res.status(400).json({
+        message: 'Nom, prénom, sexe et date de naissance de l\'enfant sont obligatoires',
+      });
+    }
+    if (enfant.sexe !== 'M' && enfant.sexe !== 'F') {
+      return res.status(400).json({ message: 'Le sexe doit être M ou F' });
+    }
+    if (enfant.statut_vital && !['vivant', 'mort_ne', 'decede'].includes(enfant.statut_vital)) {
+      return res.status(400).json({ message: 'Statut vital invalide' });
+    }
+    if (!Array.isArray(parents) || parents.length === 0) {
+      return res.status(400).json({ message: 'Au moins un parent est obligatoire' });
+    }
+    for (const p of parents) {
+      if (!p.nom || !p.prenom || !['mere', 'pere', 'tuteur'].includes(p.lien)) {
+        return res.status(400).json({
+          message: 'Chaque parent doit avoir un nom, un prénom et un lien (mere, pere ou tuteur)',
+        });
+      }
+    }
+
+    const doublon = await findDuplicateNewborn(
+      enfant.nom, enfant.prenom, enfant.date_naissance, req.user.etablissement_id
+    );
+    if (doublon) {
+      return res.status(409).json({
+        message: 'Un nouveau-né avec ce nom et cette date de naissance existe déjà',
+        enfant_id: doublon.id,
+      });
+    }
+
+    // Même nettoyage du téléphone que l'inscription du parent
+    const parentsNettoyes = parents.map((p) => ({
+      ...p,
+      telephone: p.telephone ? nettoyerTelephone(p.telephone) : null,
+    }));
+
+    const code = genererCodeAcces();
+    const result = await registerNewborn(
+      { ...enfant, agent_id: req.user.id, etablissement_id: req.user.etablissement_id },
+      parentsNettoyes,
+      hacherCodeAcces(code)
+    );
+
+    // Le code en clair n'est renvoyé qu'ici, une seule fois
+    result.dossier.code_acces = code;
+    res.status(201).json(result);
   } catch (error) {
     handleError(error, res);
   }
