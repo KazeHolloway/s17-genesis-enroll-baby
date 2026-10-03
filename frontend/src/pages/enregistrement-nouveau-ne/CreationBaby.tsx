@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import { postData } from "../../services/api";
 import "./formulaire.css";
 
 function CreationBaby(){
@@ -12,7 +13,7 @@ function CreationBaby(){
     const [vitalstate,setVitalState]=useState("");
     const [photo,setPhoto]=useState<File | null>(null);
 
-   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
         const formData = new FormData(event.currentTarget);
   
@@ -25,7 +26,7 @@ function CreationBaby(){
         const statut_vital=formData.get("statut_vital");
         const taille_naissance=Number(formData.get("taille_naissance"));
         const poids_naissance=Number(formData.get("poids_naissance"));
-        const photo=formData.get("photo");
+        
         
         if(typeof nom!=="string"
         || typeof prenom!=="string" 
@@ -40,21 +41,8 @@ function CreationBaby(){
             return;
         }
 
-        if(!(photo instanceof File)){
-            return;
-        }
+        
 
-        type BabyData={
-            nom:string,
-            prenom:string,
-            sexe:string,
-            taille_naissance:number,
-            poids_naissance:number,
-            date_naissance:string,
-            lieu_naissance:string,
-            statut_vital:string,
-            photo:File
-        }
         const babydata:BabyData={
             nom:nom,
             prenom:prenom,
@@ -64,10 +52,11 @@ function CreationBaby(){
             statut_vital:statut_vital,
             date_naissance:date_naissance,
             lieu_naissance:lieu_naissance,
-            photo:photo
+            
         }
         console.log(babydata);
-
+        const result = await postData("/api/enfants", babydata);
+ 
         }
     return (
         <>
