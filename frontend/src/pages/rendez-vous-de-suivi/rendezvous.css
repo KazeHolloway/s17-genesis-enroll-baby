@@ -1,0 +1,184 @@
+.container-rdv {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1.5rem 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.container-rdv h1 {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #0f766e;
+  margin: 0;
+}
+
+.container-rdv h2 {
+  font-size: 1.25rem;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background-color: #f9fafb;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.98rem;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+}
+
+.form-group textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.btn-primary {
+  align-self: flex-start;
+  padding: 0.65rem 1.5rem;
+  background-color: #0f766e;
+  color: #ffffff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0d615a;
+}
+
+.btn-primary:active {
+  transform: scale(0.995);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.table-rdv {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  min-width: 720px;
+}
+
+.table-rdv thead {
+  background-color: #f3f4f6;
+}
+
+.table-rdv th,
+.table-rdv td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.98rem;
+}
+
+.table-rdv th {
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.85rem;
+}
+
+.table-rdv tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-planifie {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-honore {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge-manque {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-annule {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-rappel-attente {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.badge-rappel-envoye {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge-rappel-annule {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.empty-state {
+  padding: 1.25rem;
+  text-align: center;
+  color: #6b7280;
+}
