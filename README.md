@@ -51,10 +51,15 @@ Enroll-Baby est construit comme si l'établissement de santé et l'état civil �
 - [x] Consulter le calendrier vaccinal de son enfant
 - [x] Consulter son espace parent (informations essentielles, déclaration, prochaine démarche)
 - [x] Voir les rappels des échéances de son enfant
+- [x] Suivre le compte à rebours de 30 jours pour la déclaration de naissance
+- [x] Consulter la déclaration imprimable et le certificat numérique de son enfant
 
 ### Espace établissement de santé
 - [x] Générer le dossier imprimable du nouveau-né
 - [x] Consulter les statistiques de natalité et de mortalité de l'établissement
+- [x] Confirmer l'administration d'un vaccin
+- [x] Générer le code d'accès remis au parent
+- [x] Enregistrer les parents d'un nouveau-né
 
 ### Espace état civil
 - [ ]
