@@ -111,10 +111,10 @@ const RendezVousSuivi = () => {
 
   return (
     <div className="container-rdv">
-      <h1>Rendez-vous de suivi - Rappels de vaccination</h1>
+      <div className="header"><h1>Rendez-vous de suivi - Rappels de vaccination</h1><p className="header-subtitle">Planifiez les rendez-vous de vaccination et suivez l'envoi des rappels 24h avant la date pr�vue.</p></div>
 
       <section className="form-section">
-        <h2>Enregistrer un rendez-vous de vaccination</h2>
+        <div className="section-header"><h2>Enregistrer un rendez-vous de vaccination</h2><p className="section-description">Renseignez les informations du rendez-vous pour permettre le d�clenchement automatique du rappel.</p></div>
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
             <div className="form-group">
@@ -167,7 +167,7 @@ const RendezVousSuivi = () => {
               />
             </div>
 
-            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <div className="form-group" className="form-group span-2">
               <label htmlFor="motif">Motif du rendez-vous *</label>
               <textarea
                 id="motif"
@@ -187,7 +187,7 @@ const RendezVousSuivi = () => {
       </section>
 
       <section className="form-section">
-        <h2>Liste des rendez-vous</h2>
+        <div className="section-header"><h2>Liste des rendez-vous</h2><p className="section-description">Vue synth�tique des rendez-vous planifi�s, honor�s, manqu�s ou annul�s.</p></div>
         <div className="table-wrapper">
           <table className="table-rdv">
             <thead>
