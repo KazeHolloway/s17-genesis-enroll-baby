@@ -2,7 +2,8 @@ import {useState} from 'react';
 import { postData } from "../../services/api";
 import type {BabyData} from "../../lib/types";
 import type {dataParent} from "../../lib/types";
-import "./formulaire.css";
+import logo from "../../assets/logo.png";
+import "./CreationBaby.css";
 
 function CreationBaby(){
     const [name,setName]=useState("");
@@ -15,6 +16,7 @@ function CreationBaby(){
     const [vitalstate,setVitalState]=useState("");
     const [photo,setPhoto]=useState<File | null>(null);
     const [message, setMessage] = useState("");
+    const [messageType, setMessageType] = useState<"success" | "error">("success");
 
 async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
@@ -87,17 +89,56 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
             adresse: mereAdresse,
             lien: "mere",
         };
+        const pere: dataParent = {
+        nom: pereNom,
+        prenom: perePrenom,
+        telephone: pereTelephone,
+        email: pereEmail,
+        adresse: pereAdresse,
+        lien: "pere",
+    };
 
-        await postData("/api/enfants/enregistrements", babydata);
-        setMessage("Nouveau-né enregistré avec succès.");
-            setTimeout(() => {setMessage("");}, 3000);
- 
-        }
+try {
+    await postData("/api/enfants/enregistrement", {
+        enfant: babydata,
+        parents: [mere, pere],
+    });
+
+    setMessageType("success");
+    setMessage("Nouveau-né enregistré avec succès.");
+} catch (error) {
+    setMessageType("error");
+    setMessage("Impossible d'enregistrer le nouveau-né.");
+}
+
+setTimeout(() => {
+    setMessage("");
+}, 3000);
+
+
+         
+}
     return (
         <>
+        <div className="page-enregistrement">
+        <div className="entete-enregistrement">
+        <img src={logo} alt="Logo Enroll Baby" />
         <h1>Enregistrement du nouveau né</h1>
-        <form onSubmit={handleSubmit}>
-            <fieldset>
+
+        {message && (
+            <div className={`message-succes ${messageType}`}>
+                <span className="message-icon">
+                    {messageType === "success" ? "✓" : "!"}
+                </span>
+
+                <span>{message}</span>
+            </div>
+        )}
+
+
+        </div>
+        <form onSubmit={handleSubmit} className="formulaire-enregistrement">
+            <fieldset className="formulaire-bebe">
                 <legend>Information du nouveau né</legend>
                 <label htmlFor="nom">Nom:</label>
                 <input placeholder="Entrez le nom du nouveau-né" type="text" id="nom" name="nom" value={name} onChange={(event)=>
@@ -154,7 +195,8 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
                     }
                 }}/>
             </fieldset>
-            <fieldset>
+            <div className="formulaires-parents">
+            <fieldset className="formulaire-parent">
                 <legend>Informations de la mère</legend>
 
                 <label htmlFor="mere_nom">Nom :</label>
@@ -197,7 +239,7 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
                     placeholder="Entrez l'adresse de la mère"
                 />
         </fieldset>
-        <fieldset>
+        <fieldset className="formulaire-parent">
             <legend>Informations du père</legend>
 
             <label htmlFor="pere_nom">Nom :</label>
@@ -240,13 +282,12 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
                 placeholder="Entrez l'adresse du père"
             />
         </fieldset>
+        </div>
         <button type='submit'>Valider</button>
         </form>
-        {message && (
-        <div className="notification">
-            {message}
-        </div>
-    )}
+
+
+    </div>
         </>
     );
 }
