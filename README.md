@@ -43,7 +43,6 @@ Enroll-Baby est construit comme si l'établissement de santé et l'état civil �
 
 ## Fonctionnalités
 
-*(à compléter au fil du sprint, une fois le backlog du BA disponible*
 
 ### Espace parents
 - [x] Créer son compte à partir du code d'accès remis à la maternité
@@ -60,6 +59,7 @@ Enroll-Baby est construit comme si l'établissement de santé et l'état civil �
 - [x] Confirmer l'administration d'un vaccin
 - [x] Générer le code d'accès remis au parent
 - [x] Enregistrer les parents d'un nouveau-né
+- [x] Planifier, modifier ou annuler un rendez-vous de suivi (rappel 24 h avant pour le parent)
 
 ### Espace état civil
 - [ ]
@@ -69,7 +69,12 @@ Enroll-Baby est construit comme si l'établissement de santé et l'état civil �
 
 ## Public visé
 
-*(à préciser avec le PM : parents, personnel de santé, agents d'état civil)*
+Le produit s'adresse à quatre profils :
+
+- **Les parents** d'un nouveau-né (cible principale), avec un smartphone d'entrée de gamme.
+- **Les parents sans smartphone ou sans internet**, qui utilisent le dossier papier imprimé par la maternité.
+- **Les agents de maternité** (sages-femmes), qui enregistrent l'enfant et ses parents une seule fois.
+- **Les responsables d'établissement**, qui consultent les statistiques de natalité et de mortalité.
 
 ## Stack technique
 
@@ -281,7 +286,13 @@ Le détail complet est dans [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Comment utiliser
 
-*(à compléter une fois les premières pages fonctionnelles : parcours type d'un parent, d'un agent de santé, etc.)*
+1. Lancer le projet avec `npm run dev` (voir la section Démarrage en Développement).
+2. **Agent de maternité :** se connecter avec `+242060000001` / `Agent123!`, enregistrer un nouveau-né et ses parents, puis noter le **code d'accès** affiché (il n'est montré qu'une seule fois).
+3. **Parent :** créer son compte avec ce code d'accès, puis se connecter pour voir le dossier de son enfant, le compte à rebours de 30 jours, le calendrier vaccinal et les rappels.
+4. **Compte parent de test déjà prêt :** `+242061000010` / `Parent123!`.
+5. **Administrateur :** `+242060000002` / `Admin123!` (statistiques de l'établissement).
+
+La liste complète des routes de l'API est dans [`backend/BACKEND-API.md`](backend/BACKEND-API.md).
 
 ## Organisation de la Squad 6 - Genesis
 
