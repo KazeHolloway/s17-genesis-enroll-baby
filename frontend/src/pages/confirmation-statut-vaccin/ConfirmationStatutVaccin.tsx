@@ -17,39 +17,48 @@ interface VaccinationPrevue {
   updated_at?: string;
 }
 
+const JOUR_MS = 24 * 60 * 60 * 1000;
+const INSTANT_DE_REFERENCE = Date.now();
+
+const dansXJours = (jours: number) =>
+  new Date(INSTANT_DE_REFERENCE + jours * JOUR_MS).toISOString();
+
+const VACCINATIONS_INITIALES: VaccinationPrevue[] = [
+  {
+    id: 1,
+    enfant_id: 1,
+    enfant_prenom: 'Aminata',
+    enfant_nom: 'Diallo',
+    vaccin_nom: 'BCG',
+    dose_numero: 1,
+    date_prevue: dansXJours(2),
+    statut: 'a_venir',
+  },
+  {
+    id: 2,
+    enfant_id: 1,
+    enfant_prenom: 'Aminata',
+    enfant_nom: 'Diallo',
+    vaccin_nom: 'DTP',
+    dose_numero: 1,
+    date_prevue: dansXJours(10),
+    statut: 'a_venir',
+  },
+  {
+    id: 3,
+    enfant_id: 2,
+    enfant_prenom: 'Khalil',
+    enfant_nom: 'Mba',
+    vaccin_nom: 'Polio',
+    dose_numero: 1,
+    date_prevue: dansXJours(-3),
+    statut: 'en_retard',
+  },
+];
+
 const ConfirmationStatutVaccin = () => {
-  const [vaccinations, setVaccinations] = useState<VaccinationPrevue[]>([
-    {
-      id: 1,
-      enfant_id: 1,
-      enfant_prenom: 'Aminata',
-      enfant_nom: 'Diallo',
-      vaccin_nom: 'BCG',
-      dose_numero: 1,
-      date_prevue: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-      statut: 'a_venir',
-    },
-    {
-      id: 2,
-      enfant_id: 1,
-      enfant_prenom: 'Aminata',
-      enfant_nom: 'Diallo',
-      vaccin_nom: 'DTP',
-      dose_numero: 1,
-      date_prevue: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
-      statut: 'a_venir',
-    },
-    {
-      id: 3,
-      enfant_id: 2,
-      enfant_prenom: 'Khalil',
-      enfant_nom: 'Mba',
-      vaccin_nom: 'Polio',
-      dose_numero: 1,
-      date_prevue: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      statut: 'en_retard',
-    },
-  ]);
+  const [vaccinations, setVaccinations] =
+    useState<VaccinationPrevue[]>(VACCINATIONS_INITIALES);
 
   const [selectedEnfantId, setSelectedEnfantId] = useState<number | ''>('');
 
