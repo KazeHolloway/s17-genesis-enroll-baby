@@ -1,5 +1,7 @@
 import {useState} from 'react';
 import { postData } from "../../services/api";
+import type {BabyData} from "../../lib/types";
+import type {dataParent} from "../../lib/types";
 import "./formulaire.css";
 
 function CreationBaby(){
@@ -12,6 +14,7 @@ function CreationBaby(){
     const [height,setHeight]=useState("");
     const [vitalstate,setVitalState]=useState("");
     const [photo,setPhoto]=useState<File | null>(null);
+    const [message, setMessage] = useState("");
 
 async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
@@ -27,6 +30,17 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         const taille_naissance=Number(formData.get("taille_naissance"));
         const poids_naissance=Number(formData.get("poids_naissance"));
         
+        const mereNom = formData.get("mere_nom");
+        const merePrenom = formData.get("mere_prenom");
+        const mereTelephone = formData.get("mere_telephone");
+        const mereEmail = formData.get("mere_email");
+        const mereAdresse = formData.get("mere_adresse");
+
+        const pereNom = formData.get("pere_nom");
+        const perePrenom = formData.get("pere_prenom");
+        const pereTelephone = formData.get("pere_telephone");
+        const pereEmail = formData.get("pere_email");
+        const pereAdresse = formData.get("pere_adresse");
         
         if(typeof nom!=="string"
         || typeof prenom!=="string" 
@@ -42,6 +56,17 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         }
 
         
+        if ( typeof mereNom !== "string" 
+            || typeof merePrenom !== "string" 
+            || typeof mereTelephone !== "string"
+            || typeof mereEmail !== "string" 
+            || typeof mereAdresse !== "string" 
+            || typeof pereNom !== "string" 
+            || typeof perePrenom !== "string" 
+            || typeof pereTelephone !== "string" 
+            || typeof pereEmail !== "string" 
+            || typeof pereAdresse !== "string" ) {
+                 return; }
 
         const babydata:BabyData={
             nom:nom,
@@ -54,8 +79,18 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
             lieu_naissance:lieu_naissance,
             
         }
-        console.log(babydata);
-        const result = await postData("/api/enfants", babydata);
+        const mere: dataParent = {
+            nom: mereNom,
+            prenom: merePrenom,
+            telephone: mereTelephone,
+            email: mereEmail,
+            adresse: mereAdresse,
+            lien: "mere",
+        };
+
+        await postData("/api/enfants/enregistrements", babydata);
+        setMessage("Nouveau-né enregistré avec succès.");
+            setTimeout(() => {setMessage("");}, 3000);
  
         }
     return (
@@ -119,8 +154,99 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
                     }
                 }}/>
             </fieldset>
-            <button type='submit'>Valider</button>
+            <fieldset>
+                <legend>Informations de la mère</legend>
+
+                <label htmlFor="mere_nom">Nom :</label>
+                <input
+                    type="text"
+                    id="mere_nom"
+                    name="mere_nom"
+                    placeholder="Entrez le nom de la mère"
+                />
+
+                <label htmlFor="mere_prenom">Prénom :</label>
+                <input
+                    type="text"
+                    id="mere_prenom"
+                    name="mere_prenom"
+                    placeholder="Entrez le prénom de la mère"
+                />
+
+                <label htmlFor="mere_telephone">Téléphone :</label>
+                <input
+                    type="tel"
+                    id="mere_telephone"
+                    name="mere_telephone"
+                    placeholder="Entrez le téléphone de la mère"
+                />
+
+                <label htmlFor="mere_email">Email :</label>
+                <input
+                    type="email"
+                    id="mere_email"
+                    name="mere_email"
+                    placeholder="Entrez l'email de la mère"
+                />
+
+                <label htmlFor="mere_adresse">Adresse :</label>
+                <input
+                    type="text"
+                    id="mere_adresse"
+                    name="mere_adresse"
+                    placeholder="Entrez l'adresse de la mère"
+                />
+        </fieldset>
+        <fieldset>
+            <legend>Informations du père</legend>
+
+            <label htmlFor="pere_nom">Nom :</label>
+            <input
+                type="text"
+                id="pere_nom"
+                name="pere_nom"
+                placeholder="Entrez le nom du père"
+            />
+
+            <label htmlFor="pere_prenom">Prénom :</label>
+            <input
+                type="text"
+                id="pere_prenom"
+                name="pere_prenom"
+                placeholder="Entrez le prénom du père"
+            />
+
+            <label htmlFor="pere_telephone">Téléphone :</label>
+            <input
+                type="tel"
+                id="pere_telephone"
+                name="pere_telephone"
+                placeholder="Entrez le téléphone du père"
+            />
+
+            <label htmlFor="pere_email">Email :</label>
+            <input
+                type="email"
+                id="pere_email"
+                name="pere_email"
+                placeholder="Entrez l'email du père"
+            />
+
+            <label htmlFor="pere_adresse">Adresse :</label>
+            <input
+                type="text"
+                id="pere_adresse"
+                name="pere_adresse"
+                placeholder="Entrez l'adresse du père"
+            />
+        </fieldset>
+        <button type='submit'>Valider</button>
         </form>
+        {message && (
+        <div className="notification">
+            {message}
+        </div>
+    )}
         </>
     );
 }
