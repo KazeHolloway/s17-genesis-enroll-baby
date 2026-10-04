@@ -43,15 +43,23 @@ Enroll-Baby est construit comme si l'établissement de santé et l'état civil �
 
 ## Fonctionnalités
 
-*(à compléter au fil du sprint, une fois le backlog du BA disponible*
 
 ### Espace parents
 - [x] Créer son compte à partir du code d'accès remis à la maternité
 - [x] Se connecter
 - [x] Consulter le calendrier vaccinal de son enfant
+- [x] Consulter son espace parent (informations essentielles, déclaration, prochaine démarche)
+- [x] Voir les rappels des échéances de son enfant
+- [x] Suivre le compte à rebours de 30 jours pour la déclaration de naissance
+- [x] Consulter la déclaration imprimable et le certificat numérique de son enfant
 
 ### Espace établissement de santé
-- [ ]
+- [x] Générer le dossier imprimable du nouveau-né
+- [x] Consulter les statistiques de natalité et de mortalité de l'établissement
+- [x] Confirmer l'administration d'un vaccin
+- [x] Générer le code d'accès remis au parent
+- [x] Enregistrer les parents d'un nouveau-né
+- [x] Planifier, modifier ou annuler un rendez-vous de suivi (rappel 24 h avant pour le parent)
 
 ### Espace état civil
 - [ ]
@@ -61,7 +69,12 @@ Enroll-Baby est construit comme si l'établissement de santé et l'état civil �
 
 ## Public visé
 
-*(à préciser avec le PM : parents, personnel de santé, agents d'état civil)*
+Le produit s'adresse à quatre profils :
+
+- **Les parents** d'un nouveau-né (cible principale), avec un smartphone d'entrée de gamme.
+- **Les parents sans smartphone ou sans internet**, qui utilisent le dossier papier imprimé par la maternité.
+- **Les agents de maternité** (sages-femmes), qui enregistrent l'enfant et ses parents une seule fois.
+- **Les responsables d'établissement**, qui consultent les statistiques de natalité et de mortalité.
 
 ## Stack technique
 
@@ -88,6 +101,8 @@ s17-genesis-enroll-baby/
 │   │   │
 │   │   ├── middlewares/
 │   │   │
+│   │   ├── models/
+│   │   │
 │   │   ├── routes/
 │   │   │
 │   │   ├── utils/
@@ -95,6 +110,8 @@ s17-genesis-enroll-baby/
 │   │   ├── app.js
 │   │   └── server.js
 │   │
+│   ├── .env.example
+│   ├── BACKEND-API.md
 │   ├── package-lock.json
 │   └── package.json
 │
@@ -135,6 +152,8 @@ s17-genesis-enroll-baby/
 │   └── vite.config.ts
 │
 ├── .gitignore
+├── CHANGELOG.md
+├── CONTRIBUTING.md
 ├── package-lock.json
 ├── package.json
 └── README.md
@@ -155,8 +174,8 @@ Assurez-vous d'avoir installé sur votre machine :
 1. **Cloner le projet :**
 
    ```bash
-   git clone <URL_DU_REPO_GITHUB>
-   cd anroll-baby
+   git clone https://github.com/KazeHolloway/s17-genesis-enroll-baby.git
+   cd s17-genesis-enroll-baby
    ```
 
 2. **Installer toutes les dépendances (Front + Back) en une seule commande :**
@@ -172,7 +191,15 @@ Assurez-vous d'avoir installé sur votre machine :
    - Créez un fichier `.env` dans le dossier `backend/` (en vous basant sur `backend/.env.example`).
    - Créez un fichier `.env` dans le dossier `frontend/` si nécessaire.
 
----
+4. **Créer la base de données PostgreSQL avec des données de test :**
+
+```bash
+   psql -U postgres -c "CREATE DATABASE enroll_baby"
+   psql -U postgres -d enroll_baby -f backend/src/database/schema.sql
+   psql -U postgres -d enroll_baby -f backend/src/database/seed.sql
+```
+
+   > _Le fichier `seed.sql` s'exécute sur une base vide. Il crée un agent de maternité, un administrateur, un compte parent et quatre nouveau-nés de test (comptes et codes d'accès détaillés dans [`backend/BACKEND-API.md`](backend/BACKEND-API.md))._
 
 ---
 
@@ -251,13 +278,21 @@ npm run build:back
 1. **Branches Git :** Créez une branche par fonctionnalité en respectant le nommage :
    - Ex: `feature/US-01-enregistrement-enfant`
    - Ex: `fix/US-04-compte-a-rebours`
-2. **Commits :** Faites des commits clairs et explicites.
-3. **Pull Requests :** Soumettez votre PR vers `develop` pour relecture avant fusion.
+2. **Commits :** Suivez la convention `type: description` (`feat`, `fix`, `docs`, `chore`...), en minuscules et sans accents.
+3. **Pull Requests :** Soumettez votre PR vers `dev` pour relecture avant fusion. Ne poussez jamais directement sur `dev` ni sur `main`.
+
+Le détail complet est dans [CONTRIBUTING.md](CONTRIBUTING.md).
 
 
 ## Comment utiliser
 
-*(à compléter une fois les premières pages fonctionnelles : parcours type d'un parent, d'un agent de santé, etc.)*
+1. Lancer le projet avec `npm run dev` (voir la section Démarrage en Développement).
+2. **Agent de maternité :** se connecter avec `+242060000001` / `Agent123!`, enregistrer un nouveau-né et ses parents, puis noter le **code d'accès** affiché (il n'est montré qu'une seule fois).
+3. **Parent :** créer son compte avec ce code d'accès, puis se connecter pour voir le dossier de son enfant, le compte à rebours de 30 jours, le calendrier vaccinal et les rappels.
+4. **Compte parent de test déjà prêt :** `+242061000010` / `Parent123!`.
+5. **Administrateur :** `+242060000002` / `Admin123!` (statistiques de l'établissement).
+
+La liste complète des routes de l'API est dans [`backend/BACKEND-API.md`](backend/BACKEND-API.md).
 
 ## Organisation de la Squad 6 - Genesis
 
@@ -277,8 +312,8 @@ npm run build:back
 
 | Dev | Page(s) | Statut |
 |---|---|---|
-| Christophe Darly MASSAMBA BOUESSO | | |
-| Dorcasse Benicia MOUSSANA | | |
+| Christophe Darly MASSAMBA BOUESSO | Backend : calendrier vaccinal (US-05), rappels (US-06), espace parent (US-07), dossier imprimable (US-08), déclaration et certificat (US-03), compte à rebours (US-04), confirmation d'un vaccin (US-09), compte parent (US-10), connexion (US-11), statistiques (US-13). Schéma et seed de la base, gestion du dépôt | Terminé |
+| Dorcasse Benicia MOUSSANA | Backend : base du projet, enregistrement du nouveau-né et des parents (US-01), dossier du nouveau-né (US-02), middleware d'authentification, rendez-vous de suivi (US-12) | Terminé |
 | Aristote BABA | | |
 | Rolvi MIKOLO | | |
 | Val Clancy PEDRO | | |

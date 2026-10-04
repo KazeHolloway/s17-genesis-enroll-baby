@@ -1,4 +1,5 @@
 import pool from '../config/db.js';
+import { createDossier } from './dossierModel.js';
 
 // Récupérer tous les nouveau-nés
 export const getAllNewborns = async () => {
@@ -20,9 +21,9 @@ export const getNewbornById = async (id) => {
   return result.rows[0];
 };
 
-// Ajouter un nouveau-né
-export const createNewborn = async (data) => {
-  const result = await pool.query(
+// Ajouter un nouveau-né (db = connexion de la transaction, sinon le pool normal)
+export const createNewborn = async (data, db = pool) => {
+  const result = await db.query(
     `INSERT INTO enfants
        (nom, prenom, sexe, date_naissance, lieu_naissance, photo_url,
         poids_naissance, taille_naissance, statut_vital, etablissement_id, agent_id)
@@ -37,7 +38,6 @@ export const createNewborn = async (data) => {
       data.photo_url,
       data.poids_naissance,
       data.taille_naissance,
-      // Sans statut vital envoyé, on applique la valeur par défaut 'vivant'
       data.statut_vital ?? 'vivant',
       data.etablissement_id,
       data.agent_id,
@@ -84,4 +84,66 @@ export const deleteNewborn = async (id) => {
     [id]
   );
   return result.rows[0];
+};
+
+// ===== NOUVEAU : enregistrement complet (enfant + parents + dossier) =====
+
+// Ajouter la fiche d'un parent (saisie par l'agent)
+const createParent = async (data, db) => {
+  const result = await db.query(
+    `INSERT INTO parents (nom, prenom, telephone, email, adresse)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING *`,
+    [data.nom, data.prenom, data.telephone, data.email, data.adresse]
+  );
+  return result.rows[0];
+};
+
+// Lier un parent à un enfant (mere, pere ou tuteur)
+const linkParentToChild = async (enfantId, parentId, lien, db) => {
+  await db.query(
+    `INSERT INTO enfant_parents (enfant_id, parent_id, lien) VALUES ($1, $2, $3)`,
+    [enfantId, parentId, lien]
+  );
+};
+
+// Vérifier si l'enfant existe déjà (évite le doublon)
+export const findDuplicateNewborn = async (nom, prenom, date_naissance, etablissement_id) => {
+  const result = await pool.query(
+    `SELECT id FROM enfants
+     WHERE LOWER(nom) = LOWER($1) AND LOWER(prenom) = LOWER($2)
+       AND date_naissance = $3 AND etablissement_id = $4`,
+    [nom, prenom, date_naissance, etablissement_id]
+  );
+  return result.rows[0];
+};
+
+// Enregistrer enfant + parents + dossier : tout ou rien (transaction)
+export const registerNewborn = async (enfant, parents, codeHash) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const newborn = await createNewborn(enfant, client);
+
+    const savedParents = [];
+    for (const p of parents) {
+      const parent = await createParent(p, client);
+      await linkParentToChild(newborn.id, parent.id, p.lien, client);
+      savedParents.push({ ...parent, lien: p.lien });
+    }
+
+    const annee = new Date().getFullYear();
+    const numero_dossier = `EB-${annee}-${String(newborn.id).padStart(6, '0')}`;
+    const dossier = await createDossier(newborn.id, numero_dossier, codeHash, null, client);
+    const { code_acces_hash, ...dossierSansHash } = dossier;   // le hash ne sort jamais
+
+    await client.query('COMMIT');
+    return { enfant: newborn, parents: savedParents, dossier: dossierSansHash };
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
 };
