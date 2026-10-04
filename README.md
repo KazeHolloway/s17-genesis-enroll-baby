@@ -96,6 +96,8 @@ s17-genesis-enroll-baby/
 │   │   │
 │   │   ├── middlewares/
 │   │   │
+│   │   ├── models/
+│   │   │
 │   │   ├── routes/
 │   │   │
 │   │   ├── utils/
@@ -103,6 +105,8 @@ s17-genesis-enroll-baby/
 │   │   ├── app.js
 │   │   └── server.js
 │   │
+│   ├── .env.example
+│   ├── BACKEND-API.md
 │   ├── package-lock.json
 │   └── package.json
 │
@@ -143,6 +147,8 @@ s17-genesis-enroll-baby/
 │   └── vite.config.ts
 │
 ├── .gitignore
+├── CHANGELOG.md
+├── CONTRIBUTING.md
 ├── package-lock.json
 ├── package.json
 └── README.md
@@ -163,8 +169,8 @@ Assurez-vous d'avoir installé sur votre machine :
 1. **Cloner le projet :**
 
    ```bash
-   git clone <URL_DU_REPO_GITHUB>
-   cd anroll-baby
+   git clone https://github.com/KazeHolloway/s17-genesis-enroll-baby.git
+   cd s17-genesis-enroll-baby
    ```
 
 2. **Installer toutes les dépendances (Front + Back) en une seule commande :**
@@ -180,7 +186,15 @@ Assurez-vous d'avoir installé sur votre machine :
    - Créez un fichier `.env` dans le dossier `backend/` (en vous basant sur `backend/.env.example`).
    - Créez un fichier `.env` dans le dossier `frontend/` si nécessaire.
 
----
+4. **Créer la base de données PostgreSQL avec des données de test :**
+
+```bash
+   psql -U postgres -c "CREATE DATABASE enroll_baby"
+   psql -U postgres -d enroll_baby -f backend/src/database/schema.sql
+   psql -U postgres -d enroll_baby -f backend/src/database/seed.sql
+```
+
+   > _Le fichier `seed.sql` s'exécute sur une base vide. Il crée un agent de maternité, un administrateur, un compte parent et quatre nouveau-nés de test (comptes et codes d'accès détaillés dans [`backend/BACKEND-API.md`](backend/BACKEND-API.md))._
 
 ---
 
@@ -259,8 +273,10 @@ npm run build:back
 1. **Branches Git :** Créez une branche par fonctionnalité en respectant le nommage :
    - Ex: `feature/US-01-enregistrement-enfant`
    - Ex: `fix/US-04-compte-a-rebours`
-2. **Commits :** Faites des commits clairs et explicites.
-3. **Pull Requests :** Soumettez votre PR vers `develop` pour relecture avant fusion.
+2. **Commits :** Suivez la convention `type: description` (`feat`, `fix`, `docs`, `chore`...), en minuscules et sans accents.
+3. **Pull Requests :** Soumettez votre PR vers `dev` pour relecture avant fusion. Ne poussez jamais directement sur `dev` ni sur `main`.
+
+Le détail complet est dans [CONTRIBUTING.md](CONTRIBUTING.md).
 
 
 ## Comment utiliser
