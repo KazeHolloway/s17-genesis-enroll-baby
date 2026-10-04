@@ -6,3 +6,10 @@ export interface CustomButtonProps {
   handleClick?: MouseEventHandler<HTMLButtonElement>;
   btnType?: "button" | "submit";
 }
+
+export interface Parent {
+  name: string;
+  phone: string;
+  email: string;
+  nbreEnfants: number;
+}

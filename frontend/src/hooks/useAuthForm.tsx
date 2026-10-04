@@ -3,11 +3,12 @@ import { useState } from "react";
 
 export function useAuthForm() {
   // --- État du formulaire ---
-  const [role, setRole] = useState<"parent" | "professionnel">("parent");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [codeOtp, setCodeOtp] = useState("");
   const [cgu, setCgu] = useState(false);
 
   // --- État UI ---
@@ -17,18 +18,20 @@ export function useAuthForm() {
   // --- Reset (utile après soumission ou changement de page) ---
   const reset = () => {
     setName("");
+    setPhone("");
     setEmail("");
     setPassword("");
     setConfirmPassword("");
     setCgu(false);
     setMessage("");
+    setCodeOtp("");
   };
 
   return {
-    role,
-    setRole,
     name,
     setName,
+    phone,
+    setPhone,
     email,
     setEmail,
     password,
@@ -41,6 +44,8 @@ export function useAuthForm() {
     setIsLoading,
     message,
     setMessage,
+    codeOtp,
+    setCodeOtp,
     reset,
   };
 }

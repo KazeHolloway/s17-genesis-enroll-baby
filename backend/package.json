@@ -21,6 +21,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.12.1",
+    "napi-postinstall": "^0.3.4",
     "pg": "^8.23.1"
   },
   "devDependencies": {

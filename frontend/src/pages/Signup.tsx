@@ -4,13 +4,14 @@ import { Link } from "react-router-dom";
 import { useAuthForm } from "../hooks/useAuthForm";
 import { PasswordInput } from "../components/ui/auth/PasswordInput";
 import logo from "../assets/logo.png";
+import { register } from "../services/api";
 
 const Signup = () => {
   const {
-    role,
-    setRole,
     name,
     setName,
+    phone,
+    setPhone,
     email,
     setEmail,
     password,
@@ -23,26 +24,49 @@ const Signup = () => {
     setIsLoading,
     message,
     setMessage,
+    codeOtp,
+    setCodeOtp,
     reset,
   } = useAuthForm();
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (
+    e: React.SubmitEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
-    if (!name || !email || !password || !confirmPassword || !cgu) {
-      setMessage("Veuillez remplir et cochez tous les champs");
+    if (!name || !phone || !password) {
+      setMessage("Veuillez remplir tous les champs");
+      return;
+    }
+    if (!cgu) {
+      setMessage("Veuillez cocher la case des CGU");
       return;
     }
     if (password !== confirmPassword) {
       setMessage("Les deux mots de passes doivent etre identiques");
       return;
     }
+
     setIsLoading(true);
     setMessage("Enregistrement en cours...");
-    // TODO: call your API here
-    // await fetch(...)
-    setIsLoading(false);
-    setMessage("Enregistrement réussi !");
-    reset();
+
+    try {
+      await register({
+        code_acces: codeOtp,
+        nom: name,
+        telephone: phone,
+        email,
+        mot_de_passe: password,
+      });
+      setMessage("Enregistrement réussi !");
+      reset();
+      // navigate("/dashboard");
+    } catch (err) {
+      setMessage(
+        err instanceof Error ? err.message : "Une erreur est survenue",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <section className="bg-login min-h-screen w-full flex items-center justify-center p-4">
@@ -59,25 +83,6 @@ const Signup = () => {
             Pour accéder à votre espace personnel et recevoir les rappels de
             vaccination
           </p>
-        </div>
-
-        {/* Role toggle */}
-        <div className="flex rounded-lg border border-primary/20 overflow-hidden">
-          <CustomButton
-            className="flex-1 rounded-none border-0"
-            variant={role === "parent" ? "tab-active" : "tab"}
-            onClick={() => setRole("parent")}
-          >
-            Parent
-          </CustomButton>
-          <CustomButton
-            type="button"
-            variant={role === "professionnel" ? "tab-active" : "tab"}
-            className="flex-1 rounded-none border-0"
-            onClick={() => setRole("professionnel")}
-          >
-            Professionnel de Santé
-          </CustomButton>
         </div>
 
         <form className="flex flex-col gap-5 w-full" onSubmit={handleSubmit}>
@@ -99,6 +104,22 @@ const Signup = () => {
           </div>
 
           <div className="form-group">
+            <label className="text-sm font-medium text-primary">
+              Numero de telephone
+            </label>
+            <input
+              type="text"
+              className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
+              placeholder="Ex: 242 06 600 00 00"
+              value={phone}
+              onChange={(e) => {
+                setPhone(e.target.value);
+              }}
+              required
+            />
+          </div>
+
+          <div className="form-group">
             <label className="text-sm font-medium text-primary">Email</label>
             <input
               type="email"
@@ -108,7 +129,6 @@ const Signup = () => {
               onChange={(e) => {
                 setEmail(e.target.value);
               }}
-              required
             />
           </div>
 
@@ -125,6 +145,19 @@ const Signup = () => {
             onChange={setConfirmPassword}
             placeholder="Confirmer le mot de passe"
           />
+          <div className="form-group">
+            <label className="text-sm font-medium text-primary">Code OTP</label>
+            <input
+              type="text"
+              className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
+              placeholder="Votre acode OTP"
+              value={codeOtp}
+              onChange={(e) => {
+                setCodeOtp(e.target.value);
+              }}
+              required
+            />
+          </div>
 
           {/* Checkbox */}
           <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none">

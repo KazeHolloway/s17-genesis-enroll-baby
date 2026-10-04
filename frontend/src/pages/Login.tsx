@@ -1,14 +1,12 @@
 import CustomButton from "../components/ui/CustomButton";
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuthForm } from "../hooks/useAuthForm";
 import { PasswordInput } from "../components/ui/auth/PasswordInput";
 import logo from "../assets/logo.png";
 
 const Login = () => {
   const {
-    role,
-    setRole,
     email,
     setEmail,
     password,
@@ -18,6 +16,8 @@ const Login = () => {
     message,
     setMessage,
   } = useAuthForm();
+  const { pathname } = useLocation();
+  const isPro = pathname.startsWith("/pro");
 
   // Handlesubmit
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>): void => {
@@ -49,25 +49,9 @@ const Login = () => {
             vaccination
           </p>
         </div>
-
-        {/* Role toggle */}
-        <div className="flex rounded-lg border border-primary/20 overflow-hidden">
-          <CustomButton
-            className="flex-1 rounded-none border-0"
-            variant={role === "parent" ? "tab-active" : "tab"}
-            onClick={() => setRole("parent")}
-          >
-            Parent
-          </CustomButton>
-          <CustomButton
-            type="button"
-            variant={role === "professionnel" ? "tab-active" : "tab"}
-            className="flex-1 rounded-none border-0"
-            onClick={() => setRole("professionnel")}
-          >
-            Professionnel de Santé
-          </CustomButton>
-        </div>
+        <h1>{isPro ? "Connexion Professionnel" : "Connexion Parent"}</h1>
+        {/* ...form... */}
+        <p></p>
 
         <form className="flex flex-col gap-5 w-full" onSubmit={handleSubmit}>
           {/* Inputs */}
@@ -108,15 +92,16 @@ const Login = () => {
         </form>
 
         {/* Footer link */}
-        <p className="text-sm text-muted-foreground">
-          Pas de compte ?{" "}
-          <Link
-            to="/signup"
-            className="text-primary font-semibold hover:underline"
-          >
-            Creer un compte
-          </Link>
-        </p>
+
+        {isPro ? (
+          <p className="text-sm text-muted-foreground">
+            Pas de compte ? <Link to="/pro/signup">Créer un compte</Link>
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Pas de compte ? <Link to="/signup/parent">Créer un compte</Link>
+          </p>
+        )}
 
         <div>
           <p>{email}</p>
