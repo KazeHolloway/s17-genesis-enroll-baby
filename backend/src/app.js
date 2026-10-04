@@ -13,8 +13,6 @@ import statistiquesRoute from './routes/statistiquesRoute.js';
 import vaccinationRoute from './routes/vaccinationRoute.js';
 import declarationRoute from './routes/declarationRoute.js';
 import certificatRoute from './routes/certificatRoute.js';
-import codeAccesRoute from './routes/codeAccesRoute.js';
-import enfantParentsRoute from './routes/enfantParentsRoute.js';
 import rendezVousRoute from './routes/rendezVousRoute.js'
 
 
@@ -38,8 +36,6 @@ app.use('/api/statistiques', statistiquesRoute);
 app.use('/api/vaccinations', vaccinationRoute);
 app.use('/api/declarations', declarationRoute);
 app.use('/api/certificats', certificatRoute);
-app.use('/api/dossiers', codeAccesRoute);
-app.use('/api/enfants', enfantParentsRoute);
 app.use('/api/rendez-vous', rendezVousRoute)
 
 // --- Route de test de santé (Health check) ---
