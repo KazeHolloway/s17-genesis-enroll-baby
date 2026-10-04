@@ -312,8 +312,8 @@ La liste complète des routes de l'API est dans [`backend/BACKEND-API.md`](backe
 
 | Dev | Page(s) | Statut |
 |---|---|---|
-| Christophe Darly MASSAMBA BOUESSO | | |
-| Dorcasse Benicia MOUSSANA | | |
+| Christophe Darly MASSAMBA BOUESSO | Backend : calendrier vaccinal (US-05), rappels (US-06), espace parent (US-07), dossier imprimable (US-08), déclaration et certificat (US-03), compte à rebours (US-04), confirmation d'un vaccin (US-09), compte parent (US-10), connexion (US-11), statistiques (US-13). Schéma et seed de la base, gestion du dépôt | Terminé |
+| Dorcasse Benicia MOUSSANA | Backend : base du projet, enregistrement du nouveau-né et des parents (US-01), dossier du nouveau-né (US-02), middleware d'authentification, rendez-vous de suivi (US-12) | Terminé |
 | Aristote BABA | | |
 | Rolvi MIKOLO | | |
 | Val Clancy PEDRO | | |
