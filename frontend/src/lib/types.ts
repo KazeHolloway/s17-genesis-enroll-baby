@@ -1,4 +1,5 @@
 export type BabyData = {
+  id:number;
   nom: string;
   prenom: string;
   sexe: string;
