@@ -35,14 +35,21 @@ async function request<T>(
 }
 
 // --- Auth ---
-export const login = (credentials: { phone: string; password: string }) =>
-  request<{ token: string; user: object }>("/auth/login", {
-    method: "POST",
-    body: JSON.stringify({
-      telephone: credentials.phone,
-      mot_de_passe: credentials.password,
-    }),
-  });
+export const login = (credentials: {
+  phone: string;
+  password: string;
+  isPro: boolean;
+}) =>
+  request<{ token: string; user: object }>(
+    credentials.isPro ? "/auth/login/professionnel" : "/auth/login/parent",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        telephone: credentials.phone,
+        mot_de_passe: credentials.password,
+      }),
+    },
+  );
 
 export const register = (payload: {
   code_acces: string;
@@ -52,6 +59,20 @@ export const register = (payload: {
   mot_de_passe: string;
 }) =>
   request<{ token: string; user: object }>("/parents/inscription", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+// pro
+export const registerPro = (payload: {
+  nom: string;
+  telephone: string;
+  email: string;
+  rpps: string;
+  etablissement: string;
+  mot_de_passe: string;
+}) =>
+  request<{ token: string; user: object }>("/auth/register/professionnel", {
     method: "POST",
     body: JSON.stringify(payload),
   });

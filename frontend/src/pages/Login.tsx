@@ -34,7 +34,7 @@ const Login = () => {
     setMessage("Connexion en cours...");
     // API Call
     try {
-      await login({ phone, password });
+      await login({ phone, password, isPro });
       setMessage("Connexion réussie !");
       navigate("/dashboard");
     } catch (error) {
@@ -109,15 +109,17 @@ const Login = () => {
 
         {/* Footer link */}
 
-        {isPro ? (
-          <p className="text-sm text-muted-foreground">
-            Pas de compte ? <Link to="/pro/signup">Créer un compte</Link>
-          </p>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            Pas de compte ? <Link to="/signup">Créer un compte</Link>
-          </p>
-        )}
+        <p className="text-sm text-muted-foreground">
+          {isPro ? (
+            <>
+              Pas de compte ? <Link to="/pro/signup">Créer un compte</Link>
+            </>
+          ) : (
+            <>
+              Pas de compte ? <Link to="/signup">Créer un compte</Link>
+            </>
+          )}
+        </p>
       </div>
     </section>
   );

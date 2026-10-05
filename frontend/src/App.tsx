@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import { Home } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
 import Calendrier from "./pages/Calendar";
+import SignupPro from "./pages/SignUpPro";
 
 function App() {
   return (
@@ -16,7 +17,7 @@ function App() {
       <Route path="/calendar" element={<Calendrier />} />
 
       <Route path="/pro/login" element={<Login />} />
-      <Route path="/pro/signup" element={<Signup />} />
+      <Route path="/pro/signup" element={<SignupPro />} />
     </Routes>
   );
 }
