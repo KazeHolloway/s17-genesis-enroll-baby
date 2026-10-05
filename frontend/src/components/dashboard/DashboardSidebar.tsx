@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { Globe, LogOut, X } from "lucide-react";
+import { LogOut, X } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/landing/Brand";
@@ -120,8 +120,7 @@ export default function DashboardSidebar({
           </ul>
         </nav>
 
-        {/* Pied de sidebar : identité de l'agent, retour au site public puis
-            déconnexion.
+        {/* Pied de sidebar : identité de l'agent puis déconnexion.
             Pas de section « Compte » ici : Profil, Notifications et Réglages sont
             déjà dans la navigation ci-dessus, les y dupliquer donnait l'impression
             d'une seconde barre dans le même tiroir. */}
@@ -139,11 +138,6 @@ export default function DashboardSidebar({
               </p>
             </div>
           )}
-
-          <Link to="/" onClick={onClose} className="app-sidebar-ghost">
-            <Globe className="size-4" aria-hidden="true" />
-            <span>Retour au site public</span>
-          </Link>
 
           <Link to={logoutTo} className="app-sidebar-ghost">
             <LogOut className="size-4" aria-hidden="true" />
