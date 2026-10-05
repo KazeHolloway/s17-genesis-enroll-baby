@@ -14,7 +14,7 @@ function CreationBaby(){
     const [weight,setWeight]=useState("");
     const [height,setHeight]=useState("");
     const [vitalstate,setVitalState]=useState("");
-    const [photo,setPhoto]=useState<File | null>(null);
+    const [,setPhoto]=useState<File | null>(null);
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState<"success" | "error">("success");
 
@@ -106,7 +106,7 @@ try {
 
     setMessageType("success");
     setMessage("Nouveau-né enregistré avec succès.");
-} catch (error) {
+} catch {
     setMessageType("error");
     setMessage("Impossible d'enregistrer le nouveau-né.");
 }
