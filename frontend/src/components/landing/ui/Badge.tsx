@@ -11,9 +11,11 @@ interface BadgeProps {
 }
 
 const badgeStyles: Record<BadgeVariant, string> = {
-  emerald: "bg-[#ebf5f0] text-[#1b5e52] border border-[#1b5e52]/20",
-  ghost: "bg-white/80 text-[#103d34] border border-[#134e43]/15 backdrop-blur-md",
-  glow: "bg-gradient-to-r from-[#103d34] to-[#1b5e52] text-white border border-emerald-400/30 shadow-[0_0_14px_rgba(45,212,191,0.25)]",
+  emerald:
+    "bg-[#ebf5f0] text-[#1b5e52] border border-[#1b5e52]/20 dark:bg-[#1a1a1a] dark:text-[#7fe8d0] dark:border-[#5eead4]/25",
+  ghost:
+    "bg-white/80 text-[#103d34] border border-[#134e43]/15 backdrop-blur-md dark:bg-white/5 dark:text-[#fafafa] dark:border-[#ffffff]/20",
+  glow: "bg-gradient-to-r from-[#103d34] to-[#1b5e52] text-white border border-emerald-400/30 shadow-[0_0_14px_rgba(45,212,191,0.25)] dark:from-[#262626] dark:to-[#1b5e52]",
 };
 
 /** Petite pastille avec point de statut anime, posee au-dessus des titres de section. */

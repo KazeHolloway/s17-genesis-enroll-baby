@@ -7,9 +7,9 @@ import { BorderBeam } from "./ui/BorderBeam";
 
 export function FinalCTA() {
   return (
-    <section className="relative overflow-hidden bg-[#fbfcfa] py-20 sm:py-28">
+    <section className="relative overflow-hidden bg-[#fbfcfa] py-20 sm:py-28 dark:bg-[#000000]">
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-[#12493e] via-[#0f3d34] to-[#0a2923] p-8 text-center text-white shadow-[0_24px_60px_-15px_rgba(16,61,52,0.45)] sm:p-14 lg:p-20">
+        <div className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-[#12493e] via-[#0f3d34] to-[#0a2923] p-8 text-center text-white shadow-[0_24px_60px_-15px_rgba(16,61,52,0.45)] sm:p-14 lg:p-20 dark:border-emerald-400/20 dark:from-[#0d0d0d] dark:via-[#050505] dark:to-[#000000] dark:shadow-[0_24px_60px_-15px_rgba(0,0,0,0.75)]">
           <BorderBeam size={300} duration={14} colorFrom="#2dd4bf" colorTo="#10b981" />
           <div className="grid-pattern-hero opacity-30" aria-hidden="true" />
           <div
@@ -54,7 +54,7 @@ export function FinalCTA() {
 
               <Link
                 to="/login"
-                className="btn-velora inline-flex items-center gap-2 border border-white/30 bg-transparent px-7 py-4 text-base font-semibold text-white transition-colors hover:bg-white/10"
+                className="btn-velora inline-flex items-center gap-2 border border-white/30 bg-transparent px-7 py-4 text-base font-semibold text-white transition-colors hover:bg-white/10 dark:border-[#ffffff]/30 dark:hover:bg-white/15"
               >
                 <LogIn className="h-4 w-4" aria-hidden="true" />
                 <span>Se connecter</span>

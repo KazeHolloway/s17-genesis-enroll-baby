@@ -17,7 +17,7 @@ const navLinks: NavLink[] = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-emerald-950 bg-[#0c2f28] pb-12 pt-16 text-white sm:pt-20">
+    <footer className="velora-site-footer border-t border-emerald-950 bg-[#0c2f28] pb-12 pt-16 text-white sm:pt-20 dark:border-black dark:bg-[#000000]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 border-b border-white/10 pb-14 md:grid-cols-2 lg:grid-cols-12 lg:gap-12">
           <div className="space-y-4 lg:col-span-4">
@@ -105,7 +105,7 @@ export function SiteFooter() {
         </div>
 
         <div className="overflow-hidden pb-2 pt-6 text-center select-none sm:pt-10">
-          <span className="block bg-gradient-to-b from-white/[0.12] via-emerald-300/[0.05] to-transparent bg-clip-text font-cormorant text-[3.5rem] font-bold uppercase leading-none tracking-[0.18em] text-transparent sm:text-[6.5rem] md:text-[8.5rem] lg:text-[11rem] xl:text-[12.5rem]">
+          <span className="block bg-gradient-to-b from-white/[0.12] via-emerald-300/[0.05] to-transparent bg-clip-text font-cormorant text-[2.1rem] font-bold uppercase leading-none tracking-[0.1em] text-transparent min-[380px]:text-[2.9rem] min-[380px]:tracking-[0.14em] min-[480px]:text-[3.5rem] min-[480px]:tracking-[0.18em] sm:text-[6.5rem] sm:tracking-[0.18em] md:text-[8.5rem] lg:text-[11rem] xl:text-[12.5rem] dark:from-white/[0.1] dark:via-[#5eead4]/[0.06]">
             <Link to="/" className="pointer-events-none">
               Enroll Baby
             </Link>

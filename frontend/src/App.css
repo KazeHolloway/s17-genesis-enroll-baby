@@ -1,4 +1,12 @@
 @import "tailwindcss";
+
+/* Le thème sombre est piloté par l'attribut `data-theme` posé sur <html> :
+   il suit le choix de l'utilisateur, pas la seule préférence du système.
+   Ce fichier est le point d'entrée Tailwind de l'application, c'est donc
+   ici que la variante doit être déclarée. Aucune page hors landing
+   n'utilise la variante `dark:`, Login/Signup restent inchangées. */
+@custom-variant dark (&:where([data-theme="dark"] *));
+
 @theme {
   --color-primary: #1b4d3e; /*titre icone CTA navlink active*/
   --color-secondary: #d2e7dc; /*arriere plan carte tag puces modal*/

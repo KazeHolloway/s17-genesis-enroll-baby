@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 
+import { useTheme } from "@/contexts/theme-context";
+
 type LogoVariant = "full" | "icon" | "white";
 
 interface LogoProps {
@@ -7,16 +9,28 @@ interface LogoProps {
   variant?: LogoVariant;
 }
 
-/** Emblème Enroll Baby : un cœur tajant un nouveau-né, surmonté d'une pousse. */
+/** Enroll Baby emblem: a heart embrace sheltering a newborn, with a sprout on top. */
 export function Logo({ className = "", variant = "full" }: LogoProps) {
-  const isWhite = variant === "white";
-  const primaryColor = isWhite ? "#ffffff" : "#134e43";
-  const titleColor = isWhite ? "text-white" : "text-[#134e43]";
-  const baselineColor = isWhite ? "text-emerald-100/80" : "text-[#55756d]";
+  const { theme } = useTheme();
+
+  // En thème sombre, le tracé vert de la marque passerait sur un fond nuit :
+  // on bascule sur la menthe Velora, plus lumineuse.
+  const isWhite = variant === "white" || theme === "dark";
+  const primaryColor = isWhite ? (theme === "dark" ? "#5eead4" : "#ffffff") : "#134e43";
+  const titleColor = isWhite
+    ? theme === "dark"
+      ? "text-[#fafafa]"
+      : "text-white"
+    : "text-[#134e43]";
+  const baselineColor = isWhite
+    ? theme === "dark"
+      ? "text-[#a1a1a1]"
+      : "text-emerald-100/80"
+    : "text-[#55756d]";
 
   return (
-    <div className={`flex select-none items-center gap-3 ${className}`}>
-      <div className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center">
+    <div className={`flex min-w-0 select-none items-center gap-2 sm:gap-3 ${className}`}>
+      <div className="relative flex h-9 w-9 flex-shrink-0 items-center justify-center sm:h-10 sm:w-10">
         <svg
           viewBox="0 0 48 48"
           fill="none"
@@ -46,13 +60,15 @@ export function Logo({ className = "", variant = "full" }: LogoProps) {
       </div>
 
       {variant !== "icon" && (
-        <div className="flex flex-col text-left">
+        <div className="flex min-w-0 flex-col text-left">
           <span
-            className={`font-serif text-[1.35rem] font-bold leading-none tracking-tight ${titleColor}`}
+            className={`truncate font-serif text-[1.15rem] font-bold leading-none tracking-tight min-[380px]:text-[1.35rem] ${titleColor}`}
           >
             Enroll Baby
           </span>
-          <span className={`mt-1 text-[0.72rem] font-medium ${baselineColor}`}>
+          {/* Le tagline cède la place sur les écrans étroits pour laisser
+              respirer la pastille de thème et le menu. */}
+          <span className={`mt-1 hidden text-[0.72rem] font-medium sm:block ${baselineColor}`}>
             Un avenir en bonne santé
           </span>
         </div>
@@ -66,7 +82,7 @@ interface BrandProps {
   className?: string;
 }
 
-/** Lien vers l'accueil encapsulant l'embleme. */
+/** Home link wrapping the emblem. */
 export function Brand({ variant = "full", className = "" }: BrandProps) {
   return (
     <Link

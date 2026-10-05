@@ -2,6 +2,12 @@
    Polices globales — utilisees par Login/Signup via les utilitaires de App.css.
    La landing redéfinit --font-sans / --font-serif dans .landing-root.
    ========================================================================== */
+
+/* Le thème sombre est piloté par l'attribut `data-theme` posé sur <html> :
+   il suit le choix de l'utilisateur, pas la seule préférence du système.
+   La variante Tailwind `dark:` est déclarée dans App.css (point d'entrée
+   Tailwind) ; ci-dessous on ne.rule que les styles maison de la landing. */
+
 :root {
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-jakarta: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
@@ -15,6 +21,10 @@ html {
   scroll-behavior: smooth;
   /* Compense le header fixe lors des sauts vers les ancres de section. */
   scroll-padding-top: 108px;
+  /* Safari iOS inflate le texte en paysage sur les petits écrans : on le fige.
+     Indispensable sur iPhone SE / 5 et sur les WebViews Android. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* ==========================================================================
@@ -22,6 +32,15 @@ html {
    Tout est scope sous .landing-root : App.css garde la main pour l'authentification.
    ========================================================================== */
 .landing-root {
+  /* Coupe tout debordement horizontal (textes script, degrades, marges
+     negatives des decoratifs) sans casser le `position: sticky` des ancres.
+     `clip` est pris en charge par Safari 16+ et tous les navigateurs Android
+     actuels ; `hidden` reste le repli pour les WebViews plus anciens. */
+  overflow-x: hidden;
+  overflow-x: clip;
+  /* Pas de rebond horizontal sur les.trackpad / gestes iOS. */
+  overscroll-behavior-x: none;
+
   /* Polices de la landing : Inter (texte), Cormorant Garamond (titres),
      JetBrains Mono (eyebrows), Caveat (annotations manuscrites). */
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -449,6 +468,67 @@ html {
   animation: landing-fade-in 0.15s ease-out both;
 }
 
+/* ---------- Thème sombre Velora ----------
+   Fond genuinely noir : la deepened de la charte passe en neutre, seuls les
+   accents menthe restent colorés pour garder la signature de la marque. */
+[data-theme="dark"] .landing-root {
+  --foreground: #fafafa;
+  --brand-deep: #fafafa;
+
+  /* L'accent devient menthe : #1b5e52 est illisible sur fond noir. */
+  --primary: #5eead4;
+  --primary-foreground: #0a0a0a;
+  --success: #34d399;
+
+  --border: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.22);
+  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.6), 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-soft-hover:
+    0 16px 36px -12px rgba(0, 0, 0, 0.7), 0 0 40px -15px rgba(45, 212, 191, 0.18);
+  --shadow-brand: 0 8px 24px -6px rgba(45, 212, 191, 0.22);
+}
+
+[data-theme="dark"] .landing-root .gradient-text-green {
+  background-image: linear-gradient(90deg, #fafafa, #5eead4 40%, #2dd4bf 70%, #fafafa);
+}
+
+[data-theme="dark"] .landing-root .btn-velora-ghost {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #fafafa;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .landing-root .btn-velora-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(94, 234, 212, 0.5);
+}
+
+[data-theme="dark"] .landing-root .shimmer-brand {
+  --shimmer-bg: linear-gradient(135deg, #1f1f1f 0%, #2e2e2e 100%);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+[data-theme="dark"] .landing-root .shimmer-brand:hover {
+  box-shadow: 0 12px 32px -4px rgba(45, 212, 191, 0.24);
+}
+
+[data-theme="dark"] .landing-root .aurora {
+  opacity: 0.28;
+}
+
+[data-theme="dark"] .landing-root .grid-pattern-hero {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
+[data-theme="dark"] .landing-root::selection,
+[data-theme="dark"] .landing-root *::selection {
+  background: #5eead4;
+  color: #0a0a0a;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 700px) {
   .site-container {
@@ -468,5 +548,73 @@ html {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+}
+
+/* ==========================================================================
+   Robustesse multi-appareils
+   Cible : iPhone 5 (320px) -> iPhone SE (375px) -> Galaxy/Redmi/Huawei
+   (360-412px) -> tablettes, y compris les navigateurs embarqués
+   (Samsung Internet, Mi Browser, Huawei Browser) et Safari iOS.
+   ========================================================================== */
+
+/* Encoche, îlot et barre d gestes : le header fixe et le footer doivent
+   respirer dans les zones système. `env()` vaut 0 sur les écrans anciens. */
+.landing-root .velora-site-header {
+  padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+  padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+}
+
+.landing-root .velora-site-footer {
+  padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Le hero occupe l'ecran : `svh` (small viewport) evite que la barre
+   d'adresse mobile ne decale le contenu. `vh` reste le repli. */
+.landing-root .velora-hero-screen {
+  min-height: 92vh;
+  min-height: 92svh;
+}
+
+/* Safari iOS zoome automatiquement sur un champ dont la police fait moins
+   de 16px : on repasse a 16px sous 640px, puis on rend la taille voulue. */
+@media (max-width: 639px) {
+  html {
+    /* Header plus compact sur mobile : l'offset des ancres doit suivre. */
+    scroll-padding-top: 92px;
+  }
+
+  .landing-root input,
+  .landing-root select,
+  .landing-root textarea {
+    font-size: 16px;
+  }
+}
+
+/* Les navigateurs mobilesencochent un halo bleu au tap : on l'neutralise
+   pour laisser la couleur de marque, tout en gardant le focus clavier. */
+.landing-root a,
+.landing-root button,
+.landing-root input,
+.landing-root label {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/*`min-height: 100%` sur les decoratifs en absolute casse sous certains
+   WebViews Android : on les force a ne jamais depasser de leur parent. */
+.landing-root img {
+  max-width: 100%;
+}
+
+@media (max-width: 359px) {
+  /* iPhone 5 / SE 1er gen : on degraffe encore le header. */
+  .landing-root .velora-site-header {
+    padding-left: max(0.375rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.375rem, env(safe-area-inset-right, 0px));
+  }
+
+  .landing-root .velora-site-footer {
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
   }
 }

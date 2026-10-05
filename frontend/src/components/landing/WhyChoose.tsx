@@ -125,7 +125,7 @@ export function WhyChoose() {
   return (
     <section
       id="a-propos"
-      className="relative overflow-hidden border-t border-[#134e43]/10 bg-[#f8faf7] py-20 sm:py-28"
+      className="relative overflow-hidden border-t border-[#134e43]/10 bg-[#f8faf7] py-20 sm:py-28 dark:border-[#ffffff]/10 dark:bg-[#0a0a0a]"
     >
       <div
         className="pointer-events-none absolute right-1/4 top-0 h-96 w-96 rounded-full bg-[#2dd4bf]/5 blur-3xl"
@@ -137,10 +137,10 @@ export function WhyChoose() {
           <div className="space-y-6 lg:col-span-6">
             <div>
               <Badge className="mb-3">Avantages clés du dossier</Badge>
-              <h2 className="font-cormorant text-3xl leading-tight tracking-tight text-[#103d34] sm:text-[2.5rem]">
+              <h2 className="font-cormorant text-3xl leading-tight tracking-tight text-[#103d34] sm:text-[2.5rem] dark:text-[#fafafa]">
                 Pourquoi choisir Enroll Baby ?
               </h2>
-              <p className="mt-3 max-w-lg text-sm leading-relaxed text-[#4d6a62] sm:text-base">
+              <p className="mt-3 max-w-lg text-sm leading-relaxed text-[#4d6a62] sm:text-base dark:text-[#a1a1a1]">
                 Une solution complète et fiable pour accompagner chaque famille dans les premières
                 étapes de la vie de leur enfant.
               </p>
@@ -153,14 +153,14 @@ export function WhyChoose() {
                     spotlightColor="rgba(45, 212, 191, 0.15)"
                     className="group h-full cursor-default"
                   >
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#ebf5f0] text-[#1b5e52] transition-all duration-200 group-hover:bg-[#1b5e52] group-hover:text-white group-hover:shadow-[0_4px_12px_rgba(27,94,82,0.35)]">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#ebf5f0] text-[#1b5e52] transition-all duration-200 group-hover:bg-[#1b5e52] group-hover:text-white group-hover:shadow-[0_4px_12px_rgba(27,94,82,0.35)] dark:bg-[#1a1a1a] dark:text-[#5eead4] dark:group-hover:bg-[#5eead4] dark:group-hover:text-[#0a0a0a] dark:group-hover:shadow-[0_4px_12px_rgba(45,212,191,0.3)]">
                       {advantage.icon}
                     </div>
                     <div className="mt-3">
-                      <h3 className="text-sm font-bold tracking-tight text-[#103d34] transition-colors group-hover:text-[#1b5e52]">
+                      <h3 className="text-sm font-bold tracking-tight text-[#103d34] transition-colors group-hover:text-[#1b5e52] dark:text-[#fafafa] dark:group-hover:text-[#7fe8d0]">
                         {advantage.title}
                       </h3>
-                      <p className="mt-1.5 text-xs leading-relaxed text-[#526f67]">
+                      <p className="mt-1.5 text-xs leading-relaxed text-[#526f67] dark:text-[#8a8a8a]">
                         {advantage.text}
                       </p>
                     </div>
@@ -171,7 +171,7 @@ export function WhyChoose() {
           </div>
 
           <div className="flex justify-center lg:col-span-3">
-            <figure className="relative w-full max-w-xs overflow-hidden rounded-3xl border border-[#134e43]/15 bg-white shadow-[0_18px_40px_-12px_rgba(19,78,67,0.18)] transition-transform duration-300 hover:scale-[1.02]">
+            <figure className="relative w-full max-w-xs overflow-hidden rounded-3xl border border-[#134e43]/15 bg-white shadow-[0_18px_40px_-12px_rgba(19,78,67,0.18)] transition-transform duration-300 hover:scale-[1.02] dark:border-[#ffffff]/20 dark:bg-white/[0.04] dark:shadow-[0_18px_40px_-12px_rgba(0,0,0,0.6)]">
               <BorderBeam size={220} duration={10} colorFrom="#1b5e52" colorTo="#2dd4bf" />
               <div className="relative aspect-[3/4.4] w-full overflow-hidden">
                 <img
@@ -202,10 +202,10 @@ export function WhyChoose() {
               <Badge variant="ghost" className="mb-2">
                 Support &amp; Réponses
               </Badge>
-              <h2 className="font-cormorant text-2xl leading-tight tracking-tight text-[#103d34] sm:text-[1.85rem]">
+              <h2 className="font-cormorant text-2xl leading-tight tracking-tight text-[#103d34] sm:text-[1.85rem] dark:text-[#fafafa]">
                 Questions fréquentes
               </h2>
-              <p className="mt-1 text-xs text-[#526f67]">
+              <p className="mt-1 text-xs text-[#526f67] dark:text-[#8a8a8a]">
                 Trouvez rapidement les réponses à vos questions.
               </p>
             </div>
@@ -216,24 +216,24 @@ export function WhyChoose() {
                 return (
                   <li
                     key={question}
-                    className="border-b border-[#134e43]/10 pb-2.5 transition-colors"
+                    className="border-b border-[#134e43]/10 pb-2.5 transition-colors dark:border-[#ffffff]/12"
                   >
                     <button
                       type="button"
                       onClick={() => setOpenFaqIndex(isOpen ? null : index)}
                       aria-expanded={isOpen}
-                      className="flex w-full items-start justify-between gap-2 py-1 text-left text-xs font-semibold text-[#103d34] transition-colors hover:text-[#1b5e52]"
+                      className="flex w-full items-start justify-between gap-2 py-1 text-left text-xs font-semibold text-[#103d34] transition-colors hover:text-[#1b5e52] dark:text-[#fafafa] dark:hover:text-[#7fe8d0]"
                     >
                       <span className="leading-snug">{question}</span>
                       <span
                         aria-hidden="true"
-                        className="flex-shrink-0 text-sm font-bold text-[#1b5e52]"
+                        className="flex-shrink-0 text-sm font-bold text-[#1b5e52] dark:text-[#5eead4]"
                       >
                         {isOpen ? "−" : "+"}
                       </span>
                     </button>
                     {isOpen && (
-                      <p className="mt-1.5 animate-in fade-in text-xs leading-relaxed text-[#48675e] duration-150">
+                      <p className="mt-1.5 animate-in fade-in text-xs leading-relaxed text-[#48675e] duration-150 dark:text-[#9c9c9c]">
                         {answer}
                       </p>
                     )}

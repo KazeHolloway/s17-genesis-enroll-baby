@@ -31,7 +31,7 @@ export function SpotlightCard({
       onMouseLeave={() => setOpacity(0)}
       whileHover={{ y: -3 }}
       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-      className={`relative overflow-hidden rounded-2xl border border-[#134e43]/10 bg-white/90 p-6 shadow-[0_4px_20px_-2px_rgba(19,78,67,0.04)] backdrop-blur-md transition-[border-color,box-shadow] duration-300 hover:border-[#134e43]/25 hover:shadow-[0_16px_36px_-12px_rgba(19,78,67,0.1)] ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-[#134e43]/10 bg-white/90 p-6 shadow-[0_4px_20px_-2px_rgba(19,78,67,0.04)] backdrop-blur-md transition-[border-color,box-shadow] duration-300 hover:border-[#134e43]/25 hover:shadow-[0_16px_36px_-12px_rgba(19,78,67,0.1)] dark:border-[#ffffff]/12 dark:bg-white/[0.04] dark:shadow-[0_4px_20px_-2px_rgba(0,0,0,0.45)] dark:hover:border-[#5eead4]/30 dark:hover:shadow-[0_16px_36px_-12px_rgba(0,0,0,0.6)] ${className}`}
       {...props}
     >
       <div
