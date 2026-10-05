@@ -9,11 +9,12 @@ import type { AgentProfile, AgentStat, NewbornRecord, PendingVaccination } from 
    ========================================================================== */
 
 export const agentProfileMock: AgentProfile = {
-  firstName: "Brichelvie",
-  lastName: "Owala",
-  roleLabel: "Agent de maternité",
-  initials: "BO",
-  facility: "Hôpital général de Brazzaville",
+  firstName: "Sophie",
+  lastName: "Mampouya",
+  roleLabel: "Sage-femme",
+  initials: "SM",
+  facility: "Maternité Blanche Gomez",
+  matricule: "SF-BZV-2024-81",
 };
 
 export const agentStatsMock: AgentStat[] = [

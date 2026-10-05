@@ -1,13 +1,12 @@
 import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ArrowLeft, Clock } from "lucide-react";
 
 /**
- * Marque d'etape : reservee aux pages metier qui ne sont pas encore
- * developpees (vaccinations, documents, dossiers...).
+ * Page en attente d'implementation.
  *
- * But : la navigation, la coquille et le theme sont deja livres ; il ne reste
- * qu'a remplacer le contenu de la page. Les textes d'attente et le CTA sont
- * volontairement generiques pour ne pas figer une copie metier.
+ * But : la navigation, la coquille, le theme et l'accueil sont deja livres ;
+ * il ne reste qu'a remplacer le contenu de chaque page. Les textes d'attente
+ * sont volontairement generiques pour ne pas figer une copie metier.
  */
 export default function PagePlaceholder({
   title,
@@ -30,24 +29,12 @@ export default function PagePlaceholder({
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <div className="app-card w-full max-w-lg p-6 text-center sm:p-8">
-        <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-[var(--app-sage-soft)] text-[var(--app-brand)]">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="size-6"
-            aria-hidden="true"
-          >
-            <path d="M12 6v6l4 2" />
-            <circle cx="12" cy="12" r="9" />
-          </svg>
-        </div>
+        <span className="app-chip mx-auto">
+          <Clock className="size-3.5" aria-hidden="true" />
+          <span>En construction</span>
+        </span>
 
-        <p className="app-section-title mt-5">En construction</p>
-        <h2 className="mt-2 font-serif text-xl font-bold text-[var(--app-heading)] sm:text-2xl">
+        <h2 className="mt-4 font-serif text-xl font-bold text-[var(--app-heading)] sm:text-2xl">
           {title}
         </h2>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-[var(--app-muted)]">
@@ -57,15 +44,15 @@ export default function PagePlaceholder({
         {cta && to && (
           <Link
             to={to}
-            className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-[var(--app-brand)] px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--app-shadow-brand)] transition-opacity hover:opacity-90"
+            className="app-action mt-6 !rounded-full !px-5 !py-2.5 !text-sm"
           >
+            <ArrowLeft className="size-4" aria-hidden="true" />
             {cta}
-            <ChevronRight className="size-4" aria-hidden="true" />
           </Link>
         )}
 
         {/* Repere pour l'equipe : a supprimer quand la page est livree. */}
-        <p className="mt-6 border-t border-dashed border-[var(--app-border-strong)] pt-4 text-xs leading-relaxed text-[var(--app-faint)]">
+        <p className="mt-6 border-t border-dashed border-[var(--app-border)] pt-4 text-xs leading-relaxed text-[var(--app-faint)]">
           {hint}
         </p>
       </div>

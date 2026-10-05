@@ -1,15 +1,18 @@
 import { Outlet } from "react-router-dom";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { parentNavItems } from "@/lib/dashboard/navigation";
+import {
+  parentBottomNavItems,
+  parentNavItems,
+} from "@/lib/dashboard/navigation";
 import { parentDashboardMock } from "@/lib/dashboard/mockParentData";
 
 /**
  * Layout du dashboard Parent.
  *
- * Il ne fait que fournir la navigation et le compte connecte a la coquille ;
- * chaque page enfant est injectee par le routeur via <Outlet />.
+ * Il ne fait que fournir la navigation et le compte connecté à la coquille ;
+ * chaque page enfant est injectée par le routeur via <Outlet />.
  *
- * Branchement API : remplacer `parentDashboardMock.parent` par les donnees du
+ * Branche API : remplacer `parentDashboardMock.parent` par les données du
  * parent issues de la session, et `unreadCount` par le compteur de notifications.
  */
 export default function ParentLayout() {
@@ -19,6 +22,7 @@ export default function ParentLayout() {
   return (
     <DashboardShell
       navItems={parentNavItems}
+      bottomNavItems={parentBottomNavItems}
       user={{
         firstName: parent.firstName,
         lastName: parent.lastName,
