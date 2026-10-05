@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 import helmet from 'helmet';
+import { limiteur } from './middlewares/rateLimit.js';
 
 // Import de nos routes
 import enfantRoute from './routes/enfantRoute.js';
@@ -17,26 +18,23 @@ import declarationRoute from './routes/declarationRoute.js';
 import certificatRoute from './routes/certificatRoute.js';
 import rendezVousRoute from './routes/rendezVousRoute.js';
 
-
 dotenv.config();
 const app = express();
-
 
 // --- Middlewares globaux ---
 app.use(cors()); // Autorise les requêtes cross-origin (depuis le front-end)
 app.use(express.json()); // Permet de lire le corps des requêtes en JSON
 app.use(express.urlencoded({ extended: true })); // Pour parser les form-data si besoin
 app.use(morgan('combined'));
-app.use(helmet());                        
-
+app.use(helmet());   
 
 
 
 // --- Définition des routes de l'API ---
 app.use('/api/enfants', enfantRoute);
 app.use('/api/dossiers', dossierRoute);
-app.use('/api/auth', authRoute);
-app.use('/api/parents', parentRoute);
+app.use('/api/auth',limiteur, authRoute);
+app.use('/api/parents',limiteur, parentRoute);
 app.use('/api/calendrier-vaccinal', calendrierRoute);
 app.use('/api/imprimable', imprimableRoute);
 app.use('/api/statistiques', statistiquesRoute);
