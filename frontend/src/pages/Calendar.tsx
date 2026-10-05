@@ -1,6 +1,4 @@
-// pages/Calendrier.tsx
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Layout from "../components/ui/Layout";
 import VaccineTimeline from "../components/vaccines/VaccineTimeline";
@@ -12,15 +10,22 @@ import { getVaccines } from "../services/api";
 type Filter = "tous" | VaccineStatus;
 
 export default function Calendrier() {
-  const { childId } = useParams();
+  const { enfantId } = useParams();
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
+  const [prochaine, setProchaine] = useState<Vaccine | null>(null);
   const [filter, setFilter] = useState<Filter>("tous");
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Charger les vaccins
-  useState(() => {
-    getVaccines(childId!).then(setVaccines);
-  });
+  useEffect(() => {
+    setLoading(true);
+    getVaccines(enfantId!)
+      .then((data) => {
+        setVaccines(data.echeances);
+        setProchaine(data.prochaine_echeance);
+      })
+      .finally(() => setLoading(false));
+  }, [enfantId]);
 
   const counts: Record<Filter, number> = {
     tous: vaccines.length,
@@ -39,6 +44,14 @@ export default function Calendrier() {
     <Layout>
       <h1 className="text-xl font-bold text-primary">Calendrier Vaccinal</h1>
 
+      {/* Prochaine échéance */}
+      {prochaine && (
+        <div className="w-full p-4 rounded-xl bg-primary/5 border border-primary/20">
+          <p className="text-xs text-muted-foreground">Prochaine échéance</p>
+          <p className="font-medium text-sm text-primary">{prochaine.nom}</p>
+        </div>
+      )}
+
       {/* Timeline */}
       <VaccineTimeline
         vaccines={vaccines}
@@ -51,21 +64,25 @@ export default function Calendrier() {
       <VaccineFilter active={filter} onChange={setFilter} counts={counts} />
 
       {/* Liste */}
-      <div className="flex flex-col gap-3 w-full">
-        {filtered.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">
-            Aucun vaccin ne correspond aux filtres.
-          </p>
-        ) : (
-          filtered.map((vaccine) => (
+      {loading ? (
+        <p className="text-sm text-muted-foreground text-center py-8">
+          Chargement...
+        </p>
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">
+          Aucun vaccin ne correspond aux filtres.
+        </p>
+      ) : (
+        <div className="flex flex-col gap-3 w-full">
+          {filtered.map((vaccine) => (
             <VaccineItem
               key={vaccine.id}
               vaccine={vaccine}
               onClick={() => {}}
             />
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </Layout>
   );
 }

@@ -61,7 +61,9 @@ const Login = () => {
             vaccination
           </p>
         </div>
-        <h1>{isPro ? "Connexion Professionnel" : "Connexion Parent"}</h1>
+        <h1 className="headline-lg text-primary">
+          {isPro ? "Espace Professionnel" : "Espace Parent"}
+        </h1>
         {/* ...form... */}
         <p></p>
 

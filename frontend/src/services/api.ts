@@ -1,5 +1,3 @@
-// src/services/api.ts
-
 import type { Vaccine } from "../lib/types";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -7,6 +5,10 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 interface ApiResponse<T> {
   data?: T;
   error?: string;
+}
+interface CalendrierResponse {
+  prochaine_echeance: Vaccine | null;
+  echeances: Vaccine[];
 }
 
 async function request<T>(
@@ -58,9 +60,8 @@ export const register = (payload: {
 export const getChildren = (parentId: string) =>
   request<object[]>(`/parent/${parentId}/children`);
 
-export const getVaccines = (childId: string) =>
-  request<Vaccine[]>(`/child/${childId}/vaccines`);
-
+export const getVaccines = (enfantId: string) =>
+  request<CalendrierResponse>(`/calendrier-vaccinal/enfant/${enfantId}`);
 export const markVaccineDone = (vaccineId: string, date: string) =>
   request<Vaccine>(`/vaccine/${vaccineId}/complete`, {
     method: "PATCH",
