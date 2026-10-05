@@ -1,402 +1,294 @@
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
-  Bell,
-  CalendarClock,
-  Check,
+  Baby,
+  Calendar,
+  CheckCircle2,
   ChevronRight,
   FileText,
+  Plus,
   Ruler,
   Syringe,
   Weight,
 } from "lucide-react";
-import DashboardCard from "@/components/dashboard/DashboardCard";
 import { cn } from "@/lib/utils";
+import babyHandsParent from "@/assets/baby-hand-parent2.jpg";
 import { parentDashboardMock } from "@/lib/dashboard/mockParentData";
 import type { StepStatus } from "@/lib/dashboard/types";
 
 /**
- * Dashboard Parent : suivi du nouveau-ne, echeances et notifications.
+ * Accueil du dashboard Parent.
  *
- * Les blocs sont volontairement independants les uns des autres pour que les
- * pages filles (vaccinations, documents...) puissent reutiliser les memes
- * sous-composants avec leurs propres donnees.
+ * Reprend la maquette de référence : carte enfant, prochaine vaccination,
+ * dernières étapes, puis une carte d'affirmation et un bandeau d'action.
+ * Les pages filles (enfants, vaccinations, documents...) restent des
+ * placeholders : ce lot livre la coquille et l'accueil, pas les formulaires.
  */
 export default function ParentDashboard() {
-  const { parent, child, nextVaccination, lastSteps, civilRegistration, notifications, quickActions } =
+  const { child, nextVaccination, lastSteps, quickActions } =
     parentDashboardMock;
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-5 lg:gap-6">
-      {/* ---------- Accroche ---------- */}
-      <div className="app-card relative overflow-hidden bg-[var(--app-brand)] p-5 text-white sm:p-6 lg:p-8">
-        {/* Formes decoratives, purement visuelles */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-white/10"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-24 -left-12 size-64 rounded-full bg-white/5"
-        />
+    <div className="space-y-6">
+      {/* ---------- Grille principale : 2 colonnes sur grand écran ---------- */}
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
+        {/* 1. Carte enfant */}
+        <div className="app-card app-card-interactive flex flex-col items-center gap-5 p-5 text-center sm:flex-row sm:items-start sm:p-6 sm:text-left">
+          {/* Pas de photo pour l'instant : pastille d'initiales, le champ
+              photoUrl viendra avec l'API. */}
+          <div className="flex size-20 shrink-0 items-center justify-center rounded-full border-2 border-[var(--app-action)]/30 font-serif text-2xl font-bold text-[var(--app-action)] sm:size-24">
+            {child.firstName.charAt(0)}
+            {child.lastName.charAt(0)}
+          </div>
 
-        <div className="relative">
-          <p className="app-section-title text-white/70">
-            {parent.roleLabel} · {child.ageLabel}
-          </p>
-          <h2 className="mt-2 font-serif text-2xl font-bold leading-tight sm:text-3xl">
-            Bonjour {parent.firstName}
-          </h2>
-          <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/80">
-            Le dossier de {child.firstName} {child.lastName} est a jour.
-            Une déclaration reste à finaliser.
-          </p>
+          <div className="w-full min-w-0 flex-1 space-y-2">
+            <div>
+              <h2 className="truncate font-serif text-xl font-bold text-[var(--app-heading)]">
+                {child.firstName} {child.lastName}
+              </h2>
+              <p className="mt-0.5 text-xs text-[var(--app-muted)]">
+                Né le {child.birthDate} · {child.weightKg} kg · {child.heightCm} cm
+              </p>
+            </div>
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link
-              to="/parent/vaccinations"
-              className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[var(--app-brand)] transition-transform hover:scale-[1.02]"
-            >
-              Calendrier de vaccination
-              <ArrowRight className="size-4" aria-hidden="true" />
+            <div>
+              <span className="app-chip max-w-full">
+                <CheckCircle2 className="size-3.5 shrink-0" aria-hidden="true" />
+                <span className="truncate">
+                  Dossier {child.recordNumber}
+                </span>
+              </span>
+            </div>
+
+            <div className="pt-1">
+              <Link to="/parent/enfants" className="app-action w-full sm:w-auto">
+                <span>Voir le dossier</span>
+                <ArrowRight className="size-3.5" aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. Prochaine vaccination */}
+        <div className="app-card flex flex-col justify-between p-5 sm:p-6">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="app-icon-tile">
+                <Calendar className="size-5" aria-hidden="true" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-sm font-bold text-[var(--app-heading)]">
+                  Prochaine vaccination
+                </h3>
+                <span className="text-xs text-[var(--app-faint)]">
+                  Rappel automatique
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="font-serif text-2xl font-bold text-[var(--app-heading)]">
+                {nextVaccination.date}
+              </div>
+              <p className="text-sm font-medium text-[var(--app-text)]">
+                {nextVaccination.vaccineName} · {nextVaccination.doseLabel}
+              </p>
+              <p className="text-xs font-semibold text-[var(--app-emerald)]">
+                Il reste {nextVaccination.daysUntil} jours
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 border-t border-[var(--app-border-soft)] pt-4">
+            <Link to="/parent/vaccinations" className="app-link-action">
+              <span>Voir le calendrier</span>
+              <ChevronRight className="size-3.5" aria-hidden="true" />
             </Link>
-            <Link
-              to="/parent/documents"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/30 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-            >
-              <FileText className="size-4" aria-hidden="true" />
-              Mes documents
+          </div>
+        </div>
+
+        {/* 3. Dernières étapes */}
+        <div className="app-card flex flex-col justify-between p-5 sm:p-6">
+          <div>
+            <h3 className="pb-2 text-base font-bold text-[var(--app-heading)]">
+              Dernières étapes
+            </h3>
+
+            <ol className="space-y-3 pt-1">
+              {lastSteps.map((step) => (
+                <TimelineRow
+                  key={step.id}
+                  status={step.status}
+                  title={step.title}
+                  date={step.date}
+                />
+              ))}
+            </ol>
+          </div>
+
+          <div className="mt-4 border-t border-[var(--app-border-soft)] pt-4">
+            <Link to="/parent/enfants" className="app-link-action">
+              <span>Voir tout le parcours</span>
+              <ArrowRight className="size-3.5" aria-hidden="true" />
             </Link>
+          </div>
+        </div>
+
+        {/* 4. Carte d'affirmation (image plein cadre) */}
+        <div className="group relative flex min-h-[180px] items-center justify-center overflow-hidden rounded-3xl border border-[var(--app-border)] p-6 text-center shadow-xs sm:min-h-[220px]">
+          <img
+            src={babyHandsParent}
+            alt="Mains parentales tenant les pieds du bébé"
+            className="absolute inset-0 size-full object-cover brightness-[0.75] transition-transform duration-500 group-hover:scale-105"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/35 to-black/20"
+          />
+          <div className="relative z-10 space-y-1 text-white">
+            <p className="font-serif text-2xl drop-shadow-md sm:text-3xl">
+              Parce que chaque enfant compte
+            </p>
+            <p className="text-xl text-emerald-200 sm:text-2xl">♡</p>
           </div>
         </div>
       </div>
 
-      {/* ---------- Synthese de l'enfant + echeances ---------- */}
-      <div className="grid gap-4 sm:gap-5 lg:grid-cols-3">
-        <DashboardCard label="Résumé du dossier" className="lg:col-span-2">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="app-section-title">Nouveau-né</p>
-              <h3 className="mt-1.5 font-serif text-xl font-bold text-[var(--app-heading)]">
-                {child.firstName} {child.lastName}
-              </h3>
-              <p className="mt-1 text-sm text-[var(--app-muted)]">
-                Né le {child.birthDate} · {child.ageLabel}
-              </p>
-            </div>
-            <span className="app-chip">
-              Dossier {child.recordNumber}
-            </span>
-          </div>
-
-          <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-xl bg-[var(--app-surface-2)] p-3">
-              <dt className="flex items-center gap-1.5 text-[0.6875rem] font-semibold text-[var(--app-faint)]">
-                <Weight className="size-3.5" aria-hidden="true" />
-                Poids
-              </dt>
-              <dd className="mt-1 text-lg font-bold text-[var(--app-heading)] tabular-nums">
-                {child.weightKg}
-                <span className="ml-0.5 text-xs font-medium text-[var(--app-faint)]">kg</span>
-              </dd>
-            </div>
-            <div className="rounded-xl bg-[var(--app-surface-2)] p-3">
-              <dt className="flex items-center gap-1.5 text-[0.6875rem] font-semibold text-[var(--app-faint)]">
-                <Ruler className="size-3.5" aria-hidden="true" />
-                Taille
-              </dt>
-              <dd className="mt-1 text-lg font-bold text-[var(--app-heading)] tabular-nums">
-                {child.heightCm}
-                <span className="ml-0.5 text-xs font-medium text-[var(--app-faint)]">cm</span>
-              </dd>
-            </div>
-            <div className="rounded-xl bg-[var(--app-surface-2)] p-3">
-              <dt className="text-[0.6875rem] font-semibold text-[var(--app-faint)]">
-                Statut
-              </dt>
-              <dd className="mt-1 text-sm font-bold text-[var(--app-brand)]">
-                Actif
-              </dd>
-            </div>
-            <div className="rounded-xl bg-[var(--app-surface-2)] p-3">
-              <dt className="text-[0.6875rem] font-semibold text-[var(--app-faint)]">
-                Sexe
-              </dt>
-              <dd className="mt-1 text-sm font-bold text-[var(--app-brand)]">
-                {child.sex === "M" ? "Masculin" : "Féminin"}
-              </dd>
-            </div>
-          </dl>
-        </DashboardCard>
-
-        <DashboardCard label="Prochaine vaccination" interactive>
-          <p className="app-section-title">Prochaine échéance</p>
-
-          <div className="mt-3 flex items-start gap-3">
-            <span className="app-icon-tile bg-[var(--app-brand)] text-white">
-              <Syringe className="size-5" aria-hidden="true" />
-            </span>
-            <div className="min-w-0">
-              <p className="font-serif text-lg font-bold text-[var(--app-heading)]">
-                {nextVaccination.vaccineName}
-              </p>
-              <p className="text-xs text-[var(--app-muted)]">
-                {nextVaccination.doseLabel}
-              </p>
-            </div>
-          </div>
-
-          <p className="mt-4 flex items-center gap-2 rounded-xl bg-[var(--app-sage-soft)] px-3 py-2.5 text-sm font-semibold text-[var(--app-brand)]">
-            <CalendarClock className="size-4 shrink-0" aria-hidden="true" />
-            {nextVaccination.date}
-          </p>
-
-          <Link
-            to="/parent/vaccinations"
-            className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--app-brand)] transition-opacity hover:opacity-75"
-          >
-            Voir tout le calendrier
-            <ChevronRight className="size-4" aria-hidden="true" />
-          </Link>
-        </DashboardCard>
+      {/* ---------- Chiffres clés ----------
+          Une colonne sur téléphone : à 375px, deux colonnes de compteurs
+          produiraient des valeurs coupées. */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+        <MiniStat
+          icon={Baby}
+          label="Âge de l’enfant"
+          value={child.ageLabel}
+        />
+        <MiniStat
+          icon={Weight}
+          label="Poids de naissance"
+          value={`${child.weightKg} kg`}
+        />
+        <MiniStat
+          icon={Ruler}
+          label="Taille de naissance"
+          value={`${child.heightCm} cm`}
+        />
+        <MiniStat
+          icon={Syringe}
+          label="Prochaine dose"
+          value={nextVaccination.vaccineName}
+        />
       </div>
 
-      {/* ---------- Etapes + declaration d'etat civil ---------- */}
-      <div className="grid gap-4 sm:gap-5 lg:grid-cols-3">
-        <DashboardCard label="Dernières étapes" className="lg:col-span-2">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="font-serif text-base font-bold text-[var(--app-heading)]">
-              Avancement du parcours
-            </h3>
-            <span className="app-chip">
-              {lastSteps.filter((step) => step.status === "done").length}/
-              {lastSteps.length} etapes
-            </span>
+      {/* ---------- Accès rapides ---------- */}
+      <div className="app-card flex flex-col items-center gap-4 p-4 sm:flex-row sm:justify-between sm:p-5">
+        <div className="flex w-full min-w-0 items-center gap-3 sm:w-auto">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--app-brand)] text-white">
+            <Plus className="size-5" aria-hidden="true" />
           </div>
-
-          <ol className="mt-4 flex flex-col gap-4">
-            {lastSteps.map((step, index) => (
-              <TimelineRow
-                key={step.id}
-                status={step.status}
-                title={step.title}
-                description={step.description}
-                date={step.date}
-                isLast={index === lastSteps.length - 1}
-              />
-            ))}
-          </ol>
-        </DashboardCard>
-
-        <DashboardCard label="Déclaration à l’état civil">
-          <p className="app-section-title">Échéance</p>
-          <h3 className="mt-1.5 font-serif text-base font-bold text-[var(--app-heading)]">
-            Déclaration à l’état civil
-          </h3>
-
-          <div className="mt-4 flex items-baseline gap-2">
-            <span className="font-serif text-4xl font-bold leading-none text-[var(--app-brand)] tabular-nums">
-              {civilRegistration.daysLeft}
-            </span>
-            <span className="text-sm font-medium text-[var(--app-muted)]">jours restants</span>
+          <div className="min-w-0">
+            <h4 className="text-sm font-bold text-[var(--app-heading)]">
+              Un autre enfant à déclarer ?
+            </h4>
+            <p className="text-xs text-[var(--app-muted)]">
+              Retrouvez ici l’ensemble des raccourcis de votre espace.
+            </p>
           </div>
-          <p className="mt-2 text-xs text-[var(--app-faint)]">
-            À finaliser avant le {civilRegistration.deadline}
-          </p>
+        </div>
 
-          <div
-            className="mt-4 h-2 w-full overflow-hidden rounded-full bg-[var(--app-surface-2)]"
-            role="progressbar"
-            aria-valuenow={Math.round(civilRegistration.progress * 100)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="Avancement du délai de déclaration"
-          >
-            <div
-              className="h-full rounded-full bg-[var(--app-brand)]"
-              style={{ width: `${civilRegistration.progress * 100}%` }}
-            />
-          </div>
-
-          <Link
-            to="/parent/documents"
-            className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--app-brand)] transition-opacity hover:opacity-75"
-          >
-            Ouvrir mes documents
-            <ChevronRight className="size-4" aria-hidden="true" />
-          </Link>
-        </DashboardCard>
-      </div>
-
-      {/* ---------- Notifications + acces rapides ---------- */}
-      <div className="grid gap-4 sm:gap-5 lg:grid-cols-2">
-        <DashboardCard label="Notifications">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="font-serif text-base font-bold text-[var(--app-heading)]">
-              Notifications
-            </h3>
+        {/* Grille de 2 colonnes sur téléphone : les 4 raccourcis restent
+            accessibles au doigt sans horizontal scroll. */}
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:justify-end">
+          {quickActions.map((action) => (
             <Link
-              to="/parent/notifications"
-              className="text-xs font-semibold text-[var(--app-brand)] transition-opacity hover:opacity-75"
+              key={action.to + action.label}
+              to={action.to}
+              className="app-action-outline min-w-0"
             >
-              Tout voir
+              <FileText className="size-3.5 shrink-0" aria-hidden="true" />
+              <span className="truncate">{action.label}</span>
             </Link>
-          </div>
-
-          <ul className="mt-4 flex flex-col gap-2">
-            {notifications.slice(0, 3).map((item) => (
-              <li
-                key={item.id}
-                className={cn(
-                  "flex items-start gap-3 rounded-xl border p-3",
-                  item.read
-                    ? "border-[var(--app-border)] bg-[var(--app-surface)]"
-                    : "border-[var(--app-border-strong)] bg-[var(--app-sage-soft)]",
-                )}
-              >
-                <span
-                  className={cn(
-                    "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg",
-                    item.read
-                      ? "bg-[var(--app-surface-2)] text-[var(--app-faint)]"
-                      : "bg-[var(--app-brand)] text-white",
-                  )}
-                >
-                  {item.read ? (
-                    <Check className="size-4" aria-hidden="true" />
-                  ) : (
-                    <Bell className="size-4" aria-hidden="true" />
-                  )}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[var(--app-heading)]">
-                    {item.title}
-                  </p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-[var(--app-muted)]">
-                    {item.body}
-                  </p>
-                  <p className="mt-1 text-[0.625rem] text-[var(--app-faint)]">
-                    {item.date}
-                  </p>
-                </div>
-                {!item.read && (
-                  <span
-                    aria-label="Non lue"
-                    className="mt-1.5 size-2 shrink-0 rounded-full bg-[var(--app-mint)]"
-                  />
-                )}
-              </li>
-            ))}
-          </ul>
-        </DashboardCard>
-
-        <DashboardCard label="Accès rapides">
-          <h3 className="font-serif text-base font-bold text-[var(--app-heading)]">
-            Accès rapides
-          </h3>
-
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            {quickActions.map((action) => (
-              <Link
-                key={action.to + action.label}
-                to={action.to}
-                className="group flex items-center gap-3 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-3 transition-colors hover:border-[var(--app-border-strong)] hover:bg-[var(--app-surface-2)]"
-              >
-                <span className="app-icon-tile size-10 rounded-xl">
-                  <ChevronRight
-                    className="size-4 transition-transform group-hover:translate-x-0.5"
-                    aria-hidden="true"
-                  />
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-[var(--app-heading)]">
-                    {action.label}
-                  </span>
-                  <span className="block truncate text-[0.6875rem] text-[var(--app-faint)]">
-                    {action.description}
-                  </span>
-                </span>
-              </Link>
-            ))}
-          </div>
-        </DashboardCard>
+          ))}
+        </div>
       </div>
+    </div>
+  );
+}
+
+/* ---------- Compteur compact ---------- */
+
+function MiniStat({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof Baby;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="app-card space-y-2 p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-2">
+        <span className="min-w-0 truncate text-xs text-[var(--app-faint)]">
+          {label}
+        </span>
+        <Icon className="size-4 shrink-0 text-[var(--app-emerald)]" aria-hidden="true" />
+      </div>
+      <p className="truncate font-serif text-lg font-bold text-[var(--app-heading)] sm:text-xl">
+        {value}
+      </p>
     </div>
   );
 }
 
 /* ---------- Ligne de la frise chronologique ---------- */
 
-const statusStyles: Record<StepStatus, { dot: string; ring: string }> = {
-  done: {
-    dot: "bg-[var(--app-brand)] text-white",
-    ring: "border-[var(--app-border)]",
-  },
-  current: {
-    dot: "bg-[var(--app-mint)] text-[#06231d]",
-    ring: "border-[var(--app-mint)]",
-  },
-  upcoming: {
-    dot: "bg-[var(--app-surface-3)] text-[var(--app-faint)]",
-    ring: "border-[var(--app-border)]",
-  },
+const statusStyles: Record<StepStatus, string> = {
+  done: "text-[var(--app-emerald)]",
+  current: "text-[var(--app-brand)]",
+  upcoming: "text-[var(--app-faint)]",
 };
 
 function TimelineRow({
   status,
   title,
-  description,
   date,
-  isLast,
 }: {
   status: StepStatus;
   title: string;
-  description: string;
   date?: string;
-  isLast: boolean;
 }) {
-  const style = statusStyles[status];
-
   return (
-    <li className="flex gap-3">
-      {/* Colonne du trait vertical */}
-      <div className="flex shrink-0 flex-col items-center">
-        <span
-          className={cn(
-            "flex size-7 items-center justify-center rounded-full border",
-            style.dot,
-            style.ring,
-          )}
-        >
-          {status === "done" ? (
-            <Check className="size-3.5" aria-hidden="true" />
-          ) : status === "current" ? (
-            <span className="size-2 rounded-full bg-[#06231d]" />
-          ) : null}
-        </span>
-        {!isLast && (
+    <li className="flex items-center justify-between gap-2.5 text-xs sm:text-sm">
+      <span className="flex min-w-0 items-center gap-2.5">
+        {status === "done" ? (
+          <CheckCircle2
+            className={cn("size-4 shrink-0", statusStyles[status])}
+            aria-hidden="true"
+          />
+        ) : (
           <span
             aria-hidden="true"
-            className="mt-1 w-px flex-1 bg-[var(--app-border-strong)]"
+            className={cn(
+              "size-4 shrink-0 rounded-full border-2 border-current",
+              statusStyles[status],
+            )}
           />
         )}
-      </div>
-
-      {/* Contenu */}
-      <div className="min-w-0 flex-1 pb-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm font-semibold text-[var(--app-heading)]">
-            {title}
-          </p>
-          {status === "current" && <span className="app-chip">En cours</span>}
-        </div>
-        <p className="mt-0.5 text-xs leading-relaxed text-[var(--app-muted)]">
-          {description}
-        </p>
-        {date && (
-          <p className="mt-1 text-[0.625rem] text-[var(--app-faint)]">{date}</p>
-        )}
-      </div>
+        <span
+          className={cn(
+            "truncate font-medium text-[var(--app-heading)]",
+            status === "upcoming" && "text-[var(--app-muted)]",
+          )}
+        >
+          {title}
+        </span>
+      </span>
+      {date && (
+        <span className="shrink-0 font-mono text-xs text-[var(--app-faint)]">
+          {date}
+        </span>
+      )}
     </li>
   );
 }

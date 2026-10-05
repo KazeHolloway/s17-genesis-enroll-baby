@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 interface DashboardCardProps {
   children: ReactNode;
   className?: string;
-  /** Rend la carte cliquable (ombre et bordure au survol). */
+  /** Rend la carte cliquable (ombre au survol). */
   interactive?: boolean;
   /** Etiquette accessible decrivant le contenu. */
   label?: string;
@@ -25,7 +25,7 @@ export default function DashboardCard({
     <section
       aria-label={label}
       className={cn(
-        "app-card p-4 sm:p-5",
+        "app-card p-4 sm:p-6",
         interactive && "app-card-interactive",
         className,
       )}

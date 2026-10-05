@@ -101,6 +101,8 @@ export interface AgentProfile {
   initials: string;
   /** Etablissement ou service d'affectation. */
   facility: string;
+  /** Matricule professionnel, affiche en pastille dans l'en-tete. */
+  matricule: string;
 }
 
 export interface AgentStat {

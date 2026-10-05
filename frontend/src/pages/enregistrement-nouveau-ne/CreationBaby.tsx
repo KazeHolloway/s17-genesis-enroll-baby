@@ -14,7 +14,6 @@ function CreationBaby(){
     const [weight,setWeight]=useState("");
     const [height,setHeight]=useState("");
     const [vitalstate,setVitalState]=useState("");
-    const [,setPhoto]=useState<File | null>(null);
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState<"success" | "error">("success");
 
@@ -107,6 +106,7 @@ try {
     setMessageType("success");
     setMessage("Nouveau-né enregistré avec succès.");
 } catch {
+} catch {
     setMessageType("error");
     setMessage("Impossible d'enregistrer le nouveau-né.");
 }
@@ -189,11 +189,7 @@ setTimeout(() => {
                 </select>
 
                 <label htmlFor="photo">Photo du nouveau-né:</label>
-                <input type="file" id="photo" accept="image/*" name="photo" onChange={(event)=>{
-                    if(event.target.files){
-                        setPhoto(event.target.files[0]);
-                    }
-                }}/>
+                <input type="file" id="photo" accept="image/*" name="photo"/>
             </fieldset>
             <div className="formulaires-parents">
             <fieldset className="formulaire-parent">
