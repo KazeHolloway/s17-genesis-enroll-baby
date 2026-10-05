@@ -1,184 +1,136 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+@import "tailwindcss";
 
-  &:hover {
-    border-color: var(--accent-border);
+/* Le thème sombre est piloté par l'attribut `data-theme` posé sur <html> :
+   il suit le choix de l'utilisateur, pas la seule préférence du système.
+   Ce fichier est le point d'entrée Tailwind de l'application, c'est donc
+   ici que la variante doit être déclarée. Aucune page hors landing
+   n'utilise la variante `dark:`, Login/Signup restent inchangées. */
+@custom-variant dark (&:where([data-theme="dark"] *));
+
+@theme {
+  --color-primary: #1b4d3e; /*titre icone CTA navlink active*/
+  --color-secondary: #d2e7dc; /*arriere plan carte tag puces modal*/
+  --color-fond: #f4f6f5; /*arriere plan global*/
+  --color-anthracite: #2b2b2b; /*texte principal*/
+  --color-accent: #d9534f;
+  --color-gris: #eaeeec; /*bordures*/
+}
+
+@utility light-shadow {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+@utility headline-xl {
+  font-family: var(--font-jakarta);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 40px;
+  letter-spacing: -0.02em;
+}
+@utility headline-xl-mobile {
+  font-family: var(--font-jakarta);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 34px;
+  letter-spacing: -0.01em;
+}
+@utility headline-lg {
+  font-family: var(--font-jakarta);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+  letter-spacing: -0.015em;
+}
+@utility headline-lg-mobile {
+  font-family: var(--font-jakarta);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+}
+@utility headline-md {
+  font-family: var(--font-jakarta);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 26px;
+}
+@utility body-lg {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+@utility body-md {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+@utility body-sm {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+}
+@utility label-lg {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.01em;
+}
+@utility label-md {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.02em;
+}
+@utility label-sm {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0.05em;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center font-semibold rounded-xl btn-interaction select-none cursor-pointer;
+  @variant disabled {
+    background-color: var(--color-disabled-bg);
+    color: var(--color-disabled-text);
+    cursor: not-allowed;
+  }
+}
+
+@utility btn-interaction {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  &:active {
+    transform: scale(0.98);
   }
   &:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 3px solid rgba(0, 69, 50, 0.4);
     outline-offset: 2px;
   }
 }
+@utility padding-section {
+  padding: 48px 16px;
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
+  @variant sm {
+    padding: 80px 32px;
   }
 }
-
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+@utility padding-x {
+  @apply sm:px-16 px-6;
+}
+@utility padding-y {
+  @apply py-4;
 }
 
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
+@utility form-group {
+  @apply flex flex-col gap-4;
 }
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
-}
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
-  width: 100%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
+@utility bg-login {
+  background-image: url("./assets/auth.webp");
+  background-size: cover;
+  /* background-position: center; */
 }
