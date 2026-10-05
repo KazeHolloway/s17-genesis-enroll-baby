@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import morgan from 'morgan';
+
 
 // Import de nos routes
 import enfantRoute from './routes/enfantRoute.js';
@@ -20,10 +22,12 @@ dotenv.config();
 
 const app = express();
 
+
 // --- Middlewares globaux ---
 app.use(cors()); // Autorise les requêtes cross-origin (depuis le front-end)
 app.use(express.json()); // Permet de lire le corps des requêtes en JSON
 app.use(express.urlencoded({ extended: true })); // Pour parser les form-data si besoin
+app.use(morgan('combined'))
 
 // --- Définition des routes de l'API ---
 app.use('/api/enfants', enfantRoute);
