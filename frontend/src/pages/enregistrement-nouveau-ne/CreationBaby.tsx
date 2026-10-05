@@ -106,6 +106,7 @@ try {
     setMessageType("success");
     setMessage("Nouveau-né enregistré avec succès.");
 } catch {
+} catch {
     setMessageType("error");
     setMessage("Impossible d'enregistrer le nouveau-né.");
 }

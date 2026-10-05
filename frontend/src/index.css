@@ -618,3 +618,24 @@ html {
     padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
   }
 }
+.compte-a-rebours {
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  text-align: center;
+  color: #08060d;
+}
+.compte-a-rebours__jours {
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 0;
+}
+.compte-a-rebours--expire {
+  border-color: #c0392b;
+  background: #fdecea;
+}
+.compte-a-rebours--ok {
+  border-color: #27ae60;
+  background: #eafaf1;
+}
