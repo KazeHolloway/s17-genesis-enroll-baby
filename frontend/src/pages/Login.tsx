@@ -1,14 +1,15 @@
 import CustomButton from "../components/ui/CustomButton";
 import { ArrowRight } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthForm } from "../hooks/useAuthForm";
 import { PasswordInput } from "../components/ui/auth/PasswordInput";
 import logo from "../assets/logo.png";
+import { login } from "../services/api";
 
 const Login = () => {
   const {
-    email,
-    setEmail,
+    phone,
+    setPhone,
     password,
     setPassword,
     isLoading,
@@ -18,20 +19,31 @@ const Login = () => {
   } = useAuthForm();
   const { pathname } = useLocation();
   const isPro = pathname.startsWith("/pro");
+  const navigate = useNavigate();
 
   // Handlesubmit
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (
+    e: React.SubmitEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!phone || !password) {
       setMessage("Veuillez remplir et cochez tous les champs");
       return;
     }
     setIsLoading(true);
     setMessage("Connexion en cours...");
-    // TODO: call your API here
-    // await fetch(...)
-    setIsLoading(false);
-    setMessage("Connexion réussie !");
+    // API Call
+    try {
+      await login({ phone, password });
+      setMessage("Connexion réussie !");
+      navigate("/dashboard");
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Une erreur est survenue",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <section className="bg-login min-h-screen w-full flex items-center justify-center p-4">
@@ -57,14 +69,16 @@ const Login = () => {
           {/* Inputs */}
 
           <div className="form-group">
-            <label className="text-sm font-medium text-primary">Email</label>
+            <label className="text-sm font-medium text-primary">
+              Numero de telephone
+            </label>
             <input
-              type="email"
+              type="text"
               className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
-              placeholder="Votre adresse mail"
-              value={email}
+              placeholder="Votre numero de telephone"
+              value={phone}
               onChange={(e) => {
-                setEmail(e.target.value);
+                setPhone(e.target.value);
               }}
               required
             />
@@ -99,14 +113,9 @@ const Login = () => {
           </p>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Pas de compte ? <Link to="/signup/parent">Créer un compte</Link>
+            Pas de compte ? <Link to="/signup">Créer un compte</Link>
           </p>
         )}
-
-        <div>
-          <p>{email}</p>
-          <p>{password}</p>
-        </div>
       </div>
     </section>
   );

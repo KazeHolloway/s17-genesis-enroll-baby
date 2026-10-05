@@ -1,4 +1,4 @@
-import pool from '../config/db.js';
+import pool from "../config/db.js";
 
 // Créer un rendez-vous (l'établissement est repris de l'enfant)
 export const createRendezVous = async (data) => {
@@ -8,14 +8,21 @@ export const createRendezVous = async (data) => {
      FROM enfants e
      WHERE e.id = $1
      RETURNING *`,
-    [data.enfant_id, data.vaccination_id ?? null, data.date_rdv, data.motif ?? null]
+    [
+      data.enfant_id,
+      data.vaccination_id ?? null,
+      data.date_rdv,
+      data.motif ?? null,
+    ],
   );
   return result.rows[0];
 };
 
 // Un rendez-vous par son id
 export const getRendezVousById = async (id) => {
-  const result = await pool.query(`SELECT * FROM rendez_vous WHERE id = $1`, [id]);
+  const result = await pool.query(`SELECT * FROM rendez_vous WHERE id = $1`, [
+    id,
+  ]);
   return result.rows[0];
 };
 
@@ -23,7 +30,7 @@ export const getRendezVousById = async (id) => {
 export const getRendezVousByEnfant = async (enfantId) => {
   const result = await pool.query(
     `SELECT * FROM rendez_vous WHERE enfant_id = $1 ORDER BY date_rdv`,
-    [enfantId]
+    [enfantId],
   );
   return result.rows;
 };
@@ -37,7 +44,7 @@ export const updateRendezVous = async (id, data) => {
          statut   = COALESCE($3, statut)
      WHERE id = $4
      RETURNING *`,
-    [data.date_rdv, data.motif, data.statut, id]
+    [data.date_rdv, data.motif, data.statut, id],
   );
   return result.rows[0];
 };
@@ -55,7 +62,7 @@ export const getRappelsParent = async (utilisateurId) => {
        AND r.date_rdv > now()
        AND r.date_rdv <= now() + interval '24 hours'
      ORDER BY r.date_rdv`,
-    [utilisateurId]
+    [utilisateurId],
   );
   return result.rows;
 };

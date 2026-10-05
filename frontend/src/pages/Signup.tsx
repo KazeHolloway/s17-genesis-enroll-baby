@@ -194,14 +194,6 @@ const Signup = () => {
             Se connecter
           </Link>
         </p>
-
-        <div>
-          <p>{name}</p>
-          <p>{email}</p>
-          <p>{password}</p>
-          <p>{confirmPassword}</p>
-          <p>{cgu ? "Accepted" : "none"}</p>
-        </div>
       </div>
     </section>
   );

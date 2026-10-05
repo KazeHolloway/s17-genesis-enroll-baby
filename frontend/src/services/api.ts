@@ -31,10 +31,13 @@ async function request<T>(
 }
 
 // --- Auth ---
-export const login = (email: string, password: string, role: string) =>
+export const login = (credentials: { phone: string; password: string }) =>
   request<{ token: string; user: object }>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password, role }),
+    body: JSON.stringify({
+      telephone: credentials.phone,
+      mot_de_passe: credentials.password,
+    }),
   });
 
 export const register = (payload: {
