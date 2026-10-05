@@ -35,11 +35,13 @@ Le fichier `backend/src/database/seed.sql` crée deux comptes de test :
 | Agent de maternité | `+242060000001` | `Agent123!` |
 | Admin | `+242060000002` | `Admin123!` |
 
-Le seed contient aussi des données prêtes à l'emploi : 4 enfants, leurs parents, leurs dossiers, des vaccinations et des rendez-vous.
+Le seed contient aussi des données prêtes à l'emploi : 10 enfants, leurs parents, leurs dossiers, des vaccinations et des rendez-vous.
 
 | Compte parent | Téléphone | Mot de passe | Situation |
 |---|---|---|---|
 | Marie Nzaba | `+242061000010` | `Parent123!` | Enfant né il y a 40 jours : délai de déclaration dépassé, rendez-vous dans 12 h |
+| Rosine Loubaki | `+242061000011` | `Parent123!` | Enfant né il y a 35 jours : délai dépassé, rendez-vous dans 3 jours |
+| Esther Tati | `+242061000012` | `Parent123!` | Enfant né il y a 100 jours : naissance déclarée, vaccins à jour |
 
 Codes d'accès de test à utiliser sur `POST /api/parents/inscription` (chacun ne sert qu'une fois) :
 
@@ -48,6 +50,10 @@ Codes d'accès de test à utiliser sur `POST /api/parents/inscription` (chacun n
 | `ABCD-2345-EFGH` | Grâce Mabiala | Né il y a 5 jours, compte à rebours en cours |
 | `JKLM-6789-NPQR` | Sarah Okemba | Naissance déjà déclarée à la mairie |
 | `BCDF-3456-GHJK` | Enfant mort-né | Sert aux statistiques |
+| `CDEF-4567-HJKM` | Prince Moukoko | Né il y a 2 jours, aucun vaccin fait |
+| `UVWX-3456-YZAB` | Josué Batchi | Dose VPI 1 en retard, rendez-vous dans 20 h (rappel 24 h) |
+| `NPQR-4567-STUV` | Jordan Ngoma | Né il y a 280 jours, doses en retard |
+| `WXYZ-5678-BCDF` | Éliane Mpassi | Enfant décédé, sert aux statistiques |
 
 Le certificat public de Sarah Okemba est visible sur `/api/certificats/seed-certificat-okemba-sarah`.
 
