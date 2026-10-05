@@ -13,3 +13,23 @@ export interface Parent {
   email: string;
   nbreEnfants: number;
 }
+
+export type VaccineStatus = "realise" | "avenir" | "retard";
+
+export interface Vaccine {
+  id: string;
+  nom: string;
+  mois: number;
+  dose: number;
+  date_prevue: string;
+  date_effectuee?: string;
+  etablissement?: string;
+  statut: VaccineStatus;
+}
+
+export interface Child {
+  id: string;
+  nom: string;
+  date_naissance: string;
+  vaccins: Vaccine[];
+}
