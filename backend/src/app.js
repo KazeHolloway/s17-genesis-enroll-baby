@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
-
+import helmet from 'helmet';
 
 // Import de nos routes
 import enfantRoute from './routes/enfantRoute.js';
@@ -15,11 +15,10 @@ import statistiquesRoute from './routes/statistiquesRoute.js';
 import vaccinationRoute from './routes/vaccinationRoute.js';
 import declarationRoute from './routes/declarationRoute.js';
 import certificatRoute from './routes/certificatRoute.js';
-import rendezVousRoute from './routes/rendezVousRoute.js'
+import rendezVousRoute from './routes/rendezVousRoute.js';
 
 
 dotenv.config();
-
 const app = express();
 
 
@@ -27,7 +26,11 @@ const app = express();
 app.use(cors()); // Autorise les requêtes cross-origin (depuis le front-end)
 app.use(express.json()); // Permet de lire le corps des requêtes en JSON
 app.use(express.urlencoded({ extended: true })); // Pour parser les form-data si besoin
-app.use(morgan('combined'))
+app.use(morgan('combined'));
+app.use(helmet());                        
+
+
+
 
 // --- Définition des routes de l'API ---
 app.use('/api/enfants', enfantRoute);
