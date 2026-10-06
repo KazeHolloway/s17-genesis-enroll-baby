@@ -38,6 +38,7 @@ function App() {
         <Route index element={<Navigate to="/parent/dashboard" replace />} />
         <Route path="dashboard" element={<ParentDashboard />} />
         <Route path="enfants" element={<ParentChildren />} />
+        <Route path="enfants/:id" element={<DossierEnfant />} />
         <Route path="vaccinations" element={<ParentVaccinations />} />
         <Route path="documents" element={<ParentDocuments />} />
         <Route path="notifications" element={<ParentNotifications />} />
