@@ -18,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@rolldown/binding-android-arm64": "^1.2.12",
     "concurrently": "^10.0.5"
   }
 }
