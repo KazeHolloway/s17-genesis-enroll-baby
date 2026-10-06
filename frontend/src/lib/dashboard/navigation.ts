@@ -1,7 +1,6 @@
 import {
   Activity,
   Bell,
-  CheckCircle2,
   FileText,
   FolderOpen,
   Home,
@@ -77,12 +76,9 @@ export const agentNavItems: DashboardNavItem[] = [
     badge: 3,
   },
   { to: "/agent/vaccinations", label: "Vaccinations", icon: Syringe, end: false, badge: 5 },
-  {
-    to: "/agent/statuts",
-    label: "Confirmation Statuts",
-    icon: CheckCircle2,
-    end: false,
-  },
+  /* Pas d'entrée « Confirmation Statuts » : la page Vaccinations s'ouvre déjà
+     sur cet onglet, une entrée de plus dans la sidebar était redondante. La
+     route `/agent/statuts` reste accessible par URL. */
   { to: "/agent/parametres", label: "Paramètres", icon: Settings, end: false },
 ];
 

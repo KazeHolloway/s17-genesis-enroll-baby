@@ -18,13 +18,22 @@ function getSystemTheme(): ResolvedTheme {
   return window.matchMedia(DARK_MEDIA_QUERY).matches ? "dark" : "light";
 }
 
+/**
+ * Défaut : `light`.
+ *
+ * Un visiteur dont l'OS est en mode sombre arrivait sur la landing en thème
+ * sombre alors que la maquette est claire. `system` reste proposé dans le
+ * sélecteur, c'est seulement l'absence de choix enregistré qui vaut `light`.
+ */
+const DEFAULT_PREFERENCE: ThemePreference = "light";
+
 function readStoredPreference(): ThemePreference {
-  if (typeof window === "undefined") return "system";
+  if (typeof window === "undefined") return DEFAULT_PREFERENCE;
   try {
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-    return isThemePreference(stored) ? stored : "system";
+    return isThemePreference(stored) ? stored : DEFAULT_PREFERENCE;
   } catch {
-    return "system";
+    return DEFAULT_PREFERENCE;
   }
 }
 

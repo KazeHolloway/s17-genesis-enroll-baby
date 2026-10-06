@@ -1,5 +1,5 @@
 import CustomButton from "../components/ui/CustomButton";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthForm } from "../hooks/useAuthForm";
 import { PasswordInput } from "../components/ui/auth/PasswordInput";
@@ -87,6 +87,18 @@ const Signup = () => {
 
   return (
     <section className="bg-login min-h-screen w-full flex items-center justify-center p-4">
+      {/* Retour à la landing. `fixed` et non `absolute` : le parent est un
+          conteneur `flex` sans hauteur propre, un lien en absolute se
+          positionnerait par rapport à la page entière et disparaissait au
+          défilement sur mobile. */}
+      <Link
+        to="/"
+        className="fixed top-4 left-4 z-10 inline-flex min-h-[44px] items-center gap-2 rounded-btn btn-interaction px-3 py-2 text-sm font-semibold text-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary/50"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        Retour
+      </Link>
+
       <div className="w-full max-w-xl min-h-225 backdrop-blur-sm flex flex-col justify-center items-center gap-8 p-8 md:p-12 rounded-2xl shadow-xl border border-primary/10">
         <div>
           <img src={logo} alt="" width={100} height={10} />

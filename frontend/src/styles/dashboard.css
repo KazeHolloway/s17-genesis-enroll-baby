@@ -185,6 +185,9 @@
   flex: 1 1 0%;
   min-width: 0;
   justify-content: center;
+  /* Centrage vertical : sans cela l'onglet action, plus court que les autres,
+     s'alignerait sur le haut de la ligne. */
+  align-items: center;
 }
 
 /* Cible tactile : 48px de haut minimum, recommendation materiel pour le pouce. */
@@ -240,20 +243,20 @@
   background-color: var(--app-danger);
 }
 
-/* Action rapide Agent : bouton surélevé au centre de la barre. */
+/* Action rapide Agent : bouton plein au centre de la barre.
+   Même hauteur que les onglets voisins (48px) pour que la ligne de base soit
+   la même, et aucun décalage vertical. Le halo blanc d'avant ajoutait 4px de
+   part et d'autre et faisait lire le bouton comme plus gros que les autres. */
 .app-bottom-nav-fab {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 3.25rem;
-  height: 3.25rem;
-  margin-top: -1.375rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 999px;
   background-color: var(--app-emerald);
   color: #ffffff;
-  box-shadow:
-    0 6px 16px rgba(16, 185, 129, 0.35),
-    0 0 0 4px var(--app-bottom-nav-bg);
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
   -webkit-tap-highlight-color: transparent;
   transition: background-color 0.18s ease;
 }
