@@ -1,16 +1,17 @@
 import CustomButton from "../components/ui/CustomButton";
-import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthForm } from "../hooks/useAuthForm";
 import { PasswordInput } from "../components/ui/auth/PasswordInput";
+import { useAuth } from "@/contexts/useAuth";
+import { routePourRole } from "@/lib/dashboard/routes";
+import { ApiError } from "@/services/api";
 import logo from "../assets/logo.png";
 
 const Login = () => {
-  const {
-    role,
-    setRole,
-    email,
-    setEmail,
+const {
+    phone,
+    setPhone,
     password,
     setPassword,
     isLoading,
@@ -19,22 +20,59 @@ const Login = () => {
     setMessage,
   } = useAuthForm();
 
-  // Handlesubmit
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>): void => {
+  /* Connexion réelle via le contexte : `connexion` appelle `POST /auth/login`,
+     stocke le token dans le localStorage puis navigue vers le tableau de bord du
+     rôle. Sans ce branchement, le token n'est jamais écrit et toutes les routes
+     protégées répondent 401 « Authentification requise ». */
+  const { connexion } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (
+    e: React.SubmitEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
-    if (!email || !password) {
-      setMessage("Veuillez remplir et cochez tous les champs");
+    if (!phone || !password) {
+      setMessage("Veuillez remplir tous les champs");
       return;
     }
+
     setIsLoading(true);
     setMessage("Connexion en cours...");
-    // TODO: call your API here
-    // await fetch(...)
-    setIsLoading(false);
-    setMessage("Connexion réussie !");
+
+    try {
+      /* Le rôle est lu depuis la réponse de l'API, pas choisi dans le
+         formulaire : il n'y a qu'un seul compte par téléphone, la redirection
+         se déduit donc du rôle réellement associé. */
+      const utilisateur = await connexion(phone.trim(), password);
+
+      setMessage("Connexion réussie !");
+      /* Redirection par rôle : `/parent/dashboard` ou `/agent/dashboard`.
+         `routePourRole` remplace l'ancienne cible `/dashboard`, unique pour
+         les deux rôles, qui ne pouvait pas savoir qui s'est connecté. */
+      navigate(routePourRole(utilisateur.role), { replace: true });
+    } catch (error) {
+      /* Le message du backend est en français et explicite (« Identifiants
+         incorrects », « Compte désactivé… ») : inutile d'en fabriquer un. */
+      setMessage(
+        error instanceof ApiError ? error.message : "Connexion impossible.",
+      );
+      setIsLoading(false);
+    }
   };
   return (
     <section className="bg-login min-h-screen w-full flex items-center justify-center p-4">
+      {/* Retour à la landing. `fixed` et non `absolute` : le parent est un
+          conteneur `flex` sans hauteur propre, un lien en absolute se
+          positionnerait par rapport à la page entière et disparaissait au
+          défilement sur mobile. */}
+      <Link
+        to="/"
+        className="fixed top-4 left-4 z-10 inline-flex min-h-[44px] items-center gap-2 rounded-btn btn-interaction px-3 py-2 text-sm font-semibold text-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary/50"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        Retour
+      </Link>
+
       <div className="w-full relative max-w-xl min-h-225 backdrop-blur-sm flex flex-col justify-center items-center gap-8 p-8 md:p-12 rounded-2xl shadow-xl border border-primary/10">
         <div>
           <img src={logo} alt="" width={100} height={10} />
@@ -50,37 +88,24 @@ const Login = () => {
           </p>
         </div>
 
-        {/* Role toggle */}
-        <div className="flex rounded-lg border border-primary/20 overflow-hidden">
-          <CustomButton
-            className="flex-1 rounded-none border-0"
-            variant={role === "parent" ? "tab-active" : "tab"}
-            onClick={() => setRole("parent")}
-          >
-            Parent
-          </CustomButton>
-          <CustomButton
-            type="button"
-            variant={role === "professionnel" ? "tab-active" : "tab"}
-            className="flex-1 rounded-none border-0"
-            onClick={() => setRole("professionnel")}
-          >
-            Professionnel de Santé
-          </CustomButton>
-        </div>
-
         <form className="flex flex-col gap-5 w-full" onSubmit={handleSubmit}>
           {/* Inputs */}
 
+          {/* L'API authentifie sur le téléphone (`POST /auth/login` attend
+              `telephone`), pas sur une adresse mail : un `type="email"`
+              rejetait le format `+24206...` avant même l'envoi. */}
           <div className="form-group">
-            <label className="text-sm font-medium text-primary">Email</label>
+            <label className="text-sm font-medium text-primary">
+              Numéro de téléphone
+            </label>
             <input
-              type="email"
+              type="tel"
+              autoComplete="tel"
               className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
-              placeholder="Votre adresse mail"
-              value={email}
+              placeholder="+242 06 00 00 00"
+              value={phone}
               onChange={(e) => {
-                setEmail(e.target.value);
+                setPhone(e.target.value);
               }}
               required
             />
@@ -118,11 +143,7 @@ const Login = () => {
           </Link>
         </p>
 
-        <div>
-          <p>{email}</p>
-          <p>{password}</p>
         </div>
-      </div>
     </section>
   );
 };

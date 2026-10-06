@@ -76,6 +76,9 @@ export const agentNavItems: DashboardNavItem[] = [
     badge: 3,
   },
   { to: "/agent/vaccinations", label: "Vaccinations", icon: Syringe, end: false, badge: 5 },
+  /* Pas d'entrée « Confirmation Statuts » : la page Vaccinations s'ouvre déjà
+     sur cet onglet, une entrée de plus dans la sidebar était redondante. La
+     route `/agent/statuts` reste accessible par URL. */
   { to: "/agent/parametres", label: "Paramètres", icon: Settings, end: false },
 ];
 
@@ -135,6 +138,7 @@ export const pageTitles: Record<string, string> = {
   "/agent/nouveau-ne": "Nouveau-né",
   "/agent/dossiers": "Registre",
   "/agent/vaccinations": "Vaccinations",
+  "/agent/statuts": "Confirmation Statuts",
   "/agent/parametres": "Paramètres",
 };
 

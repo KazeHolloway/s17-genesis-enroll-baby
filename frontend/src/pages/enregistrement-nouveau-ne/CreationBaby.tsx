@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import { postData } from "../../services/api";
+import { enregistrerEnfant } from "../../services/api";
 import type {BabyData} from "../../lib/types";
 import type {dataParent} from "../../lib/types";
 import logo from "../../assets/logo.png";
@@ -109,10 +109,7 @@ if (tuteurNom && tuteurPrenom) {
     });
 }
 try {
-    await postData("/api/enfants/enregistrement", {
-        enfant: babydata,
-        parents,
-    });
+    await enregistrerEnfant({ enfant: babydata, parents: [mere, pere] });
 
     setMessageType("success");
     setMessage("Nouveau-né enregistré avec succès.");

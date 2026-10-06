@@ -1,22 +1,25 @@
 import CustomButton from "../components/ui/CustomButton";
-import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthForm } from "../hooks/useAuthForm";
 import { PasswordInput } from "../components/ui/auth/PasswordInput";
+import { inscriptionParent, ApiError } from "../services/api";
 import logo from "../assets/logo.png";
 
 const Signup = () => {
   const {
-    role,
-    setRole,
     name,
     setName,
+    phone,
+    setPhone,
     email,
     setEmail,
     password,
     setPassword,
     confirmPassword,
     setConfirmPassword,
+    codeOtp,
+    setCodeOtp,
     cgu,
     setCgu,
     isLoading,
@@ -26,30 +29,81 @@ const Signup = () => {
     reset,
   } = useAuthForm();
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>): void => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (
+    e: React.SubmitEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
-    if (!name || !email || !password || !confirmPassword || !cgu) {
-      setMessage("Veuillez remplir et cochez tous les champs");
+
+    if (!name || !phone || !password || !codeOtp) {
+      setMessage("Veuillez remplir tous les champs");
+      return;
+    }
+    if (!cgu) {
+      setMessage("Veuillez cocher la case des CGU");
       return;
     }
     if (password !== confirmPassword) {
-      setMessage("Les deux mots de passes doivent etre identiques");
+      setMessage("Les deux mots de passe doivent être identiques");
       return;
     }
+    if (password.length < 8) {
+      setMessage("Le mot de passe doit contenir au moins 8 caractères");
+      return;
+    }
+
     setIsLoading(true);
-    setMessage("Enregistrement en cours...");
-    // TODO: call your API here
-    // await fetch(...)
-    setIsLoading(false);
-    setMessage("Enregistrement réussi !");
-    reset();
+    setMessage("Création du compte en cours...");
+
+    try {
+      /* `POST /api/parents/inscription` est publique : le compte n'existe pas
+         encore. Le backend valide le code d'accès, refuse un code déjà utilisé
+         et rattache le compte au dossier de l'enfant. La session n'est pas
+         ouverte par cet appel, d'où la redirection vers la connexion. */
+      await inscriptionParent({
+        code_acces: codeOtp.trim(),
+        nom: name.trim(),
+        telephone: phone.trim(),
+        email: email.trim() || undefined,
+        mot_de_passe: password,
+      });
+
+      setMessage("Compte créé ! Vous pouvez maintenant vous connecter.");
+      reset();
+      navigate("/login", { replace: true });
+    } catch (error) {
+      /* Le backend répond `{ success, message }` : « Code d'accès invalide ou
+         expiré », « Ce code a déjà été utilisé »… On affiche ses mots plutôt
+         qu'un message générique, c'est l'information utile ici. */
+      setMessage(
+        error instanceof ApiError
+          ? error.message
+          : "Impossible de créer le compte.",
+      );
+      setIsLoading(false);
+    }
   };
+
   return (
     <section className="bg-login min-h-screen w-full flex items-center justify-center p-4">
+      {/* Retour à la landing. `fixed` et non `absolute` : le parent est un
+          conteneur `flex` sans hauteur propre, un lien en absolute se
+          positionnerait par rapport à la page entière et disparaissait au
+          défilement sur mobile. */}
+      <Link
+        to="/"
+        className="fixed top-4 left-4 z-10 inline-flex min-h-[44px] items-center gap-2 rounded-btn btn-interaction px-3 py-2 text-sm font-semibold text-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary/50"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        Retour
+      </Link>
+
       <div className="w-full max-w-xl min-h-225 backdrop-blur-sm flex flex-col justify-center items-center gap-8 p-8 md:p-12 rounded-2xl shadow-xl border border-primary/10">
         <div>
           <img src={logo} alt="" width={100} height={10} />
         </div>
+
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="headline-xl-mobile md:headline-xl text-primary">
@@ -61,25 +115,6 @@ const Signup = () => {
           </p>
         </div>
 
-        {/* Role toggle */}
-        <div className="flex rounded-lg border border-primary/20 overflow-hidden">
-          <CustomButton
-            className="flex-1 rounded-none border-0"
-            variant={role === "parent" ? "tab-active" : "tab"}
-            onClick={() => setRole("parent")}
-          >
-            Parent
-          </CustomButton>
-          <CustomButton
-            type="button"
-            variant={role === "professionnel" ? "tab-active" : "tab"}
-            className="flex-1 rounded-none border-0"
-            onClick={() => setRole("professionnel")}
-          >
-            Professionnel de Santé
-          </CustomButton>
-        </div>
-
         <form className="flex flex-col gap-5 w-full" onSubmit={handleSubmit}>
           {/* Inputs */}
           <div className="form-group">
@@ -88,6 +123,7 @@ const Signup = () => {
             </label>
             <input
               type="text"
+              autoComplete="name"
               className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
               placeholder="Votre nom et prénom"
               value={name}
@@ -98,17 +134,36 @@ const Signup = () => {
             />
           </div>
 
+          {/* L'API authentifie sur le téléphone : un champ `type="email"`
+              rejetait le format `+24206...` avant même l'envoi. */}
+          <div className="form-group">
+            <label className="text-sm font-medium text-primary">
+              Numéro de téléphone
+            </label>
+            <input
+              type="tel"
+              autoComplete="tel"
+              className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
+              placeholder="+242 06 00 00 00"
+              value={phone}
+              onChange={(e) => {
+                setPhone(e.target.value);
+              }}
+              required
+            />
+          </div>
+
           <div className="form-group">
             <label className="text-sm font-medium text-primary">Email</label>
             <input
               type="email"
+              autoComplete="email"
               className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
-              placeholder="Votre adresse mail"
+              placeholder="Votre adresse mail (facultatif)"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
               }}
-              required
             />
           </div>
 
@@ -116,7 +171,7 @@ const Signup = () => {
             label="Mot de passe"
             value={password}
             onChange={setPassword}
-            placeholder="Votre mot de passe"
+            placeholder="8 caractères minimum"
           />
 
           <PasswordInput
@@ -125,6 +180,24 @@ const Signup = () => {
             onChange={setConfirmPassword}
             placeholder="Confirmer le mot de passe"
           />
+
+          {/* Le code d'accès est ce qui rattache le compte au dossier de
+              l'enfant : sans lui, le backend refuse l'inscription. */}
+          <div className="form-group">
+            <label className="text-sm font-medium text-primary">
+              Code d'accès
+            </label>
+            <input
+              type="text"
+              className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
+              placeholder="Code reçu de l'établissement"
+              value={codeOtp}
+              onChange={(e) => {
+                setCodeOtp(e.target.value);
+              }}
+              required
+            />
+          </div>
 
           {/* Checkbox */}
           <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none">
@@ -161,14 +234,6 @@ const Signup = () => {
             Se connecter
           </Link>
         </p>
-
-        <div>
-          <p>{name}</p>
-          <p>{email}</p>
-          <p>{password}</p>
-          <p>{confirmPassword}</p>
-          <p>{cgu ? "Accepted" : "none"}</p>
-        </div>
       </div>
     </section>
   );

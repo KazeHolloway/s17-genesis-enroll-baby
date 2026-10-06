@@ -89,14 +89,21 @@ export function Hero() {
       <div className="grid-pattern-hero" aria-hidden="true" />
 
       <div className="pointer-events-none absolute inset-0 z-0 select-none" aria-hidden="true">
-        <div className="absolute right-0 top-0 h-full w-full lg:w-[62%] xl:w-[58%]">
+        {/* Sur mobile l'image occupait toute la hauteur du hero (92svh) sur 375px de
+            large. `object-cover` se cale alors sur la hauteur : la photo est
+            agrandie à ~913px et n'en montrait que 41%, coupée au bord droit.
+            On la cantonne à un bandeau en haut de section, où le ratio du
+            conteneur se rapproche de celui de la photo : le sujet est centré
+            et visible en entier. Le dégradé du bas fondu vers le fond masque
+            la coupure. */}
+        <div className="absolute inset-x-0 top-0 h-[38%] min-h-[200px] lg:inset-y-0 lg:right-0 lg:left-auto lg:h-full lg:min-h-0 lg:w-[62%] xl:w-[58%]">
           <img
             src={heroImage}
             alt="Une mère tenant tendrement son nouveau-né à la maternité"
-            className="h-full w-full object-cover object-right opacity-95 lg:object-center lg:opacity-100"
+            className="h-full w-full object-cover object-center opacity-90 lg:object-center lg:opacity-100"
             fetchPriority="high"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#fbfcfa] via-[#fbfcfa]/85 lg:via-[#fbfcfa]/35 to-transparent dark:from-[#000000] dark:via-[#000000]/85 lg:dark:via-[#000000]/45" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#fbfcfa] lg:bg-gradient-to-r lg:from-[#fbfcfa] lg:via-[#fbfcfa]/85 lg:to-transparent dark:via-transparent dark:to-[#000000] lg:dark:via-[#000000]/85 lg:dark:from-[#000000]" />
           <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#fbfcfa] via-[#fbfcfa]/40 to-transparent dark:from-[#000000] dark:via-[#000000]/45" />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#fbfcfa] to-transparent dark:from-[#000000]" />
         </div>

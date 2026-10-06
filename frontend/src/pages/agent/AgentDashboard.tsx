@@ -52,6 +52,9 @@ export default function AgentDashboard() {
             hint={stat.hint}
             trend={stat.trend}
             icon={statIcons[index] ?? Baby}
+            /* La carte « Vaccinations a suivre » est le raccourci vers la
+               confirmation des statuts : c'est la tache principale de l'agent. */
+            to={stat.id === "stat-vaccinations" ? "/agent/statuts" : undefined}
           />
         ))}
       </div>
@@ -75,12 +78,20 @@ export default function AgentDashboard() {
           </div>
         </div>
 
-        <Link
-          to="/agent/dossiers"
-          className="flex w-full shrink-0 items-center justify-center whitespace-nowrap rounded-xl bg-amber-600 px-3.5 py-2.5 text-xs font-bold text-white transition-colors hover:bg-amber-700 sm:w-auto sm:py-1.5"
-        >
-          Voir les dossiers urgents
-        </Link>
+        <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
+          <Link
+            to="/agent/statuts"
+            className="flex min-h-11 items-center justify-center whitespace-nowrap rounded-xl bg-emerald-700 px-3.5 py-2.5 text-xs font-bold text-white transition-colors hover:bg-emerald-800"
+          >
+            Confirmer les statuts
+          </Link>
+          <Link
+            to="/agent/dossiers"
+            className="flex min-h-11 items-center justify-center whitespace-nowrap rounded-xl bg-amber-600 px-3.5 py-2.5 text-xs font-bold text-white transition-colors hover:bg-amber-700 sm:py-1.5"
+          >
+            Voir les dossiers urgents
+          </Link>
+        </div>
       </div>
 
       {/* ---------- Actions principales ---------- */}

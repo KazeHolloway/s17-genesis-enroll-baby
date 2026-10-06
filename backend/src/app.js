@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 import helmet from 'helmet';
-import { limiteur } from './middlewares/rateLimit.js';
+import { limiteurAuth, limiteurEspace } from './middlewares/rateLimit.js';
 
 // Import de nos routes
 import enfantRoute from './routes/enfantRoute.js';
@@ -17,6 +17,7 @@ import vaccinationRoute from './routes/vaccinationRoute.js';
 import declarationRoute from './routes/declarationRoute.js';
 import certificatRoute from './routes/certificatRoute.js';
 import rendezVousRoute from './routes/rendezVousRoute.js';
+import etablissementRoute from './routes/etablissementRoute.js';
 
 dotenv.config();
 const app = express();
@@ -33,8 +34,8 @@ app.use(helmet());
 // --- Définition des routes de l'API ---
 app.use('/api/enfants', enfantRoute);
 app.use('/api/dossiers', dossierRoute);
-app.use('/api/auth',limiteur, authRoute);
-app.use('/api/parents',limiteur, parentRoute);
+app.use('/api/auth', limiteurAuth, authRoute);
+app.use('/api/parents', limiteurEspace, parentRoute);
 app.use('/api/calendrier-vaccinal', calendrierRoute);
 app.use('/api/imprimable', imprimableRoute);
 app.use('/api/statistiques', statistiquesRoute);
@@ -42,6 +43,7 @@ app.use('/api/vaccinations', vaccinationRoute);
 app.use('/api/declarations', declarationRoute);
 app.use('/api/certificats', certificatRoute);
 app.use('/api/rendez-vous', rendezVousRoute)
+app.use('/api/etablissements', etablissementRoute);
 
 // --- Route de test de santé (Health check) ---
 app.get('/api/health', (req, res) => {
