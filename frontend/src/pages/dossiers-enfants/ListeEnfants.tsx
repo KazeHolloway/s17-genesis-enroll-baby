@@ -1,43 +1,80 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { getData, NonConnecteError } from '../../services/http';
+import '../enregistrement-nouveau-ne/CreationBaby.css';
+import './Dossiers.css';
 
+type Enfant = {
+  id: number;
+  nom: string;
+  prenom: string;
+  sexe: 'M' | 'F';
+  date_naissance: string;
+  statut_vital: string;
+};
 
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { getData } from "../../services/api";
-import type { BabyData } from "../../lib/types";
+const STATUTS: Record<string, string> = {
+  vivant: 'Vivant',
+  mort_ne: 'Mort-né',
+  decede: 'Décédé',
+};
 
-function ListeEnfants() {
-const [enfants, setEnfants] = useState<BabyData[]>([]);
-const navigate = useNavigate();
-useEffect(() => {
-  getData("/api/enfants")
-    .then((data) => {
-      setEnfants(data);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-}, []);
+const formaterDate = (date: string) => new Date(date).toLocaleDateString('fr-FR');
+
+export default function ListeEnfants() {
+  const [enfants, setEnfants] = useState<Enfant[]>([]);
+  const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState('');
+  const [nonConnecte, setNonConnecte] = useState(false);
+
+  useEffect(() => {
+    getData<Enfant[]>('/api/enfants')
+      .then(setEnfants)
+      .catch((e: unknown) => {
+        if (e instanceof NonConnecteError) setNonConnecte(true);
+        else setErreur(e instanceof Error ? e.message : 'Une erreur est survenue');
+      })
+      .finally(() => setChargement(false));
+  }, []);
+
   return (
-  <div>
-    <h1>Liste des nouveau-nés</h1>
+    <main className="bb-page">
+      <section className="bb-carte">
+        <div className="bb-barre">
+          <h1>Nouveau-nés enregistrés</h1>
+          <Link to="/" className="bb-bouton">+ Enregistrer un nouveau-né</Link>
+        </div>
 
-    {enfants.map((enfant) => (
-      <div key={enfant.id}>
-        <h2>
-          {enfant.prenom} {enfant.nom}
-        </h2>
+        {chargement && <p className="bb-aide">Chargement...</p>}
+        {nonConnecte && (
+          <p className="bb-erreur">
+            Vous n'êtes pas connecté. <Link to="/connexion">Se connecter</Link>
+          </p>
+        )}
+        {erreur && <p className="bb-erreur">{erreur}</p>}
+        {!chargement && !nonConnecte && !erreur && enfants.length === 0 && (
+          <p className="bb-aide">Aucun nouveau-né enregistré pour le moment.</p>
+        )}
 
-        <p>Sexe : {enfant.sexe}</p>
-        <p>Date de naissance : {enfant.date_naissance}</p>
-        <p>Statut : {enfant.statut_vital}</p>
-
-        <button onClick={() => navigate(`/dossiers-enfants/${enfant.id}`)}>
-  Voir le dossier
-</button>
-      </div>
-    ))}
-  </div>
-);
+        <ul className="bb-liste">
+          {enfants.map((enfant) => (
+            <li key={enfant.id} className="bb-enfant">
+              <div>
+                <h2>{enfant.prenom} {enfant.nom}</h2>
+                <p>
+                  {enfant.sexe === 'F' ? 'Fille' : 'Garçon'} · né(e) le {formaterDate(enfant.date_naissance)}
+                </p>
+                <span className="bb-badge">
+                  {STATUTS[enfant.statut_vital] ?? enfant.statut_vital}
+                </span>
+              </div>
+              <Link to={`/dossiers-enfants/${enfant.id}`} className="bb-bouton">
+                Voir le dossier
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </main>
+  );
 }
-
-export default ListeEnfants;

@@ -9,10 +9,19 @@ export const getAllNewborns = async () => {
   return result.rows;
 };
 
-// Récupérer un nouveau-né par son id
 export const getNewbornById = async (id) => {
   const result = await pool.query(
-    `SELECT e.*, d.numero_dossier
+    `SELECT e.*, d.numero_dossier,
+            COALESCE(
+              (SELECT json_agg(json_build_object(
+                 'id', p.id, 'nom', p.nom, 'prenom', p.prenom,
+                 'telephone', p.telephone, 'email', p.email,
+                 'adresse', p.adresse, 'lien', ep.lien))
+               FROM enfant_parents ep
+               JOIN parents p ON p.id = ep.parent_id
+               WHERE ep.enfant_id = e.id),
+              '[]'::json
+            ) AS parents
      FROM enfants e
      LEFT JOIN dossiers d ON d.enfant_id = e.id
      WHERE e.id = $1`,
