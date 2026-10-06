@@ -14,6 +14,7 @@ import {
   type Utilisateur,
 } from "@/services/api";
 import { AuthContext } from "@/contexts/authContextValue";
+import { viderEspaceParent } from "@/lib/dashboard/useEspaceParent";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   /* L'état initial lit le token : si aucun n'est stocké, la session est vide
@@ -54,6 +55,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const deconnexion = useCallback(() => {
     setToken(null);
     setUtilisateur(null);
+    /* Le cache de l'espace parent est global au module : sans cette remise à
+       zéro, le compte qui se connecte ensuite hériterait des données du
+       précédent. */
+    viderEspaceParent();
   }, []);
 
   const valeur = useMemo(

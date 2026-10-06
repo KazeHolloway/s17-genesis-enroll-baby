@@ -125,13 +125,51 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
 /* ---------- Authentification ---------- */
 
+/**
+ * Utilisateur tel que renvoyé par `/auth/login` et `/auth/moi`.
+ *
+ * La base ne stocke qu'une colonne `nom_complet` : le backend ne renvoie donc
+ * pas de champs `nom` / `prenom` séparés. Les lire déclencherait un
+ * `undefined`, et tout accès direct (`utilisateur.prenom.charAt(0)`) ferait
+ * tomber l'écran. Passer par `identiteUtilisateur()` ci-dessous.
+ */
 export interface Utilisateur {
   id: number;
-  nom: string;
-  prenom: string;
+  nom_complet: string;
   telephone: string;
   email: string | null;
   role: "parent" | "agent_maternite" | "admin";
+  etablissement_id: number | null;
+  actif: boolean;
+}
+
+export interface Identite {
+  firstName: string;
+  lastName: string;
+  initials: string;
+}
+
+/**
+ * Décompose `nom_complet` en prénom et nom pour l'affichage.
+ *
+ * « Rosine Loubaki » → `{ firstName: "Rosine", lastName: "Loubaki" }`.
+ * Un nom unique (« Marie ») bascule tout sur le prénom : l'écart est invisible
+ * à l'affichage, alors qu'une regexp plus fine se tromperait sur les noms
+ * composés à particule (« Marie Nkoulou »).
+ */
+export function identiteUtilisateur(u: Utilisateur | null): Identite {
+  const complet = (u?.nom_complet ?? "").trim();
+  if (!complet) return { firstName: "", lastName: "", initials: "" };
+
+  const parties = complet.split(/\s+/);
+  const lastName = parties.length > 1 ? parties.pop() ?? "" : "";
+  const firstName = parties.join(" ");
+
+  return {
+    firstName,
+    lastName,
+    initials: `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase(),
+  };
 }
 
 export interface LoginReponse {
@@ -335,6 +373,111 @@ export function confirmerVaccin(payload: {
     method: "POST",
     body: payload,
   });
+}
+
+/* ---------- Rendez-vous de suivi et rappels 24 h ---------- */
+
+export interface Etablissement {
+  id: number;
+  nom: string;
+  ville: string;
+  adresse: string | null;
+  telephone: string | null;
+}
+
+export function getEtablissements() {
+  return request<{ success: boolean; data: Etablissement[] }>("/etablissements");
+}
+
+/** Enfant listé par `GET /api/enfants` (réservé aux agents). */
+export interface EnfantAgent {
+  id: number;
+  nom: string;
+  prenom: string;
+  sexe: "M" | "F";
+  date_naissance: string;
+  etablissement_id: number;
+  statut_vital: string;
+}
+
+export function getEnfants() {
+  return request<EnfantAgent[]>("/enfants");
+}
+
+/**
+ * Ligne de `rendez_vous`.
+ *
+ * `statut` suit exactement l'énumération du backend : `planifie`, `honore`,
+ * `manque`, `annule`. Aucun mapping n'est nécessaire côté interface, les
+ * badges reprennent ces quatre libellés.
+ */
+export interface RendezVous {
+  id: number;
+  enfant_id: number;
+  vaccination_id: number | null;
+  etablissement_id: number;
+  date_rdv: string;
+  motif: string | null;
+  statut: "planifie" | "honore" | "manque" | "annule";
+}
+
+export function getRendezVousEnfant(enfantId: number) {
+  return request<{ success: boolean; data: RendezVous[] }>(
+    `/rendez-vous/enfant/${enfantId}`,
+  );
+}
+
+/**
+ * `POST /api/rendez-vous` : l'établissement n'est pas transmis, le serveur le
+ * déduit de l'enfant. La date doit être dans le futur, sinon l'API répond 400.
+ */
+export function creerRendezVous(payload: {
+  enfant_id: number;
+  date_rdv: string;
+  /** `null` et « non renseigné » sont équivalents : la colonne est nullable. */
+  motif?: string | null;
+  vaccination_id?: number | null;
+}) {
+  return request<{ success: boolean; message: string; data: RendezVous }>(
+    "/rendez-vous",
+    { method: "POST", body: payload },
+  );
+}
+
+/** `PUT /api/rendez-vous/:id` : modifie date, motif et/ou statut. */
+export function majRendezVous(
+  id: number,
+  payload: { date_rdv?: string; motif?: string; statut?: RendezVous["statut"] },
+) {
+  return request<{ success: boolean; message: string; data: RendezVous }>(
+    `/rendez-vous/${id}`,
+    { method: "PUT", body: payload },
+  );
+}
+
+/**
+ * Rappel 24 h d'un rendez-vous, tel que calculé par le serveur.
+ *
+ * Point important : aucun rappel n'est stocké en base. La requête SQL
+ * `getRappelsParent` liste à la volée les rendez-vous `planifie` dont la date
+ * tombe dans les prochaines 24 h. Les champs `statut` et `date_affichage`
+ * n'existent donc pas dans cette réponse : `minutes_restantes` est calculé ici
+ * pour afficher un compte à rebours, et un rendez-vous modifié ou annulé sort
+ * naturellement de la liste au prochain appel.
+ */
+export interface RappelRendezVous {
+  id: number;
+  date_rdv: string;
+  motif: string | null;
+  enfant_id: number;
+  enfant_prenom: string;
+}
+
+/** `GET /api/rendez-vous/rappels` : réservé au parent connecté. */
+export function getRappelsRendezVous() {
+  return request<{ success: boolean; data: RappelRendezVous[] }>(
+    "/rendez-vous/rappels",
+  );
 }
 
 export default request;

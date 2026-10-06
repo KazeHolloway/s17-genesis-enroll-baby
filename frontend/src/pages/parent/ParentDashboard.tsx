@@ -16,6 +16,7 @@ import babyHandsParent from "@/assets/baby-hand-parent2.jpg";
 import { useEspaceParent } from "@/lib/dashboard/useEspaceParent";
 import { versParentDashboard } from "@/lib/dashboard/adapterParent";
 import { useAuth } from "@/contexts/useAuth";
+import { identiteUtilisateur } from "@/services/api";
 import type { StepStatus } from "@/lib/dashboard/types";
 
 /**
@@ -33,12 +34,7 @@ export default function ParentDashboard() {
     utilisateur?.role === "parent",
   );
 
-  const donnees = versParentDashboard(
-    enfants[0],
-    utilisateur
-      ? { firstName: utilisateur.prenom, lastName: utilisateur.nom }
-      : { firstName: "", lastName: "" },
-  );
+  const donnees = versParentDashboard(enfants[0], identiteUtilisateur(utilisateur));
   const { child, nextVaccination, lastSteps, quickActions } = donnees;
 
   if (chargement) {

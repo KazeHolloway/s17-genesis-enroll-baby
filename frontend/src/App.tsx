@@ -44,6 +44,13 @@ function App() {
         <Route path="nouveau-ne" element={<AgentNewborn />} />
         <Route path="dossiers" element={<AgentRecords />} />
         <Route path="vaccinations" element={<AgentVaccinations />} />
+        {/* Entree dediee pour la confirmation des statuts : la page Vaccins est
+            la meme, ouverte sur le bon sous-onglet. Evite de dupliquer la page
+            et garde l'URL explicite dans la sidebar. */}
+        <Route
+          path="statuts"
+          element={<AgentVaccinations ongletInitial="statuts" />}
+        />
         <Route path="parametres" element={<AgentSettings />} />
       </Route>
 

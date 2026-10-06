@@ -1,6 +1,7 @@
 import {
   Activity,
   Bell,
+  CheckCircle2,
   FileText,
   FolderOpen,
   Home,
@@ -76,6 +77,12 @@ export const agentNavItems: DashboardNavItem[] = [
     badge: 3,
   },
   { to: "/agent/vaccinations", label: "Vaccinations", icon: Syringe, end: false, badge: 5 },
+  {
+    to: "/agent/statuts",
+    label: "Confirmation Statuts",
+    icon: CheckCircle2,
+    end: false,
+  },
   { to: "/agent/parametres", label: "Paramètres", icon: Settings, end: false },
 ];
 
@@ -135,6 +142,7 @@ export const pageTitles: Record<string, string> = {
   "/agent/nouveau-ne": "Nouveau-né",
   "/agent/dossiers": "Registre",
   "/agent/vaccinations": "Vaccinations",
+  "/agent/statuts": "Confirmation Statuts",
   "/agent/parametres": "Paramètres",
 };
 
