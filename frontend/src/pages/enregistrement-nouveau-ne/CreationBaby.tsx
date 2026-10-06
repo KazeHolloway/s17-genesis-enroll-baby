@@ -1,343 +1,360 @@
-import {useState} from 'react';
-import { enregistrerEnfant } from "../../services/api";
-import type {BabyData} from "../../lib/types";
-import type {dataParent} from "../../lib/types";
-import logo from "../../assets/logo.png";
-import "./CreationBaby.css";
-
-function CreationBaby(){
-    const [name,setName]=useState("");
-    const [firstname,setfirstName]=useState("");
-    const [sex,setSex]=useState("");
-    const [birthdate,setBirthDate]=useState("");
-    const [birthplace,setBirthPlace]=useState("");
-    const [weight,setWeight]=useState("");
-    const [height,setHeight]=useState("");
-    const [vitalstate,setVitalState]=useState("");
-    const [message, setMessage] = useState("");
-    const [messageType, setMessageType] = useState<"success" | "error">("success");
-
-async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault()
-        const formData = new FormData(event.currentTarget);
-  
-
-        const nom=formData.get("nom");
-        const prenom=formData.get("prenom");
-        const sexe=formData.get("sexe");
-        const date_naissance=formData.get("date_naissance");
-        const lieu_naissance=formData.get("lieu_naissance");
-        const statut_vital=formData.get("statut_vital");
-        const taille_naissance=Number(formData.get("taille_naissance"));
-        const poids_naissance=Number(formData.get("poids_naissance"));
-        
-        const mereNom = formData.get("mere_nom");
-        const merePrenom = formData.get("mere_prenom");
-        const mereTelephone = formData.get("mere_telephone");
-        const mereEmail = formData.get("mere_email");
-        const mereAdresse = formData.get("mere_adresse");
-
-        const pereNom = formData.get("pere_nom");
-        const perePrenom = formData.get("pere_prenom");
-        const pereTelephone = formData.get("pere_telephone");
-        const pereEmail = formData.get("pere_email");
-        const pereAdresse = formData.get("pere_adresse");
-        
-	const tuteurNom = formData.get("tuteur_nom");
-	const tuteurPrenom = formData.get("tuteur_prenom");
-	const tuteurTelephone = formData.get("tuteur_telephone");
-	const tuteurEmail = formData.get("tuteur_email");
-	const tuteurAdresse = formData.get("tuteur_adresse");
-
-        if(typeof nom!=="string"
-        || typeof prenom!=="string" 
-        ||typeof sexe!=="string"
-        ||typeof date_naissance!=="string"
-        ||typeof lieu_naissance!=="string"
-        ||typeof statut_vital!=="string"){
-            return;
+import { useState } from 'react';
+import type { FormEvent } from 'react';
+import { Link } from 'react-router-dom';
+import { postData, NonConnecteError } from '../../services/http';
+import './CreationBaby.css';
+import '../dossiers-enfants/Dossiers.css';
+const LIENS = [
+  { cle: 'mere', titre: 'Mère' },
+  { cle: 'pere', titre: 'Père' },
+  { cle: 'tuteur', titre: 'Tuteur' },
+] as const;
+type ParentPayload = {
+  nom: string;
+  prenom: string;
+  telephone?: string;
+  email?: string;
+  adresse?: string;
+  lien: 'mere' | 'pere' | 'tuteur';
+};
+type EnfantPayload = {
+  nom: string;
+  prenom: string;
+  sexe: string;
+  date_naissance: string;
+  lieu_naissance?: string;
+  poids_naissance?: number;
+  taille_naissance?: number;
+  statut_vital: string;
+};
+type Reponse = {
+  enfant: {
+    prenom: string;
+    nom: string;
+  };
+  dossier: {
+    numero_dossier: string;
+    code_acces: string;
+  };
+};
+const texte = (fd: FormData, champ: string) =>
+  String(fd.get(champ) ?? '').trim();
+export default function CreationBaby() {
+  const [erreur, setErreur] = useState('');
+  const [enCours, setEnCours] = useState(false);
+  const [resultat, setResultat] = useState<Reponse | null>(null);
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+    setErreur('');
+    const fd = new FormData(event.currentTarget);
+    // -----------------------------
+    // 1. Récupération des parents
+    // -----------------------------
+    const parents: ParentPayload[] = [];
+    for (const { cle, titre } of LIENS) {
+      const nom = texte(fd, `${cle}_nom`);
+      const prenom = texte(fd, `${cle}_prenom`);
+      // Bloc complètement vide : on l'ignore.
+      if (!nom && !prenom) {
+        continue;
+      }
+      // Si un seul des deux est renseigné,
+      // le bloc est considéré comme invalide.
+      if (!nom || !prenom) {
+        setErreur(
+          `${titre} : le nom et le prénom sont obligatoires`
+        );
+        return;
+      }
+      parents.push({
+        nom,
+        prenom,
+        telephone:
+          texte(fd, `${cle}_telephone`) || undefined,
+        email:
+          texte(fd, `${cle}_email`) || undefined,
+        adresse:
+          texte(fd, `${cle}_adresse`) || undefined,
+        lien: cle,
+      });
+    }
+    if (parents.length === 0) {
+      setErreur(
+        'Renseignez au moins un parent (mère, père ou tuteur)'
+      );
+      return;
+    }
+    // -----------------------------
+    // 2. Récupération de l'enfant
+    // -----------------------------
+    const poids = texte(fd, 'poids_naissance');
+    const taille = texte(fd, 'taille_naissance');
+    const enfant: EnfantPayload = {
+      nom: texte(fd, 'nom'),
+      prenom: texte(fd, 'prenom'),
+      sexe: texte(fd, 'sexe'),
+      date_naissance: texte(fd, 'date_naissance'),
+      lieu_naissance:
+        texte(fd, 'lieu_naissance') || undefined,
+      poids_naissance: poids ? Number(poids) : undefined,
+      taille_naissance: taille ? Number(taille) : undefined,
+      statut_vital:
+        texte(fd, 'statut_vital') || 'vivant',
+    };
+    // -----------------------------
+    // 3. Validation complémentaire
+    // -----------------------------
+    if (
+      !enfant.nom ||
+      !enfant.prenom ||
+      !enfant.sexe ||
+      !enfant.date_naissance
+    ) {
+      setErreur(
+        "Veuillez renseigner tous les champs obligatoires de l'enfant."
+      );
+      return;
+    }
+    if (
+      enfant.poids_naissance !== undefined &&
+      Number.isNaN(enfant.poids_naissance)
+    ) {
+      setErreur('Le poids de naissance est invalide.');
+      return;
+    }
+    if (
+      enfant.taille_naissance !== undefined &&
+      Number.isNaN(enfant.taille_naissance)
+    ) {
+      setErreur('La taille de naissance est invalide.');
+      return;
+    }
+    // -----------------------------
+    // 4. Envoi au backend
+    // -----------------------------
+    setEnCours(true);
+    try {
+      const reponse = await postData<Reponse>(
+        '/api/enfants/enregistrement',
+        {
+          enfant,
+          parents,
         }
-
-        if(Number.isNaN(poids_naissance)||Number.isNaN(taille_naissance)){
-            return;
-        }
-
-        
-        
-
-        const babydata:BabyData={
-            nom:nom,
-            prenom:prenom,
-            sexe:sexe,
-            taille_naissance:taille_naissance,
-            poids_naissance:poids_naissance,
-            statut_vital:statut_vital,
-            date_naissance:date_naissance,
-            lieu_naissance:lieu_naissance,
-            
-        }
-        const parents: dataParent[] = [];
-	if (mereNom && merePrenom) {
-    parents.push({
-        nom: String(mereNom),
-        prenom: String(merePrenom),
-        telephone: String(mereTelephone || ""),
-        email: String(mereEmail || ""),
-        adresse: String(mereAdresse || ""),
-        lien: "mere",
-    });
-}
-	if (pereNom && perePrenom) {
-    parents.push({
-        nom: String(pereNom),
-        prenom: String(perePrenom),
-        telephone: String(pereTelephone || ""),
-        email: String(pereEmail || ""),
-        adresse: String(pereAdresse || ""),
-        lien: "pere",
-    });
-}
-
-if (tuteurNom && tuteurPrenom) {
-    parents.push({
-        nom: String(tuteurNom),
-        prenom: String(tuteurPrenom),
-        telephone: String(tuteurTelephone || ""),
-        email: String(tuteurEmail || ""),
-        adresse: String(tuteurAdresse || ""),
-        lien: "tuteur",
-    });
-}
-try {
-    await enregistrerEnfant({ enfant: babydata, parents: [mere, pere] });
-
-    setMessageType("success");
-    setMessage("Nouveau-né enregistré avec succès.");
-} catch {
-    setMessageType("error");
-    setMessage("Impossible d'enregistrer le nouveau-né.");
-}
-
-setTimeout(() => {
-    setMessage("");
-}, 3000);
-
-
-         
-}
+      );
+      setResultat(reponse);
+    } catch (e) {
+      if (e instanceof NonConnecteError) {
+        setErreur(
+          'Vous devez être connecté en tant qu’agent de maternité. Reconnectez-vous puis réessayez.'
+        );
+      } else {
+        setErreur(
+          e instanceof Error
+            ? e.message
+            : "Impossible d'enregistrer le nouveau-né."
+        );
+      }
+    } finally {
+      setEnCours(false);
+    }
+  }
+  // -----------------------------
+  // Écran après réussite
+  // -----------------------------
+  if (resultat) {
     return (
-        <>
-        <div className="page-enregistrement">
-        <div className="entete-enregistrement">
-        <img src={logo} alt="Logo Enroll Baby" />
-        <h1>Enregistrement du nouveau né</h1>
-
-        {message && (
-            <div className={`message-succes ${messageType}`}>
-                <span className="message-icon">
-                    {messageType === "success" ? "✓" : "!"}
-                </span>
-
-                <span>{message}</span>
-            </div>
-        )}
-
-
-        </div>
-        <form onSubmit={handleSubmit} className="formulaire-enregistrement">
-            <fieldset className="formulaire-bebe">
-                <legend>Information du nouveau né</legend>
-                <label htmlFor="nom">Nom:</label>
-                <input placeholder="Entrez le nom du nouveau-né" required type="text" id="nom" name="nom" value={name} onChange={(event)=>
-                    setName(event.target.value)
-                }/>
-                <label htmlFor="prenom">Prénom:</label>
-                <input placeholder="Entrez le prénom du nouveau-né" required type="text" id="prenom" name="prenom" value={firstname}
-                onChange={(event)=>setfirstName(event.target.value)}
-                />
-
-                <label htmlFor="sexe">Sexe:</label>
-                <select id="sexe" required value={sex} name='sexe'
-                onChange={(event)=>setSex(event.target.value)}
-                >
-                    <option value="">Selectionner le sexe du nouveau-né</option>
-                    <option value="M">Masculin</option>
-                    <option value="F">Féminin</option>
-                </select>
-
-                <label htmlFor="date-naissance">Date de naissance:</label>
-                <input type="date" id="date-naissance" required value={birthdate} name="date_naissance"
-                    onChange={(event)=>setBirthDate(event.target.value)}
-                />
-
-                <label htmlFor="lieu-naissance">Lieu de naissance:</label>
-                <input placeholder="Entrez lelieu de naissance" required  type="text" id="lieu-naissance" name='lieu_naissance'
-                    value={birthplace} onChange={(event)=>setBirthPlace(event.target.value)}
-                 />
-                
-                <label htmlFor="poids_naissance">Poids à la naissance(en kg):</label>
-                <input placeholder="Entrez le poids_naissance" required type="number" id="poids_naissance" name="poids_naissance"
-                    value={weight} onChange={(event)=>setWeight(event.target.value)}
-                />
-                
-                <label htmlFor="taille_naissance">Taille à la naissance(en cm):</label>
-                <input placeholder="Entrez la taille_naissance" required type="number" id="taille_naissance" name='taille_naissance'
-                    value={height} onChange={(event)=>setHeight(event.target.value)}
-                />
-
-                <label htmlFor="statut-vital">Statut vital:</label>
-                <select id="statut-vital" value={vitalstate} required name="statut_vital" onChange={(event)=>{
-                    setVitalState(event.target.value)
-                }}>
-                    <option value="">Selectionnez le statut vital du nouveau-né</option>
-                    <option value="vivant">Vivant</option>
-                    <option value="mort_ne">Mort-né</option>
-                    <option value="decede">Décédé</option>
-                </select>
-
-                <label htmlFor="photo">Photo du nouveau-né:</label>
-                <input type="file" id="photo" accept="image/*" name="photo"/>
-            </fieldset>
-            <div className="formulaires-parents">
-            <fieldset className="formulaire-parent">
-                <legend>Informations de la mère</legend>
-
-                <label htmlFor="mere_nom">Nom :</label>
-                <input
-                    type="text"
-                    id="mere_nom"
-                    name="mere_nom"
-                    placeholder="Entrez le nom de la mère"
-                />
-
-                <label htmlFor="mere_prenom">Prénom :</label>
-                <input
-                    type="text"
-                    id="mere_prenom"
-                    name="mere_prenom"
-                    placeholder="Entrez le prénom de la mère"
-                />
-
-                <label htmlFor="mere_telephone">Téléphone :</label>
-                <input
-                    type="tel"
-                    id="mere_telephone"
-                    name="mere_telephone"
-                    placeholder="Entrez le téléphone de la mère"
-                />
-
-                <label htmlFor="mere_email">Email :</label>
-                <input
-                    type="email"
-                    id="mere_email"
-                    name="mere_email"
-                    placeholder="Entrez l'email de la mère"
-                />
-
-                <label htmlFor="mere_adresse">Adresse :</label>
-                <input
-                    type="text"
-                    id="mere_adresse"
-                    name="mere_adresse"
-                    placeholder="Entrez l'adresse de la mère"
-                />
-        </fieldset>
-        <fieldset className="formulaire-parent">
-            <legend>Informations du père</legend>
-
-            <label htmlFor="pere_nom">Nom :</label>
-            <input
-                type="text"
-                id="pere_nom"
-                name="pere_nom"
-                placeholder="Entrez le nom du père"
-            />
-
-            <label htmlFor="pere_prenom">Prénom :</label>
-            <input
-                type="text"
-                id="pere_prenom"
-                name="pere_prenom"
-                placeholder="Entrez le prénom du père"
-            />
-
-            <label htmlFor="pere_telephone">Téléphone :</label>
-            <input
-                type="tel"
-                id="pere_telephone"
-                name="pere_telephone"
-                placeholder="Entrez le téléphone du père"
-            />
-
-            <label htmlFor="pere_email">Email :</label>
-            <input
-                type="email"
-                id="pere_email"
-                name="pere_email"
-                placeholder="Entrez l'email du père"
-            />
-
-            <label htmlFor="pere_adresse">Adresse :</label>
-            <input
-                type="text"
-                id="pere_adresse"
-                name="pere_adresse"
-                placeholder="Entrez l'adresse du père"
-            />
-        </fieldset>
-<fieldset className="formulaire-parent">
-    <legend>Informations du tuteur</legend>
-
-    <label htmlFor="tuteur_nom">Nom :</label>
-    <input
-        type="text"
-        id="tuteur_nom"
-        name="tuteur_nom"
-        placeholder="Entrez le nom du tuteur"
-    />
-
-    <label htmlFor="tuteur_prenom">Prénom :</label>
-    <input
-        type="text"
-        id="tuteur_prenom"
-        name="tuteur_prenom"
-        placeholder="Entrez le prénom du tuteur"
-    />
-
-    <label htmlFor="tuteur_telephone">Téléphone :</label>
-    <input
-        type="tel"
-        id="tuteur_telephone"
-        name="tuteur_telephone"
-        placeholder="Entrez le téléphone du tuteur"
-    />
-
-    <label htmlFor="tuteur_email">Email :</label>
-    <input
-        type="email"
-        id="tuteur_email"
-        name="tuteur_email"
-        placeholder="Entrez l'email du tuteur"
-    />
-
-    <label htmlFor="tuteur_adresse">Adresse :</label>
-    <input
-        type="text"
-        id="tuteur_adresse"
-        name="tuteur_adresse"
-        placeholder="Entrez l'adresse du tuteur"
-    />
-</fieldset>
-    
-    </div>
-        <button type='submit'>Valider</button>
-        </form>
-
-    </div>
-        </>
+      <main className="bb-page">
+        <section className="bb-carte bb-succes">
+          <h1>Nouveau-né enregistré</h1>
+          <p>
+            Dossier de{' '}
+            <strong>
+              {resultat.enfant.prenom} {resultat.enfant.nom}
+            </strong>
+          </p>
+          <p>Numéro de dossier</p>
+          <p className="bb-code">
+            {resultat.dossier.numero_dossier}
+          </p>
+          <p>Code d'accès à remettre au parent</p>
+          <p className="bb-code">
+            {resultat.dossier.code_acces}
+          </p>
+          <p className="bb-alerte">
+            Notez ce code maintenant : il ne sera plus jamais
+            affiché.
+          </p>
+          <div className="bb-actions">
+            <button
+              type="button"
+              onClick={() => window.print()}
+            >
+              Imprimer
+            </button>
+            <button
+              type="button"
+              onClick={() => setResultat(null)}
+            >
+              Enregistrer un autre
+            </button>
+            <Link
+              to="/agent/dossiers"
+              className="bb-bouton"
+            >
+              Voir la liste
+            </Link>
+          </div>
+        </section>
+      </main>
     );
+  }
+  return (
+    <main className="bb-page">
+      <form
+        className="bb-carte"
+        onSubmit={handleSubmit}
+      >
+        <h1>Enregistrer un nouveau-né</h1>
+        <fieldset className="bb-bloc">
+          <legend>Informations de l'enfant</legend>
+          <div className="bb-grille">
+            <label>
+              Nom *
+              <input name="nom" required />
+            </label>
+            <label>
+              Prénom *
+              <input name="prenom" required />
+            </label>
+            <label>
+              Sexe *
+              <select
+                name="sexe"
+                required
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  Sélectionner
+                </option>
+                <option value="F">
+                  Fille
+                </option>
+                <option value="M">
+                  Garçon
+                </option>
+              </select>
+            </label>
+            <label>
+              Date de naissance *
+              <input
+                name="date_naissance"
+                type="date"
+                required
+                max={
+                  new Date()
+                    .toISOString()
+                    .slice(0, 10)
+                }
+              />
+            </label>
+            <label>
+              Lieu de naissance
+              <input name="lieu_naissance" />
+            </label>
+            <label>
+              Statut
+              <select
+                name="statut_vital"
+                defaultValue="vivant"
+              >
+                <option value="vivant">
+                  Vivant
+                </option>
+                <option value="mort_ne">
+                  Mort-né
+                </option>
+                <option value="decede">
+                  Décédé
+                </option>
+              </select>
+            </label>
+            <label>
+              Poids (kg)
+              <input
+                name="poids_naissance"
+                type="number"
+                step="0.01"
+                min="0"
+              />
+            </label>
+            <label>
+              Taille (cm)
+              <input
+                name="taille_naissance"
+                type="number"
+                step="0.1"
+                min="0"
+              />
+            </label>
+          </div>
+        </fieldset>
+        <p className="bb-aide">
+          Renseignez au moins un parent. Les blocs
+          laissés vides sont ignorés.
+        </p>
+        {LIENS.map(({ cle, titre }) => (
+          <fieldset
+            className="bb-bloc"
+            key={cle}
+          >
+            <legend>{titre}</legend>
+            <div className="bb-grille">
+              <label>
+                Nom
+                <input name={`${cle}_nom`} />
+              </label>
+              <label>
+                Prénom
+                <input name={`${cle}_prenom`} />
+              </label>
+              <label>
+                Téléphone
+                <input
+                  name={`${cle}_telephone`}
+                  type="tel"
+                  placeholder="+242 06 123 45 67"
+                />
+              </label>
+              <label>
+                Email
+                <input
+                  name={`${cle}_email`}
+                  type="email"
+                />
+              </label>
+              <label className="bb-large">
+                Adresse
+                <input name={`${cle}_adresse`} />
+              </label>
+            </div>
+          </fieldset>
+        ))}
+        {erreur && (
+          <p className="bb-erreur">
+            {erreur}
+          </p>
+        )}
+        <button
+          type="submit"
+          disabled={enCours}
+        >
+          {enCours
+            ? 'Enregistrement...'
+            : 'Valider'}
+        </button>
+      </form>
+    </main>
+  );
 }
-
-
-
-export default  CreationBaby ;
