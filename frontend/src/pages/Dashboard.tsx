@@ -1,5 +1,5 @@
 const Dashboard = () => {
-  return <div>Dashboard</div>;
+  return <div>Priere de connecter le vrai dashboard</div>;
 };
 
 export default Dashboard;
