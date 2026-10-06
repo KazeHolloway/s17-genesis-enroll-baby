@@ -43,6 +43,12 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         const pereEmail = formData.get("pere_email");
         const pereAdresse = formData.get("pere_adresse");
         
+	const tuteurNom = formData.get("tuteur_nom");
+	const tuteurPrenom = formData.get("tuteur_prenom");
+	const tuteurTelephone = formData.get("tuteur_telephone");
+	const tuteurEmail = formData.get("tuteur_email");
+	const tuteurAdresse = formData.get("tuteur_adresse");
+
         if(typeof nom!=="string"
         || typeof prenom!=="string" 
         ||typeof sexe!=="string"
@@ -57,17 +63,7 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         }
 
         
-        if ( typeof mereNom !== "string" 
-            || typeof merePrenom !== "string" 
-            || typeof mereTelephone !== "string"
-            || typeof mereEmail !== "string" 
-            || typeof mereAdresse !== "string" 
-            || typeof pereNom !== "string" 
-            || typeof perePrenom !== "string" 
-            || typeof pereTelephone !== "string" 
-            || typeof pereEmail !== "string" 
-            || typeof pereAdresse !== "string" ) {
-                 return; }
+        
 
         const babydata:BabyData={
             nom:nom,
@@ -80,27 +76,42 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
             lieu_naissance:lieu_naissance,
             
         }
-        const mere: dataParent = {
-            nom: mereNom,
-            prenom: merePrenom,
-            telephone: mereTelephone,
-            email: mereEmail,
-            adresse: mereAdresse,
-            lien: "mere",
-        };
-        const pere: dataParent = {
-        nom: pereNom,
-        prenom: perePrenom,
-        telephone: pereTelephone,
-        email: pereEmail,
-        adresse: pereAdresse,
+        const parents: dataParent[] = [];
+	if (mereNom && merePrenom) {
+    parents.push({
+        nom: String(mereNom),
+        prenom: String(merePrenom),
+        telephone: String(mereTelephone || ""),
+        email: String(mereEmail || ""),
+        adresse: String(mereAdresse || ""),
+        lien: "mere",
+    });
+}
+	if (pereNom && perePrenom) {
+    parents.push({
+        nom: String(pereNom),
+        prenom: String(perePrenom),
+        telephone: String(pereTelephone || ""),
+        email: String(pereEmail || ""),
+        adresse: String(pereAdresse || ""),
         lien: "pere",
-    };
+    });
+}
 
+if (tuteurNom && tuteurPrenom) {
+    parents.push({
+        nom: String(tuteurNom),
+        prenom: String(tuteurPrenom),
+        telephone: String(tuteurTelephone || ""),
+        email: String(tuteurEmail || ""),
+        adresse: String(tuteurAdresse || ""),
+        lien: "tuteur",
+    });
+}
 try {
     await postData("/api/enfants/enregistrement", {
         enfant: babydata,
-        parents: [mere, pere],
+        parents,
     });
 
     setMessageType("success");
@@ -140,16 +151,16 @@ setTimeout(() => {
             <fieldset className="formulaire-bebe">
                 <legend>Information du nouveau né</legend>
                 <label htmlFor="nom">Nom:</label>
-                <input placeholder="Entrez le nom du nouveau-né" type="text" id="nom" name="nom" value={name} onChange={(event)=>
+                <input placeholder="Entrez le nom du nouveau-né" required type="text" id="nom" name="nom" value={name} onChange={(event)=>
                     setName(event.target.value)
                 }/>
                 <label htmlFor="prenom">Prénom:</label>
-                <input placeholder="Entrez le prénom du nouveau-né" type="text" id="prenom" name="prenom" value={firstname}
+                <input placeholder="Entrez le prénom du nouveau-né" required type="text" id="prenom" name="prenom" value={firstname}
                 onChange={(event)=>setfirstName(event.target.value)}
                 />
 
                 <label htmlFor="sexe">Sexe:</label>
-                <select id="sexe" value={sex} name='sexe'
+                <select id="sexe" required value={sex} name='sexe'
                 onChange={(event)=>setSex(event.target.value)}
                 >
                     <option value="">Selectionner le sexe du nouveau-né</option>
@@ -158,27 +169,27 @@ setTimeout(() => {
                 </select>
 
                 <label htmlFor="date-naissance">Date de naissance:</label>
-                <input type="date" id="date-naissance" value={birthdate} name="date_naissance"
+                <input type="date" id="date-naissance" required value={birthdate} name="date_naissance"
                     onChange={(event)=>setBirthDate(event.target.value)}
                 />
 
                 <label htmlFor="lieu-naissance">Lieu de naissance:</label>
-                <input placeholder="Entrez lelieu de naissance" type="text" id="lieu-naissance" name='lieu_naissance'
+                <input placeholder="Entrez lelieu de naissance" required  type="text" id="lieu-naissance" name='lieu_naissance'
                     value={birthplace} onChange={(event)=>setBirthPlace(event.target.value)}
                  />
                 
                 <label htmlFor="poids_naissance">Poids à la naissance(en kg):</label>
-                <input placeholder="Entrez le poids_naissance" type="number" id="poids_naissance" name="poids_naissance"
+                <input placeholder="Entrez le poids_naissance" required type="number" id="poids_naissance" name="poids_naissance"
                     value={weight} onChange={(event)=>setWeight(event.target.value)}
                 />
                 
                 <label htmlFor="taille_naissance">Taille à la naissance(en cm):</label>
-                <input placeholder="Entrez la taille_naissance" type="number" id="taille_naissance" name='taille_naissance'
+                <input placeholder="Entrez la taille_naissance" required type="number" id="taille_naissance" name='taille_naissance'
                     value={height} onChange={(event)=>setHeight(event.target.value)}
                 />
 
                 <label htmlFor="statut-vital">Statut vital:</label>
-                <select id="statut-vital" value={vitalstate} name="statut_vital" onChange={(event)=>{
+                <select id="statut-vital" value={vitalstate} required name="statut_vital" onChange={(event)=>{
                     setVitalState(event.target.value)
                 }}>
                     <option value="">Selectionnez le statut vital du nouveau-né</option>
@@ -277,10 +288,53 @@ setTimeout(() => {
                 placeholder="Entrez l'adresse du père"
             />
         </fieldset>
-        </div>
+<fieldset className="formulaire-parent">
+    <legend>Informations du tuteur</legend>
+
+    <label htmlFor="tuteur_nom">Nom :</label>
+    <input
+        type="text"
+        id="tuteur_nom"
+        name="tuteur_nom"
+        placeholder="Entrez le nom du tuteur"
+    />
+
+    <label htmlFor="tuteur_prenom">Prénom :</label>
+    <input
+        type="text"
+        id="tuteur_prenom"
+        name="tuteur_prenom"
+        placeholder="Entrez le prénom du tuteur"
+    />
+
+    <label htmlFor="tuteur_telephone">Téléphone :</label>
+    <input
+        type="tel"
+        id="tuteur_telephone"
+        name="tuteur_telephone"
+        placeholder="Entrez le téléphone du tuteur"
+    />
+
+    <label htmlFor="tuteur_email">Email :</label>
+    <input
+        type="email"
+        id="tuteur_email"
+        name="tuteur_email"
+        placeholder="Entrez l'email du tuteur"
+    />
+
+    <label htmlFor="tuteur_adresse">Adresse :</label>
+    <input
+        type="text"
+        id="tuteur_adresse"
+        name="tuteur_adresse"
+        placeholder="Entrez l'adresse du tuteur"
+    />
+</fieldset>
+    
+    </div>
         <button type='submit'>Valider</button>
         </form>
-
 
     </div>
         </>

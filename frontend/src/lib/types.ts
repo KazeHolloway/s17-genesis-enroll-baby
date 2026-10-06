@@ -13,6 +13,7 @@ export interface CountdownDeclaration {
 /* ---------- Formulaire d'enregistrement du nouveau-né ---------- */
 
 export type BabyData = {
+  id:number;
   nom: string;
   prenom: string;
   sexe: string;
@@ -33,15 +34,6 @@ export type dataParent = {
 };
 
 export type EnregistrementBaby = {
-  enfant: BabyData;
-  parents: dataParent[];
+    enfant: BabyData;
+    parents: dataParent[];
 };
-
-/* ---------- Bouton générique (landing) ---------- */
-
-export interface CustomButtonProps {
-  title: string;
-  styles?: string;
-  handleClick?: MouseEventHandler<HTMLButtonElement>;
-  btnType?: "button" | "submit";
-}
