@@ -8,12 +8,20 @@ const { Pool, types } = pg
 // Sans ça, pg les convertit en objet Date et le fuseau horaire décale la date d'un jour
 types.setTypeParser(1082, (valeur) => valeur)
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD
-});
+// En ligne (Neon, Render), une seule adresse DATABASE_URL suffit
+// La connexion doit alors être chiffrée (SSL), sinon Neon la refuse
+// En local, on garde les variables séparées DB_HOST, DB_PORT, etc.
+const pool = process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    })
+  : new Pool({
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD
+    });
 
 export default pool
