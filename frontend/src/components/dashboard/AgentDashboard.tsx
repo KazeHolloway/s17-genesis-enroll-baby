@@ -15,7 +15,6 @@ import {
   Search,
   ShieldCheck,
   Syringe,
-  Users,
   Plus,
   X,
 } from 'lucide-react';
@@ -42,7 +41,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   vaccines,
   onAddChild,
   onLogout,
-  onSwitchToParent,
 }) => {
   const [activeTab, setActiveTab] = useState<'apercu' | 'registre' | 'etat_civil' | 'vaccins' | 'scanner'>('apercu');
   const [searchQuery, setSearchQuery] = useState('');
@@ -215,14 +213,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
           </div>
 
           <button
-            onClick={onSwitchToParent}
-            className="w-full flex items-center justify-between p-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-xs text-emerald-200 font-medium transition-colors cursor-pointer border border-emerald-400/20"
-          >
-            <span>Basculer vers Espace Parent</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-
-          <button
             onClick={onLogout}
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-emerald-100/75 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
           >
@@ -258,15 +248,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Déclarer une naissance</span>
-            </button>
-
-            {/* Quick Switch to Parent Dashboard */}
-            <button
-              onClick={onSwitchToParent}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#134e43] dark:text-emerald-300 bg-[#edf5f1] dark:bg-[#121c19] hover:bg-[#e1ece7] dark:hover:bg-[#1a2b27] border border-[#134e43]/15 dark:border-emerald-500/30 rounded-full transition-colors cursor-pointer"
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>Espace Parent</span>
             </button>
 
             <ThemeToggle />

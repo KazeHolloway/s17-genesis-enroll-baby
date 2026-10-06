@@ -672,8 +672,157 @@ body,
 
 
 /* =========================
-   MOBILE
+   FORMULAIRE EN 3 ÉTAPES
 ========================= */
+
+.bb-etapes {
+    display: flex;
+    gap: 8px;
+    padding: 0;
+    margin: 0 0 20px;
+    list-style: none;
+}
+
+.bb-etape {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    min-width: 0;
+
+    padding: 10px 12px;
+
+    border: 1px solid #d5e1e7;
+    border-radius: 10px;
+
+    background: #f9fbfc;
+    color: #5f7380;
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.bb-etape-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: #d5e1e7;
+    color: #3b4d59;
+
+    font-size: 0.8rem;
+}
+
+.bb-etape.fait {
+    border-color: #1f6f8b;
+    background: #eaf4f8;
+    color: #1f3a4d;
+}
+
+.bb-etape.fait .bb-etape-num {
+    background: #1f6f8b;
+    color: #fff;
+}
+
+.bb-etape.active {
+    border-color: #1f6f8b;
+    background: #1f6f8b;
+    color: #fff;
+}
+
+.bb-etape.active .bb-etape-num {
+    background: #fff;
+    color: #1f6f8b;
+}
+
+.bb-etape-hidden {
+    display: none;
+}
+
+.bb-navigation {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+
+    margin-top: 16px;
+}
+
+.bb-carte .bb-navigation .bb-retour,
+.bb-carte .bb-confirmer {
+    background: transparent;
+    color: #1f6f8b;
+
+    border: 1px solid #c3d2da;
+}
+
+.bb-carte .bb-navigation .bb-retour:hover,
+.bb-carte .bb-confirmer:hover {
+    background: #eaf4f8;
+}
+
+.bb-carte .bb-confirmer {
+    width: 100%;
+
+    margin-top: 16px;
+
+    background: #1f6f8b;
+    color: #fff;
+
+    border: 0;
+}
+
+.bb-carte .bb-confirmer:hover {
+    background: #185a73;
+}
+
+.bb-resume {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 16px;
+
+    margin: 0 0 16px;
+
+    font-size: 0.9rem;
+}
+
+.bb-resume-titre {
+    margin: 12px 0 8px;
+
+    color: #1f3a4d;
+
+    font-weight: 700;
+    font-size: 0.9rem;
+
+    border-top: 1px dashed #d5e1e7;
+    padding-top: 12px;
+}
+
+.bb-resume-titre:first-child {
+    border-top: 0;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.bb-resume-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.bb-resume-item span:first-child {
+    color: #5f7380;
+
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
 
 @media (max-width: 600px) {
     .message-succes {
@@ -693,6 +842,27 @@ body,
 
     .message-contenu span {
         font-size: 13px;
+    }
+}
+
+
+/* =========================
+   MOBILE (étapes)
+========================= */
+
+@media (max-width: 600px) {
+    .bb-resume {
+        grid-template-columns: 1fr;
+    }
+
+    .bb-etape {
+        font-size: 0.75rem;
+        padding: 8px;
+    }
+
+    .bb-etape-num {
+        width: 20px;
+        height: 20px;
     }
 }
 

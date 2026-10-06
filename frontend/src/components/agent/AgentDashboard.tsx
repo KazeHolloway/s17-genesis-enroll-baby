@@ -11,7 +11,6 @@ import {
   Plus,
   Settings,
   Syringe,
-  Users,
   Menu,
   X,
   BarChart3,
@@ -41,7 +40,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   vaccines,
   onAddChild,
   onLogout,
-  onSwitchToParent,
 }) => {
   const [activeTab, setActiveTab] = useState<'apercu' | 'nouveau' | 'registre' | 'vaccins' | 'stats' | 'settings'>('apercu');
   const [vaccineSubTab, setVaccineSubTab] = useState<'confirmation' | 'lots' | 'rendezvous'>('confirmation');
@@ -216,14 +214,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
           </div>
 
           <button
-            onClick={onSwitchToParent}
-            className="w-full flex items-center justify-between p-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-xs text-emerald-200 font-medium transition-colors cursor-pointer border border-emerald-400/20"
-          >
-            <span>Basculer vers Espace Parent</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-
-          <button
             onClick={onLogout}
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-emerald-100/75 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
           >
@@ -269,15 +259,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             >
               <Plus className="w-4 h-4" />
               <span>Déclarer une naissance</span>
-            </button>
-
-            <button
-              onClick={onSwitchToParent}
-              className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-semibold text-[#134e43] dark:text-emerald-300 bg-[#edf5f1] dark:bg-[#121c19] hover:bg-[#e1ece7] dark:hover:bg-[#1a2b27] border border-[#134e43]/15 dark:border-emerald-500/30 rounded-full transition-colors cursor-pointer"
-              title="Tester le Dashboard Parent"
-            >
-              <Users className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span className="hidden xs:inline">Mode Parent</span>
             </button>
 
             <ThemeToggle />
@@ -702,29 +683,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                 <p className="text-[11px] text-emerald-200/80 truncate">
                   {CURRENT_AGENT.etablissement}
                 </p>
-              </div>
-
-              {/* Quick Switch to Parent Dashboard */}
-              <div className="p-3 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-100 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-                    Changer d'espace
-                  </span>
-                  <Users className="w-4 h-4 text-emerald-300" />
-                </div>
-                <p className="text-xs text-white/90">
-                  Consulter la vue famille & carnet de santé (Awa Diop).
-                </p>
-                <button
-                  onClick={() => {
-                    setIsMobileDrawerOpen(false);
-                    onSwitchToParent();
-                  }}
-                  className="w-full py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Users className="w-3.5 h-3.5" />
-                  <span>Ouvrir Mode Parent</span>
-                </button>
               </div>
 
               {/* Navigation links */}

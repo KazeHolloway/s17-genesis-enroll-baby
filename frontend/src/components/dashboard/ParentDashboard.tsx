@@ -12,7 +12,6 @@ import {
   Users,
   ChevronRight,
   ArrowRight,
-  UserCheck,
 } from 'lucide-react';
 import { Logo } from '../Logo';
 import { ThemeToggle } from '../ThemeToggle';
@@ -38,7 +37,6 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
   notifications,
   onAddChild,
   onLogout,
-  onSwitchToAgent,
 }) => {
   const [currentNav, setCurrentNav] = useState<'accueil' | 'enfants' | 'vaccins' | 'documents' | 'notifications' | 'parametres'>('accueil');
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
@@ -184,20 +182,8 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
           </nav>
         </div>
 
-        {/* Sidebar Footer with Quick Role Switcher & Logout */}
+        {/* Sidebar Footer with Logout */}
         <div className="pt-4 border-t border-white/10 space-y-2.5">
-          <button
-            onClick={onSwitchToAgent}
-            className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs text-emerald-200 font-medium transition-colors cursor-pointer"
-            title="Tester l'Espace Maternité / Agent d'État Civil"
-          >
-            <div className="flex items-center gap-2">
-              <UserCheck className="w-4 h-4 text-emerald-400" />
-              <span>Mode Agent / Maternité</span>
-            </div>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-
           <button
             onClick={onLogout}
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-emerald-100/75 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
@@ -222,15 +208,6 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Direct Switch to Agent Dashboard */}
-            <button
-              onClick={onSwitchToAgent}
-              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#134e43] dark:text-emerald-300 bg-[#edf5f1] dark:bg-[#121c19] hover:bg-[#e1ece7] dark:hover:bg-[#1a2b27] border border-[#134e43]/15 dark:border-emerald-500/30 rounded-full transition-colors cursor-pointer"
-            >
-              <UserCheck className="w-3.5 h-3.5" />
-              <span>Espace Agent</span>
-            </button>
-
             {/* Velora UI Theme Toggle */}
             <ThemeToggle />
 
