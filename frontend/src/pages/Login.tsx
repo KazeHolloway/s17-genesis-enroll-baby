@@ -9,11 +9,9 @@ import { ApiError } from "@/services/api";
 import logo from "../assets/logo.png";
 
 const Login = () => {
-  const {
-    role,
-    setRole,
-    email,
-    setEmail,
+const {
+    phone,
+    setPhone,
     password,
     setPassword,
     isLoading,
@@ -33,7 +31,7 @@ const Login = () => {
     e: React.SubmitEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!phone || !password) {
       setMessage("Veuillez remplir tous les champs");
       return;
     }
@@ -42,12 +40,19 @@ const Login = () => {
     setMessage("Connexion en cours...");
 
     try {
-      const utilisateur = await connexion(email.trim(), password);
+      /* Le rôle est lu depuis la réponse de l'API, pas choisi dans le
+         formulaire : il n'y a qu'un seul compte par téléphone, la redirection
+         se déduit donc du rôle réellement associé. */
+      const utilisateur = await connexion(phone.trim(), password);
+
       setMessage("Connexion réussie !");
+      /* Redirection par rôle : `/parent/dashboard` ou `/agent/dashboard`.
+         `routePourRole` remplace l'ancienne cible `/dashboard`, unique pour
+         les deux rôles, qui ne pouvait pas savoir qui s'est connecté. */
       navigate(routePourRole(utilisateur.role), { replace: true });
     } catch (error) {
       /* Le message du backend est en français et explicite (« Identifiants
-         incorrects », « Compte désactivé »…) : inutile d'en fabriquer un. */
+         incorrects », « Compte désactivé… ») : inutile d'en fabriquer un. */
       setMessage(
         error instanceof ApiError ? error.message : "Connexion impossible.",
       );
@@ -71,26 +76,6 @@ const Login = () => {
           </p>
         </div>
 
-        {/* Role toggle */}
-        <div className="flex rounded-lg border border-primary/20 overflow-hidden">
-          <CustomButton
-            type="button"
-            className="flex-1 rounded-none border-0"
-            variant={role === "parent" ? "tab-active" : "tab"}
-            onClick={() => setRole("parent")}
-          >
-            Parent
-          </CustomButton>
-          <CustomButton
-            type="button"
-            variant={role === "professionnel" ? "tab-active" : "tab"}
-            className="flex-1 rounded-none border-0"
-            onClick={() => setRole("professionnel")}
-          >
-            Professionnel de Santé
-          </CustomButton>
-        </div>
-
         <form className="flex flex-col gap-5 w-full" onSubmit={handleSubmit}>
           {/* Inputs */}
 
@@ -106,9 +91,9 @@ const Login = () => {
               autoComplete="tel"
               className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
               placeholder="+242 06 00 00 00"
-              value={email}
+              value={phone}
               onChange={(e) => {
-                setEmail(e.target.value);
+                setPhone(e.target.value);
               }}
               required
             />

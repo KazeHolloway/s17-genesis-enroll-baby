@@ -293,6 +293,33 @@ export function getEspaceParent() {
   return request<ParentEspaceReponse>("/parents/espace");
 }
 
+/* ---------- Création de compte parent ---------- */
+
+export interface InscriptionParentPayload {
+  /** Code d'accès reçu par l'agent : c'est lui qui rattache le compte au dossier. */
+  code_acces: string;
+  nom: string;
+  telephone: string;
+  email?: string;
+  mot_de_passe: string;
+}
+
+/**
+ * `POST /api/parents/inscription` : route publique, le compte n'existe pas
+ * encore. Le backend valide le code d'accès, refuse un code déjà utilisé et
+ * crée l'utilisateur ; la session n'est donc pas ouverte ici, l'utilisateur
+ * se connecte ensuite via `/auth/login`.
+ */
+export function inscriptionParent(
+  payload: InscriptionParentPayload,
+): Promise<{ success: boolean; message?: string }> {
+  return request("/parents/inscription", {
+    method: "POST",
+    auth: false,
+    body: payload,
+  });
+}
+
 /* ---------- Enregistrement d'un nouveau-né (agent) ---------- */
 
 export interface EnfantPayload {

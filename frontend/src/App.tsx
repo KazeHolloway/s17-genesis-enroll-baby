@@ -3,6 +3,7 @@ import "./App.css";
 import LandingPage from "./pages/landing/LandingPage";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import RedirectionDashboard from "./pages/RedirectionDashboard";
 import ParentLayout from "./layouts/ParentLayout";
 import AgentLayout from "./layouts/AgentLayout";
 import ParentDashboard from "./pages/parent/ParentDashboard";
@@ -23,6 +24,10 @@ function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
+
+      {/* Ancienne cible de la connexion, gardée pour les liens existants :
+          elle aiguille vers le dashboard du rôle, voir le composant. */}
+      <Route path="/dashboard" element={<RedirectionDashboard />} />
 
       {/* ---------- Dashboard Parent ----------
           Chaque route fille est une page de contenu ; le layout fournit la
