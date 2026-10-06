@@ -19,5 +19,9 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^10.0.5"
+  },
+  "dependencies": {
+    "safer-buffer": "^2.1.2",
+    "send": "^1.2.1"
   }
 }
