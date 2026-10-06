@@ -59,16 +59,14 @@ export default function DossierEnfant() {
   const [dossier, setDossier] =
     useState<Dossier | null>(null);
   const [chargement, setChargement] =
-    useState(true);
-  const [erreur, setErreur] = useState('');
+    useState<boolean>(() => !id);
+  const [erreur, setErreur] = useState(() =>
+    id ? '' : 'Identifiant du dossier manquant.'
+  );
   const [nonConnecte, setNonConnecte] =
     useState(false);
   useEffect(() => {
     if (!id) {
-      setErreur(
-        'Identifiant du dossier manquant.'
-      );
-      setChargement(false);
       return;
     }
     getData<Dossier>(`/api/enfants/${id}`)
