@@ -81,7 +81,7 @@ Le token dure 1 jour. Si l'API répond `401`, renvoyer l'utilisateur vers la pag
 - La plupart des routes répondent `{ success, message, data }`. Les données sont dans `data`.
 - Les routes `/api/enfants` et `/api/dossiers` répondent directement l'objet (pas de `data`), et les erreurs ont seulement `{ message }`.
 
-**Codes d'erreur fréquents** : `400` données invalides, `401` pas connecté, `403` rôle interdit, `404` introuvable, `409` conflit (doublon, code déjà utilisé), `500` erreur serveur. Le champ `message` est en français et peut être affiché tel quel à l'utilisateur.
+**Codes d'erreur fréquents** : `400` données invalides, `401` pas connecté, `403` rôle interdit, `404` introuvable, `409` conflit (doublon, code déjà utilisé), `429` trop de tentatives échouées (login, inscription), `500` erreur serveur. Le champ `message` est en français et peut être affiché tel quel à l'utilisateur.
 
 ## 4. Écrans et routes
 
@@ -216,6 +216,10 @@ fenetre.print();
 ### I. Statistiques de l'établissement (agent/admin)
 
 `GET /api/statistiques?debut=2026-01-01&fin=2026-12-31` (les deux paramètres sont facultatifs). Renvoie `data: { periode, total, par_mois }` avec les naissances et les décès.
+
+### J. Liste des établissements
+
+`GET /api/etablissements` (tout utilisateur connecté) renvoie `data`, un tableau des établissements actifs triés par nom : `id`, `nom`, `ville`, `adresse`, `telephone`. Utile pour afficher le nom de l'établissement où l'enfant est suivi.
 
 ## 5. Questions fréquentes
 

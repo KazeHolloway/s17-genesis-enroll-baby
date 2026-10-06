@@ -59,13 +59,18 @@ Enroll-Baby est construit comme si l'établissement de santé et l'état civil �
 - [x] Confirmer l'administration d'un vaccin
 - [x] Générer le code d'accès remis au parent
 - [x] Enregistrer les parents d'un nouveau-né
+- [x] Enregistrer un nouveau-né depuis l'interface
+- [x] Consulter la liste des nouveau-nés et ouvrir le dossier d'un enfant
 - [x] Planifier, modifier ou annuler un rendez-vous de suivi (rappel 24 h avant pour le parent)
 
 ### Espace état civil
-- [ ]
+La mairie n'est pas connectée à la plateforme dans le MVP : le parent présente la déclaration imprimée et son numéro de dossier.
 
 ### Ensemble du site
-- [ ]
+- [x] Page d'accueil avec foire aux questions
+- [x] Mode clair et mode sombre
+- [x] Affichage adapté aux mobiles (responsive)
+- [x] Tableaux de bord distincts pour le parent et l'agent de maternité
 
 ## Public visé
 
@@ -78,8 +83,9 @@ Le produit s'adresse à quatre profils :
 
 ## Stack technique
 
-- ReactJS (Vite)
-- Node.js / Express (API REST)
+- ReactJS (Vite) avec TypeScript et Tailwind CSS
+- Node.js / Express (API REST), authentification par JWT
+- Sécurité et suivi : helmet (en-têtes de sécurité), express-rate-limit (limitation des tentatives), morgan (journal des requêtes)
 - PostgreSQL
 
 ## Structure du projet
@@ -100,6 +106,8 @@ s17-genesis-enroll-baby/
 │   │   │   └── seed.sql
 │   │   │
 │   │   ├── middlewares/
+│   │   │   ├── auth.js
+│   │   │   └── rateLimit.js
 │   │   │
 │   │   ├── models/
 │   │   │
@@ -128,13 +136,25 @@ s17-genesis-enroll-baby/
 │   │   │
 │   │   ├── components/
 │   │   │
+│   │   ├── contexts/
+│   │   │   ├── AuthContext.tsx
+│   │   │   └── ThemeContext.tsx
+│   │   │
+│   │   ├── hooks/
+│   │   │
+│   │   ├── layouts/
+│   │   │
 │   │   ├── lib/
+│   │   │   ├── dashboard/
 │   │   │   └── types.ts
 │   │   │
 │   │   ├── pages/
 │   │   │
 │   │   ├── services/
-│   │   │   └── api.ts
+│   │   │   ├── api.ts
+│   │   │   └── http.ts
+│   │   │
+│   │   ├── styles/
 │   │   │
 │   │   ├── App.css
 │   │   ├── App.tsx
@@ -312,12 +332,12 @@ La liste complète des routes de l'API est dans [`backend/BACKEND-API.md`](backe
 
 | Dev | Page(s) | Statut |
 |---|---|---|
-| Christophe Darly MASSAMBA BOUESSO | Backend : calendrier vaccinal (US-05), rappels (US-06), espace parent (US-07), dossier imprimable (US-08), déclaration et certificat (US-03), compte à rebours (US-04), confirmation d'un vaccin (US-09), compte parent (US-10), connexion (US-11), statistiques (US-13). Schéma et seed de la base, gestion du dépôt | Terminé |
-| Dorcasse Benicia MOUSSANA | Backend : base du projet, enregistrement du nouveau-né et des parents (US-01), dossier du nouveau-né (US-02), middleware d'authentification, rendez-vous de suivi (US-12) | Terminé |
-| Aristote BABA | | |
-| Rolvi MIKOLO | | |
-| Val Clancy PEDRO | | |
-| Brichelvie Jeannelle OWALA | | |
+| Christophe Darly MASSAMBA BOUESSO | Backend : déclaration imprimable et certificat numérique (US-03), calendrier vaccinal (US-05), espace parent (US-07), dossier imprimable (US-08), compte parent (US-10), connexion (US-11), statistiques (US-13). Schéma et seed de la base, corrections du démarrage du serveur et du front, documentation et gestion du dépôt | Terminé |
+| Dorcasse Benicia MOUSSANA | Backend : base du projet, enregistrement du nouveau-né et des parents (US-01), dossier du nouveau-né (US-02), compte à rebours de déclaration (US-04), rappels (US-06), confirmation d'un vaccin (US-09), rendez-vous de suivi (US-12), middleware d'authentification, middlewares morgan, helmet et limitation des tentatives. Front : corrections de l'enregistrement du nouveau-né, de la liste et du dossier des enfants | Terminé |
+| Aristote BABA | Page d'accueil, mode clair et sombre, tableaux de bord parent et agent, contexte d'authentification, rendez-vous de suivi, confirmation du statut vaccinal | Intégré dans dev |
+| Rolvi MIKOLO | Composant de compte à rebours de la déclaration de naissance (US-04) | Intégré dans dev |
+| Val Clancy PEDRO | Pages de connexion et d'inscription | Intégré dans dev |
+| Brichelvie Jeannelle OWALA | Page d'enregistrement du nouveau-né et des parents, liste des nouveau-nés, début du dossier de l'enfant | Intégré dans dev |
 
 ## Résultats du projet
 
