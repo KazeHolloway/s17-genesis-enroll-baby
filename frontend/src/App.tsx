@@ -1,37 +1,39 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
+
 import LandingPage from "./pages/landing/LandingPage";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import RedirectionDashboard from "./pages/RedirectionDashboard";
+
 import ParentLayout from "./layouts/ParentLayout";
 import AgentLayout from "./layouts/AgentLayout";
+
 import ParentDashboard from "./pages/parent/ParentDashboard";
 import ParentChildren from "./pages/parent/ParentChildren";
 import ParentVaccinations from "./pages/parent/ParentVaccinations";
 import ParentDocuments from "./pages/parent/ParentDocuments";
 import ParentNotifications from "./pages/parent/ParentNotifications";
 import ParentSettings from "./pages/parent/ParentSettings";
+
 import AgentDashboard from "./pages/agent/AgentDashboard";
 import AgentNewborn from "./pages/agent/AgentNewborn";
 import AgentRecords from "./pages/agent/AgentRecords";
 import AgentVaccinations from "./pages/agent/AgentVaccinations";
 import AgentSettings from "./pages/agent/AgentSettings";
 
+import DossierEnfant from "./pages/dossiers-enfants/DossierEnfant";
+
 function App() {
   return (
     <Routes>
+      {/* Pages publiques */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
-
-      {/* Ancienne cible de la connexion, gardée pour les liens existants :
-          elle aiguille vers le dashboard du rôle, voir le composant. */}
       <Route path="/dashboard" element={<RedirectionDashboard />} />
 
-      {/* ---------- Dashboard Parent ----------
-          Chaque route fille est une page de contenu ; le layout fournit la
-          sidebar, l'en-tete et le <Outlet />. */}
+      {/* Espace parent */}
       <Route path="/parent" element={<ParentLayout />}>
         <Route index element={<Navigate to="/parent/dashboard" replace />} />
         <Route path="dashboard" element={<ParentDashboard />} />
@@ -42,16 +44,14 @@ function App() {
         <Route path="parametres" element={<ParentSettings />} />
       </Route>
 
-      {/* ---------- Dashboard Agent de maternite ---------- */}
+      {/* Espace agent */}
       <Route path="/agent" element={<AgentLayout />}>
         <Route index element={<Navigate to="/agent/dashboard" replace />} />
         <Route path="dashboard" element={<AgentDashboard />} />
         <Route path="nouveau-ne" element={<AgentNewborn />} />
         <Route path="dossiers" element={<AgentRecords />} />
+        <Route path="dossiers/:id" element={<DossierEnfant />} />
         <Route path="vaccinations" element={<AgentVaccinations />} />
-        {/* Entree dediee pour la confirmation des statuts : la page Vaccins est
-            la meme, ouverte sur le bon sous-onglet. Evite de dupliquer la page
-            et garde l'URL explicite dans la sidebar. */}
         <Route
           path="statuts"
           element={<AgentVaccinations ongletInitial="statuts" />}
@@ -59,12 +59,10 @@ function App() {
         <Route path="parametres" element={<AgentSettings />} />
       </Route>
 
-      {/* Les deux routes d'index /parent et /agent convergent vers leur
-          tableau de bord : pas d'ecran vide apres connexion. */}
+      {/* Route inconnue */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
-
 
 export default App;
