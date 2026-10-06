@@ -15,7 +15,7 @@ const router = express.Router();
 router.use(authentifier);
 
 router.get('/', autoriser('agent_maternite', 'admin'), getAll);
-router.get('/:id', autoriser('agent_maternite', 'admin'), getById);
+router.get('/:id', autoriser('agent_maternite', 'admin', 'parent'), getById);
 router.post('/', autoriser('agent_maternite', 'admin'), create);
 router.post('/enregistrement', autoriser('agent_maternite'), register)
 router.put('/:id', autoriser('agent_maternite', 'admin'), update);

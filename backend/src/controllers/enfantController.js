@@ -10,6 +10,7 @@ import {
 import { createDossier } from '../models/dossierModel.js';
 import { genererCodeAcces, hacherCodeAcces } from '../utils/codeAcces.js';
 import { nettoyerTelephone } from './parentController.js';
+import { peutVoirEnfant } from '../models/calendrierModel.js';
 
 // Gère les erreurs PostgreSQL les plus courantes
 const handleError = (error, res) => {
@@ -45,12 +46,18 @@ export const getById = async (req, res) => {
       return res.status(400).json({ message: 'Identifiant invalide' });
     }
 
+    if(!(await peutVoirEnfant(req.user, id))) {
+      return res.status(404).json({
+        message: "Nouveau né introuvable!"
+      });
+    }
+
     const enfant = await getNewbornById(id);
     if (!enfant) {
       return res.status(404).json({ message: 'Nouveau-né introuvable' });
     }
 
-    res.status(200).json(enfant);
+    res.status(200).json({ ...enfant, success:true, data:enfant});
   } catch (error) {
     handleError(error, res);
   }
