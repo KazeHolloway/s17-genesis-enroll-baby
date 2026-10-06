@@ -43,12 +43,14 @@ Auteurs : **Kaze** (Kaze Holloway) et **Dorcasse** (Benicia, Benicia264) pour le
 ### Jour 6 (3 octobre 2026)
 
 #### Ajouté
-- Déclaration de naissance imprimable, certificat numérique public et compte à rebours J+30 (US-03, US-04) (PR #18, Kaze)
-- Confirmation d'un vaccin administré (US-09) (PR #18, Kaze)
+- Déclaration de naissance imprimable et certificat numérique public (US-03) (PR #18, Kaze)
+- Compte à rebours de la déclaration J+30 (US-04) (PR #18, Dorcasse)
+- Confirmation d'un vaccin administré (US-09) (PR #18, Dorcasse)
 - Utilitaire de validation de date (PR #18, Kaze)
 - Rendez-vous de suivi et rappel 24 h avant (US-12) (PR #17, Dorcasse)
 - Statistiques de natalité et de mortalité de l'établissement (US-13) (PR #16, Kaze)
-- Espace parent léger avec rappels, et dossier imprimable (US-06, US-07, US-08) (PR #15, Kaze)
+- Rappels dans l'espace parent (US-06) (PR #15, Dorcasse)
+- Espace parent léger et dossier imprimable (US-07, US-08) (PR #15, Kaze)
 - Calendrier vaccinal paramétrable avec calcul des échéances, inscription du parent avec le code d'accès, connexion et profil (US-05, US-10, US-11) (PR #14, Kaze)
 - Agent de maternité et administrateur de test dans le seed (Kaze)
 
