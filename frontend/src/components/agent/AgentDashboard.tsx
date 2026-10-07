@@ -17,33 +17,59 @@ import {
 } from 'lucide-react';
 import { Logo } from '../Logo';
 import { ThemeToggle } from '../ThemeToggle';
-import type { Child, VaccineItem, DocumentItem } from '../../types/dashboard';
-import { CURRENT_AGENT } from '../../data/mockDashboardData';
+import type { AgentKpi, AgentUser, Child, VaccineItem, DocumentItem } from '../../types/dashboard';
 import { AgentNewborn } from './AgentNewborn';
 import { AgentRecords } from './AgentRecords';
 import { AgentVaccinations } from './AgentVaccinations';
 import { AgentStatistics } from './AgentStatistics';
 import { AgentSettings } from './AgentSettings';
-import { ChildRegisterWizard } from '../dashboard/ChildRegisterWizard';
 
 interface AgentDashboardProps {
+  agent: AgentUser | null;
+  kpi: AgentKpi;
   childrenList: Child[];
   vaccines: VaccineItem[];
   documents: DocumentItem[];
+  onUpdateChild?: (child: Child) => void;
+  /** Persiste un nouveau-né côté API, puis renvoie l'enregistrement réel. */
+  creer?: (child: Child) => Promise<Child>;
   onAddChild: (child: Child) => void;
   onLogout: () => void;
   onSwitchToParent: () => void;
 }
 
 export const AgentDashboard: React.FC<AgentDashboardProps> = ({
+  agent,
+  kpi,
   childrenList,
   vaccines,
+  onUpdateChild,
+  creer,
   onAddChild,
   onLogout,
 }) => {
+  const identite = agent ?? {
+    nom: '',
+    role: '',
+    etablissement: '',
+    matricule: '',
+    ville: '',
+  };
+
+  /** Dossiers dont le délai de déclaration J+30 se rapproche. */
+  const dossiersUrgents = childrenList.filter((c) => {
+    if (c.status === 'complet') return false;
+    const [jour, mois, annee] = c.dateNaissance.split('/');
+    const naissance = annee
+      ? new Date(`${annee}-${mois}-${jour}`)
+      : new Date(c.dateNaissance);
+    if (Number.isNaN(naissance.getTime())) return false;
+    return Date.now() - naissance.getTime() < 30 * 86400000;
+  }).length;
+
+  const naissancesRecentes = childrenList.slice(0, 5);
   const [activeTab, setActiveTab] = useState<'apercu' | 'nouveau' | 'registre' | 'vaccins' | 'stats' | 'settings'>('apercu');
   const [vaccineSubTab, setVaccineSubTab] = useState<'confirmation' | 'lots' | 'rendezvous'>('confirmation');
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -60,14 +86,19 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   const handleValidateChildAct = (childId: string) => {
     const child = childrenList.find((c) => c.id === childId);
     if (child) {
-      child.status = 'complet';
-      child.numeroActe = `ACT-BZV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-      child.etapes.push({
-        titre: 'Acte officiel certifié par l’Officier d’État Civil',
-        date: 'Aujourd’hui',
-        complete: true,
+      onUpdateChild?.({
+        ...child,
+        status: 'complet',
+        etapes: [
+          ...child.etapes,
+          {
+            titre: 'Acte officiel certifié par l’Officier d’État Civil',
+            date: 'Aujourd’hui',
+            complete: true,
+          },
+        ],
       });
-      showToast(`Acte officiel émis avec succès pour ${child.prenom} ${child.nom} (${child.numeroActe}).`);
+      showToast(`Dossier de ${child.prenom} ${child.nom} soldé : l'acte peut être délivré.`);
     }
   };
 
@@ -207,10 +238,10 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
         <div className="pt-4 border-t border-white/10 space-y-3">
           <div className="p-3 rounded-2xl bg-white/5 border border-white/10 space-y-1">
             <span className="text-[11px] text-emerald-300 font-semibold block">
-              {CURRENT_AGENT.role}
+              {identite.role}
             </span>
-            <strong className="text-xs text-white block">{CURRENT_AGENT.nom}</strong>
-            <p className="text-[10px] text-emerald-200/70">{CURRENT_AGENT.etablissement}</p>
+            <strong className="text-xs text-white block">{identite.nom}</strong>
+            <p className="text-[10px] text-emerald-200/70">{identite.etablissement}</p>
           </div>
 
           <button
@@ -240,14 +271,14 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <h1 className="text-sm sm:text-xl font-bold text-[#103d34] dark:text-[#f0fdf9] truncate">
-                  {CURRENT_AGENT.etablissement}
+                  {identite.etablissement}
                 </h1>
                 <span className="hidden sm:inline text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-semibold flex-shrink-0">
-                  {CURRENT_AGENT.matricule}
+                  {identite.matricule}
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs text-[#526f67] dark:text-emerald-200/70 truncate">
-                {CURRENT_AGENT.nom} · <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{CURRENT_AGENT.role}</span>
+                {identite.nom} · <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{identite.role}</span>
               </p>
             </div>
           </div>
@@ -269,7 +300,13 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#1b5e52] dark:bg-emerald-600 text-white font-bold text-xs sm:text-sm flex items-center justify-center shadow-xs cursor-pointer"
               title="Paramètres de l'agent"
             >
-              SM
+              {identite.nom
+                .split(/\s+/)
+                .filter(Boolean)
+                .map((partie) => partie.charAt(0))
+                .join('')
+                .slice(0, 2)
+                .toUpperCase() || 'AG'}
             </div>
           </div>
         </header>
@@ -290,37 +327,37 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     <BarChart3 className="w-4 h-4 text-[#1b7e5c] dark:text-emerald-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold font-serif text-[#103d34] dark:text-[#f0fdf9]">
-                    142
+                    {kpi.naissances}
                   </div>
                   <p className="text-[11px] text-[#1b7e5c] dark:text-emerald-400 font-medium flex items-center gap-1">
-                    <span>99.3% survie · Voir statistiques</span>
+                    <span>{kpi.tauxSurvie} survie · Voir statistiques</span>
                     <ArrowRight className="w-3 h-3" />
                   </p>
                 </div>
 
                 <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-2">
                   <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span>Taux déclarations &lt; 30j</span>
+                    <span>Dossiers suivis</span>
                     <Clock className="w-4 h-4 text-[#1b7e5c] dark:text-emerald-400" />
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold font-serif text-[#103d34] dark:text-[#f0fdf9]">
-                    98.4%
+                    {kpi.dossiers}
                   </div>
                   <p className="text-[11px] text-[#1b7e5c] dark:text-emerald-400 font-medium">
-                    Conforme à la législation
+                    {kpi.dossiersComplets} dossiers soldés
                   </p>
                 </div>
 
                 <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-2">
                   <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span>En attente mairie</span>
+                    <span>Dossiers encore ouverts</span>
                     <FileCheck2 className="w-4 h-4 text-amber-500" />
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold font-serif text-amber-600 dark:text-amber-400">
-                    18
+                    {Math.max(0, kpi.dossiers - kpi.dossiersComplets)}
                   </div>
                   <p className="text-[11px] text-slate-400">
-                    Transmis pour émission d'acte
+                    Déclaration ou acte en attente
                   </p>
                 </div>
 
@@ -334,11 +371,11 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     <Syringe className="w-4 h-4 text-[#1b7e5c] dark:text-emerald-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold font-serif text-[#103d34] dark:text-[#f0fdf9]">
-                    284 doses
+                    {kpi.dosesAdministrees} doses
                   </div>
                   <p className="text-[11px] text-[#1b7e5c] dark:text-emerald-400 font-medium flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3" />
-                    <span>Confirmer les statuts →</span>
+                    <span>sur {kpi.doses} échéances · Confirmer →</span>
                   </p>
                 </div>
               </div>
@@ -376,7 +413,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                   </div>
                   <div>
                     <h4 className="text-xs sm:text-sm font-bold text-amber-900 dark:text-amber-200">
-                      Rappel légal : 2 naissances approchent du délai légal de 30 jours
+                      Rappel légal : {dossiersUrgents} dossier{dossiersUrgents > 1 ? 's' : ''} proche{dossiersUrgents > 1 ? 's' : ''} du délai légal de 30 jours
                     </h4>
                     <p className="text-xs text-amber-800/80 dark:text-amber-300/80">
                       Les parents ont reçu un rappel automatique. L’officier d’état civil peut certifier les dossiers en 1 clic.
@@ -415,7 +452,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
                 {/* Mobile Cards View (md:hidden) */}
                 <div className="md:hidden space-y-3">
-                  {childrenList.map((c) => (
+                  {naissancesRecentes.map((c) => (
                     <div
                       key={c.id}
                       className="p-3.5 rounded-2xl bg-[#f9fcfa] dark:bg-[#121c19] border border-slate-200/80 dark:border-emerald-500/20 space-y-2.5"
@@ -432,7 +469,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                               {c.prenom} {c.nom}
                             </h4>
                             <span className="text-[11px] text-slate-400">
-                              Né le {c.dateNaissance} · {c.sexe} ({c.poids})
+                              Né le {c.dateNaissance} · {c.sexe}{c.poids ? ` (${c.poids})` : ''}
                             </span>
                           </div>
                         </div>
@@ -477,7 +514,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                      {childrenList.map((c) => (
+                      {naissancesRecentes.map((c) => (
                         <tr key={c.id} className="hover:bg-[#f9fcfa] dark:hover:bg-[#121c19] transition-colors">
                           <td className="py-3 px-3 font-semibold text-[#103d34] dark:text-emerald-100">
                             <div className="flex items-center gap-2.5">
@@ -489,7 +526,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                               <div>
                                 <span>{c.prenom} {c.nom}</span>
                                 <span className="block text-[11px] font-normal text-slate-400">
-                                  {c.sexe} · {c.poids}
+                                  {c.sexe}{c.poids ? ` · ${c.poids}` : ''}
                                 </span>
                               </div>
                             </div>
@@ -501,7 +538,9 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                             {c.referenceMaternite}
                           </td>
                           <td className="py-3 px-3 text-xs text-[#48665e] dark:text-emerald-200/80">
-                            Mère : {c.mere.nom} ({c.mere.telephone})
+                            {c.mere.nom
+                              ? `Mère : ${c.mere.nom}${c.mere.telephone ? ` (${c.mere.telephone})` : ''}`
+                              : 'Parents non renseignés'}
                           </td>
                           <td className="py-3 px-3">
                             <span
@@ -534,6 +573,8 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
           {activeTab === 'nouveau' && (
             <AgentNewborn
               onAddChild={onAddChild}
+              creer={creer}
+              etablissement={identite.etablissement}
               onShowToast={showToast}
               onCancel={() => setActiveTab('apercu')}
             />
@@ -557,11 +598,11 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
           )}
 
           {activeTab === 'stats' && (
-            <AgentStatistics onShowToast={showToast} />
+            <AgentStatistics kpi={kpi} etablissement={identite.etablissement} onShowToast={showToast} />
           )}
 
           {activeTab === 'settings' && (
-            <AgentSettings onShowToast={showToast} />
+            <AgentSettings agent={identite} onShowToast={showToast} />
           )}
         </main>
       </div>
@@ -671,17 +712,17 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
               <div className="p-3.5 rounded-2xl bg-white/10 dark:bg-white/5 border border-white/10 space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] uppercase font-bold text-emerald-300">
-                    {CURRENT_AGENT.role}
+                    {identite.role}
                   </span>
                   <span className="text-[10px] font-mono text-emerald-400 bg-white/10 px-1.5 py-0.5 rounded">
-                    {CURRENT_AGENT.matricule}
+                    {identite.matricule}
                   </span>
                 </div>
                 <h4 className="text-sm font-bold text-white truncate">
-                  {CURRENT_AGENT.nom}
+                  {identite.nom}
                 </h4>
                 <p className="text-[11px] text-emerald-200/80 truncate">
-                  {CURRENT_AGENT.etablissement}
+                  {identite.etablissement}
                 </p>
               </div>
 
@@ -827,16 +868,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
           </div>
         </div>
       )}
-
-      {/* Wizard Modal */}
-      <ChildRegisterWizard
-        isOpen={isWizardOpen}
-        onClose={() => setIsWizardOpen(false)}
-        onSuccess={(newChild) => {
-          onAddChild(newChild);
-          showToast(`Déclaration de naissance enregistrée avec succès pour ${newChild.prenom} ${newChild.nom} (${newChild.referenceMaternite}).`);
-        }}
-      />
     </div>
   );
 };

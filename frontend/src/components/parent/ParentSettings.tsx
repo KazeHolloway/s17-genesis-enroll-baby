@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
 import { User, Shield, ChevronRight, HelpCircle, Users } from 'lucide-react';
+import type { Utilisateur } from '../../services/api';
 
 interface ParentSettingsProps {
   onShowToast: (msg: string) => void;
   onNavigateToChildren?: () => void;
+  /** Compte parent connecté : pré-remplit les informations affichées. */
+  utilisateur?: Utilisateur | null;
 }
 
 export const ParentSettings: React.FC<ParentSettingsProps> = ({
   onShowToast,
   onNavigateToChildren,
+  utilisateur,
 }) => {
   const [activeSubView, setActiveSubView] = useState<'menu' | 'infos' | 'securite'>('menu');
-  const [nom, setNom] = useState('Awa Moussana');
-  const [tel, setTel] = useState('+242 06 12 34 56');
-  const [email, setEmail] = useState('awa@gmail.com');
+  const [nom, setNom] = useState(utilisateur?.nom_complet ?? '');
+  const [tel, setTel] = useState(utilisateur?.telephone ?? '');
+  const [email, setEmail] = useState(utilisateur?.email ?? '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onShowToast('Vos informations personnelles ont été mises à jour.');
+    onShowToast("Profil consulté : aucune modification n'a été enregistrée (l'écriture du compte n'est pas encore reliée à l'API).");
     setActiveSubView('menu');
   };
 
@@ -33,7 +37,7 @@ export const ParentSettings: React.FC<ParentSettingsProps> = ({
       {/* Profile Header matching Screen 4 of mockup */}
       <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs flex items-center gap-4 text-left">
         <div className="w-16 h-16 rounded-full bg-[#1b5e52] dark:bg-emerald-600 text-white font-bold text-2xl flex items-center justify-center flex-shrink-0 shadow-md">
-          A
+          {(nom.trim()[0] || 'P').toUpperCase()}
         </div>
         <div className="space-y-0.5">
           <h2 className="text-lg sm:text-xl font-bold text-[#103d34] dark:text-[#f0fdf9]">
@@ -42,9 +46,9 @@ export const ParentSettings: React.FC<ParentSettingsProps> = ({
           <p className="text-xs text-slate-500 dark:text-emerald-200/70 font-mono">
             {email}
           </p>
-          <span className="inline-block text-[11px] font-semibold text-[#1b7e5c] dark:text-emerald-400">
-            Compte Parent Certifié
-          </span>
+        <span className="inline-block text-[11px] font-semibold text-[#1b7e5c] dark:text-emerald-400">
+          {utilisateur ? 'Compte parent connecté' : 'Compte non renseigné'}
+        </span>
         </div>
       </div>
 
@@ -187,7 +191,7 @@ export const ParentSettings: React.FC<ParentSettingsProps> = ({
               type="submit"
               className="w-full py-2.5 rounded-xl bg-[#1b5e52] hover:bg-[#144b41] text-white text-xs font-bold shadow-xs cursor-pointer min-h-[44px]"
             >
-              Enregistrer les modifications
+              Terminer la consultation
             </button>
           </div>
         </form>
@@ -211,26 +215,26 @@ export const ParentSettings: React.FC<ParentSettingsProps> = ({
 
           <div className="space-y-3 text-xs text-[#3d5a52] dark:text-emerald-200/80">
             <div className="p-3.5 rounded-xl bg-[#f8fbf9] dark:bg-[#121c19] border border-slate-200 dark:border-emerald-500/20 flex items-center justify-between">
-              <div>
-                <span className="font-semibold block text-[#103d34] dark:text-emerald-100">Mot de passe</span>
-                <span>Dernière modification il y a 3 mois</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => onShowToast("Lien de réinitialisation envoyé dans l'espace parent")}
-                className="text-xs font-bold text-[#1b5e52] dark:text-emerald-400 hover:underline"
-              >
-                Changer
-              </button>
+            <div>
+              <span className="font-semibold block text-[#103d34] dark:text-emerald-100">Mot de passe</span>
+              <span>La modification du mot de passe n'est pas encore reliée à l'API</span>
             </div>
+            <button
+              type="button"
+              onClick={() => onShowToast("Le changement de mot de passe n'est pas encore relié à l'API : contactez la maternité.")}
+              className="text-xs font-bold text-[#1b5e52] dark:text-emerald-400 hover:underline"
+            >
+              Changer
+            </button>
+          </div>
 
-            <div className="p-3.5 rounded-xl bg-[#f8fbf9] dark:bg-[#121c19] border border-slate-200 dark:border-emerald-500/20 flex items-center justify-between">
-              <div>
-                <span className="font-semibold block text-[#103d34] dark:text-emerald-100">Authentification à deux facteurs</span>
-                <span className="text-emerald-700 dark:text-emerald-400 font-medium">✓ Activée</span>
-              </div>
-              <span className="text-xs text-slate-400">Géré</span>
+          <div className="p-3.5 rounded-xl bg-[#f8fbf9] dark:bg-[#121c19] border border-slate-200 dark:border-emerald-500/20 flex items-center justify-between">
+            <div>
+              <span className="font-semibold block text-[#103d34] dark:text-emerald-100">Authentification à deux facteurs</span>
+              <span className="text-amber-700 dark:text-amber-300 font-medium">Non gérée par l'API</span>
             </div>
+            <span className="text-xs text-slate-400">—</span>
+          </div>
           </div>
         </div>
       )}

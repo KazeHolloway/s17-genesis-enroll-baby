@@ -13,7 +13,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
   onBookSuccess,
 }) => {
   const [motif, setMotif] = useState('Vaccination VPI 2ème dose');
-  const [date, setDate] = useState('2025-10-15');
+  const [date, setDate] = useState('');
   const [heure, setHeure] = useState('09:30');
   const [centre, setCentre] = useState('Centre de Santé Intégré Ouenze');
 
@@ -21,7 +21,9 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onBookSuccess(`Rendez-vous confirmé pour le ${new Date(date).toLocaleDateString('fr-FR')} à ${heure} (${centre}). Un rappel vous sera envoyé dans l'espace parent.`);
+    onBookSuccess(
+      `Rendez-vous préparé : ${motif} le ${new Date(date).toLocaleDateString('fr-FR')} à ${heure} (${centre}). La confirmation par l'établissement reste à faire valider.`,
+    );
     onClose();
   };
 

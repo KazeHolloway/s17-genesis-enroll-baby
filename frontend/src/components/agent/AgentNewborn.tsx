@@ -6,12 +6,17 @@ import { PrintableDeclarationModal } from '../PrintableDeclarationModal';
 
 interface AgentNewbornProps {
   onAddChild: (newChild: Child) => void;
+  /** Persiste le nouveau-né via `POST /api/enfants/enregistrement`. */
+  creer?: (child: Child) => Promise<Child>;
+  etablissement?: string;
   onShowToast: (msg: string) => void;
   onCancel?: () => void;
 }
 
 export const AgentNewborn: React.FC<AgentNewbornProps> = ({
   onAddChild,
+  creer,
+  etablissement,
   onShowToast,
   onCancel,
 }) => {
@@ -19,79 +24,76 @@ export const AgentNewborn: React.FC<AgentNewbornProps> = ({
   const [copiedCode, setCopiedCode] = useState(false);
   const [showPrintDossier, setShowPrintDossier] = useState(false);
   const [showPrintDeclaration, setShowPrintDeclaration] = useState(false);
+  const [envoi, setEnvoi] = useState(false);
 
   // Enfant
   const [nom, setNom] = useState('');
   const [prenom, setPrenom] = useState('');
-  const [dateNaissance, setDateNaissance] = useState('2026-10-05');
-  const [heureNaissance, setHeureNaissance] = useState('07:15');
-  const [poids, setPoids] = useState('3.3');
-  const [taille, setTaille] = useState('50');
-  const [perimetreCranien, setPerimetreCranien] = useState('35');
-  const [apgar1, setApgar1] = useState('9');
-  const [apgar5] = useState('10');
+  const [dateNaissance, setDateNaissance] = useState('');
+  const [heureNaissance, setHeureNaissance] = useState('');
+  const [poids, setPoids] = useState('');
+  const [taille, setTaille] = useState('');
+  const [perimetreCranien, setPerimetreCranien] = useState('');
+  const [apgar1, setApgar1] = useState('');
+  const [apgar5] = useState('');
   const [sexe, setSexe] = useState<ChildGender>('Garçon');
-  const [lieuNaissance] = useState('Maternité Blanche Gomez, Brazzaville');
+  const [lieuNaissance] = useState(etablissement ?? '');
 
   // Parents
   const [nomMere, setNomMere] = useState('');
-  const [telMere, setTelMere] = useState('+242 ');
+  const [telMere, setTelMere] = useState('');
   const [nomPere, setNomPere] = useState('');
-  const [telPere, setTelPere] = useState('+242 ');
+  const [telPere, setTelPere] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nom.trim() || !prenom.trim() || !nomMere.trim()) {
-      onShowToast('Veuillez renseigner le nom, prénom et le nom de la mère.');
+    if (!nom.trim() || !prenom.trim() || !nomMere.trim() || !dateNaissance) {
+      onShowToast('Veuillez renseigner le nom, le prénom, la date de naissance et le nom de la mère.');
       return;
     }
+    if (envoi || !creer) return;
+    setEnvoi(true);
 
-    const formattedDate = dateNaissance
-      ? new Date(dateNaissance).toLocaleDateString('fr-FR')
-      : '05/10/2026';
-
-    const codeGen = `${(nom.trim().slice(0, 3) || 'PAR').toUpperCase()}-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-
-    const newChild: Child = {
-      id: `child-${Date.now()}`,
+    const base: Child = {
+      id: '',
       nom: nom.trim(),
       prenom: prenom.trim(),
-      dateNaissance: formattedDate,
+      dateNaissance: new Date(dateNaissance).toLocaleDateString('fr-FR'),
       heureNaissance,
-      poids: `${poids} kg`,
-      taille: `${taille} cm`,
+      poids: poids ? `${poids} kg` : '',
+      taille: taille ? `${taille} cm` : '',
       sexe,
       lieuNaissance,
-      photoUrl: '/src/assets/images/baby_moussa_avatar_1791208716424.jpg',
+      photoUrl: '',
       status: 'en_cours',
-      referenceMaternite: `MAT-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`,
-      codeAccesParent: codeGen,
-      delaiDeclarationJours: 30,
-      numeroActe: 'Transmis État Civil',
-      mere: {
-        nom: nomMere.trim(),
-        telephone: telMere.trim(),
-      },
+      referenceMaternite: '',
+      mere: { nom: nomMere.trim(), telephone: telMere.trim() },
       pere: {
-        nom: nomPere.trim() || 'Non spécifié',
-        telephone: telPere.trim() || 'Non spécifié',
-      },
-      prochaineVaccination: {
-        date: 'À la sortie',
-        nom: 'BCG + Polio 0',
-        joursRestants: 2,
+        nom: nomPere.trim(),
+        telephone: telPere.trim(),
       },
       etapes: [
         { titre: 'Constat médical d’accouchement effectué', date: 'Aujourd’hui', complete: true },
-        { titre: 'Certificat médical de naissance n° MAT émis', date: 'Aujourd’hui', complete: true },
-        { titre: 'Transmission automatique à la Mairie', date: 'Aujourd’hui', complete: true },
+        { titre: 'Certificat médical de naissance transmis', date: 'Aujourd’hui', complete: true },
+        { titre: 'Transmission à l’Officier d’État Civil', date: 'En attente', complete: false },
         { titre: 'Délivrance de l’acte d’état civil', date: 'En attente signature', complete: false },
       ],
     };
 
-    setCreatedChild(newChild);
-    onAddChild(newChild);
-    onShowToast(`Naissance validée. Code d'accès parent ${codeGen} généré.`);
+    try {
+      const enregistre = await creer(base);
+      setCreatedChild(enregistre);
+      onAddChild(enregistre);
+      onShowToast(
+        `Naissance enregistrée. Code d'accès parent ${enregistre.codeAccesParent ?? '—'}.`,
+      );
+    } catch (erreur) {
+      onShowToast(
+        erreur instanceof Error ? erreur.message : "Enregistrement impossible : vérifiez les champs saisis.",
+      );
+    } finally {
+      setEnvoi(false);
+    }
   };
 
   return (
@@ -323,10 +325,11 @@ export const AgentNewborn: React.FC<AgentNewbornProps> = ({
 
           <button
             type="submit"
-            className="ml-auto px-6 py-2.5 rounded-xl bg-[#1b5e52] hover:bg-[#144b41] text-white text-xs font-bold flex items-center gap-2 shadow-xs cursor-pointer"
+            disabled={envoi}
+            className="ml-auto px-6 py-2.5 rounded-xl bg-[#1b5e52] hover:bg-[#144b41] text-white text-xs font-bold flex items-center gap-2 shadow-xs cursor-pointer disabled:opacity-60"
           >
             <ShieldCheck className="w-4 h-4" />
-            <span>Valider le constat & Émettre le certificat</span>
+            <span>{envoi ? 'Enregistrement…' : 'Enregistrer la naissance'}</span>
           </button>
         </div>
       </form>

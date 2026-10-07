@@ -11,8 +11,6 @@ import {
   Syringe,
   User,
   Edit3,
-  CalendarCheck,
-  KeyRound,
   Copy,
 } from 'lucide-react';
 import type { Child, VaccineItem, DocumentItem } from '../../types/dashboard';
@@ -26,9 +24,6 @@ interface ParentChildrenProps {
   documents: DocumentItem[];
   selectedChildId?: string | null;
   onSelectChild: (id: string | null) => void;
-  onOpenWizard?: () => void;
-  onOpenLinkModal?: () => void;
-  onOpenAppointmentModal: () => void;
   onShowToast: (msg: string) => void;
 }
 
@@ -38,9 +33,6 @@ export const ParentChildren: React.FC<ParentChildrenProps> = ({
   documents,
   selectedChildId,
   onSelectChild,
-  onOpenWizard,
-  onOpenLinkModal,
-  onOpenAppointmentModal,
   onShowToast,
 }) => {
   const [activeTab, setActiveTab] = useState<'informations' | 'vaccinations' | 'documents' | 'historique'>('informations');
@@ -90,7 +82,9 @@ export const ParentChildren: React.FC<ParentChildrenProps> = ({
                 {selectedChild.prenom} {selectedChild.nom}
               </h1>
               <p className="text-xs sm:text-sm text-[#4d6a62] dark:text-emerald-200/80">
-                Né le {selectedChild.dateNaissance} · {selectedChild.poids} · {selectedChild.taille}
+                Né le {selectedChild.dateNaissance}
+                {selectedChild.poids ? ` · ${selectedChild.poids}` : ''}
+                {selectedChild.taille ? ` · ${selectedChild.taille}` : ''}
               </p>
               <div className="pt-1">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#e8f7f2] dark:bg-emerald-950/60 text-[#1b7e5c] dark:text-emerald-300 border border-[#1b7e5c]/20 dark:border-emerald-500/30">
@@ -109,24 +103,27 @@ export const ParentChildren: React.FC<ParentChildrenProps> = ({
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 pt-1">
-              <span className="text-[11px] text-slate-400">Code parent :</span>
-              <button
-                type="button"
-                onClick={() => {
-                  const code = selectedChild.codeAccesParent || 'MOU-2025-88';
-                  navigator.clipboard.writeText(code);
-                  setCopiedCode(true);
-                  setTimeout(() => setCopiedCode(false), 2500);
-                  onShowToast(`Code d'accès parent ${code} copié !`);
-                }}
-                className="text-xs font-mono font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800/40 inline-flex items-center gap-1 cursor-pointer"
-                title="Copier le code d'accès parent"
-              >
-                <span>{selectedChild.codeAccesParent || 'MOU-2025-88'}</span>
-                <Copy className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-              </button>
-            </div>
+            {selectedChild.codeAccesParent && (
+              <div className="flex items-center gap-1.5 pt-1">
+                <span className="text-[11px] text-slate-400">Code parent :</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const code = selectedChild.codeAccesParent;
+                    if (!code) return;
+                    navigator.clipboard.writeText(code);
+                    setCopiedCode(true);
+                    setTimeout(() => setCopiedCode(false), 2500);
+                    onShowToast(`Code d'accès parent ${code} copié !`);
+                  }}
+                  className="text-xs font-mono font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800/40 inline-flex items-center gap-1 cursor-pointer"
+                  title="Copier le code d'accès parent"
+                >
+                  <span>{selectedChild.codeAccesParent}</span>
+                  <Copy className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -394,17 +391,7 @@ export const ParentChildren: React.FC<ParentChildrenProps> = ({
                 </button>
 
                 <button
-                  onClick={onOpenAppointmentModal}
-                  className="w-full text-left p-3 rounded-2xl bg-[#f9fcfa] dark:bg-[#121c19] hover:bg-[#eef7f3] dark:hover:bg-[#182622] border border-slate-200/80 dark:border-emerald-500/20 text-xs sm:text-sm font-medium text-[#103d34] dark:text-emerald-100 flex items-center gap-3 transition-colors cursor-pointer group"
-                >
-                  <div className="w-8 h-8 rounded-xl bg-white dark:bg-black/60 flex items-center justify-center text-[#1b7e5c] dark:text-emerald-300 shadow-2xs group-hover:scale-105 transition-transform">
-                    <CalendarCheck className="w-4 h-4" />
-                  </div>
-                  <span>Prendre un rendez-vous</span>
-                </button>
-
-                <button
-                  onClick={() => onShowToast('Fonction de modification des informations ouverte')}
+                  onClick={() => onShowToast("La modification des informations n'est pas encore disponible.")}
                   className="w-full text-left p-3 rounded-2xl bg-[#f9fcfa] dark:bg-[#121c19] hover:bg-[#eef7f3] dark:hover:bg-[#182622] border border-slate-200/80 dark:border-emerald-500/20 text-xs sm:text-sm font-medium text-[#103d34] dark:text-emerald-100 flex items-center gap-3 transition-colors cursor-pointer group"
                 >
                   <div className="w-8 h-8 rounded-xl bg-white dark:bg-black/60 flex items-center justify-center text-[#1b7e5c] dark:text-emerald-300 shadow-2xs group-hover:scale-105 transition-transform">
@@ -445,15 +432,6 @@ export const ParentChildren: React.FC<ParentChildrenProps> = ({
             Consultez le dossier médical et d'état civil de chaque enfant.
           </p>
         </div>
-
-        <button
-          onClick={onOpenLinkModal || onOpenWizard}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#1b5e52] hover:bg-[#144b41] text-white text-xs font-semibold shadow-xs cursor-pointer min-h-[44px]"
-          title="Rattacher le dossier d'un enfant avec son code maternité"
-        >
-          <KeyRound className="w-4 h-4" />
-          <span>Rattacher avec code d'accès</span>
-        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -473,7 +451,8 @@ export const ParentChildren: React.FC<ParentChildrenProps> = ({
                   {child.prenom} {child.nom}
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Né le {child.dateNaissance} · {child.poids}
+                  Né le {child.dateNaissance}
+                  {child.poids ? ` · ${child.poids}` : ''}
                 </p>
                 <span className="text-[11px] font-mono text-[#1b7e5c] dark:text-emerald-300">
                   {child.referenceMaternite}

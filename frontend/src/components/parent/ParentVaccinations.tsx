@@ -1,18 +1,25 @@
 import React, { useState } from 'react';
 import { Calendar, CheckCircle2, Bell, Search, CalendarCheck } from 'lucide-react';
 import type { VaccineItem } from '../../types/dashboard';
-import { RendezVousSuivi } from './RendezVousSuivi';
-import { ConfirmationStatutVaccin } from './ConfirmationStatutVaccin';
+import RendezVousSuivi from '../RendezVousSuivi';
+import ConfirmationStatutVaccin from '../ConfirmationStatutVaccin';
 
 interface ParentVaccinationsProps {
   vaccines: VaccineItem[];
-  onOpenAppointmentModal: () => void;
   onShowToast: (msg: string) => void;
 }
 
+/**
+ * Vue « Vaccinations » de l'espace parent.
+ *
+ * Le parent ne crée ni rendez-vous ni vaccination : `POST /rendez-vous` et
+ * `POST /vaccinations/confirmer` sont réservés à `agent_maternite` et `admin`.
+ * Les deux sous-vues sont donc en lecture seule (`mode="parent"` /
+ * `mode="lecture"`) et passent par `GET /rendez-vous/rappels`,
+ * `GET /rendez-vous/enfant/:id` et le calendrier de son espace.
+ */
 export const ParentVaccinations: React.FC<ParentVaccinationsProps> = ({
   vaccines,
-  onShowToast,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'calendrier' | 'statuts' | 'rendezvous'>('calendrier');
   const [filterQuery, setFilterQuery] = useState('');
@@ -74,16 +81,9 @@ export const ParentVaccinations: React.FC<ParentVaccinationsProps> = ({
       </div>
 
       {activeSubTab === 'statuts' ? (
-        <ConfirmationStatutVaccin
-          onBack={() => setActiveSubTab('calendrier')}
-          onNavigateToRdv={() => setActiveSubTab('rendezvous')}
-          onShowToast={onShowToast}
-        />
+        <ConfirmationStatutVaccin mode="lecture" />
       ) : activeSubTab === 'rendezvous' ? (
-        <RendezVousSuivi
-          onBack={() => setActiveSubTab('calendrier')}
-          onShowToast={onShowToast}
-        />
+        <RendezVousSuivi mode="parent" />
       ) : (
         <>
           {/* Action Callout */}
@@ -94,10 +94,10 @@ export const ParentVaccinations: React.FC<ParentVaccinationsProps> = ({
               </div>
               <div>
                 <h4 className="text-xs sm:text-sm font-bold text-[#103d34] dark:text-emerald-100">
-                  Prendre un rendez-vous & Programmer les rappels
+                  Rendez-vous planifiés par la maternité
                 </h4>
                 <p className="text-[11px] text-slate-500 dark:text-emerald-200/70">
-                  Le système déclenche automatiquement un rappel 24 heures avant l'échéance.
+                  Un rappel s'affiche automatiquement 24 heures avant chaque échéance.
                 </p>
               </div>
             </div>
@@ -106,7 +106,7 @@ export const ParentVaccinations: React.FC<ParentVaccinationsProps> = ({
               className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#1b5e52] hover:bg-[#144b41] text-white text-xs font-bold shadow-xs cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5"
             >
               <Calendar className="w-4 h-4" />
-              <span>Gérer les rendez-vous</span>
+              <span>Consulter les rendez-vous</span>
             </button>
           </div>
 
@@ -191,13 +191,6 @@ export const ParentVaccinations: React.FC<ParentVaccinationsProps> = ({
                       >
                         {isDone ? 'Administré' : 'À venir'}
                       </span>
-
-                      <button
-                        onClick={() => onShowToast(`Rappel programmé pour : ${v.nom}`)}
-                        className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-emerald-500/30 text-xs font-semibold text-[#103d34] dark:text-emerald-200 hover:bg-slate-50 dark:hover:bg-[#121c19] transition-colors cursor-pointer min-h-[38px]"
-                      >
-                        Voir détails
-                      </button>
                     </div>
                   </div>
                 </div>

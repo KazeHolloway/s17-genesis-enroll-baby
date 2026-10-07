@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   BarChart3,
   Baby,
@@ -7,46 +7,124 @@ import {
   ShieldCheck,
   Heart,
   CheckCircle2,
-  Clock,
 } from 'lucide-react';
+import type { AgentKpi } from '../../types/dashboard';
 
 interface AgentStatisticsProps {
+  kpi: AgentKpi;
+  etablissement: string;
   onShowToast: (msg: string) => void;
 }
 
-export const AgentStatistics: React.FC<AgentStatisticsProps> = ({ onShowToast }) => {
-  const [activeTab, setActiveTab] = useState<'consolidee' | 'natalite' | 'mortalite'>('consolidee');
-  const [selectedPeriod, setSelectedPeriod] = useState<'mois' | 'trimestre' | 'annee'>('mois');
+function pourcentage(part: number, total: number): string {
+  if (total <= 0) return '—';
+  return `${Math.round((part / total) * 1000) / 10}%`;
+}
 
-  const statsConsolidees = {
-    totalNaissances: selectedPeriod === 'mois' ? 142 : selectedPeriod === 'trimestre' ? 418 : 1680,
-    naissancesVivantes: selectedPeriod === 'mois' ? 141 : selectedPeriod === 'trimestre' ? 415 : 1668,
-    tauxSurvie: '99.3%',
-    tauxDeclaration30j: '98.4%',
-    tauxCesariennes: '18.2%',
-    vaccinsAdministres: selectedPeriod === 'mois' ? 284 : selectedPeriod === 'trimestre' ? 836 : 3360,
-    decesNeonatals: selectedPeriod === 'mois' ? 1 : selectedPeriod === 'trimestre' ? 3 : 12,
-    decesMaternels: 0,
-  };
+export const AgentStatistics: React.FC<AgentStatisticsProps> = ({
+  kpi,
+  etablissement,
+  onShowToast,
+}) => {
+  const [activeTab, setActiveTab] = useState<'consolidee' | 'natalite' | 'mortalite'>('consolidee');
+  const [selectedPeriod, setSelectedPeriod] = useState<'mois' | 'trimestre' | 'annee'>('annee');
+
+  const donnees = useMemo(() => {
+    const mois = kpi.parMois;
+    if (mois.length === 0) {
+      return {
+        naissances: kpi.naissances,
+        garcons: kpi.garcons,
+        filles: kpi.filles,
+        mortNes: kpi.mortNes,
+        deces: kpi.deces,
+        lignes: [] as typeof mois,
+      };
+    }
+
+    const nombreMois =
+      selectedPeriod === 'mois'
+        ? 1
+        : selectedPeriod === 'trimestre'
+          ? Math.min(3, mois.length)
+          : mois.length;
+    const periode = mois.slice(-nombreMois);
+    const somme = (extrait: (ligne: (typeof periode)[number]) => number) =>
+      periode.reduce((total, ligne) => total + extrait(ligne), 0);
+
+    return {
+      naissances: somme((m) => m.naissances),
+      garcons: somme((m) => m.garcons),
+      filles: somme((m) => m.filles),
+      mortNes: somme((m) => m.mort_nes),
+      deces: somme((m) => m.deces),
+      lignes: periode,
+    };
+  }, [kpi, selectedPeriod]);
+
+  const tauxSurvie = pourcentage(donnees.naissances - donnees.mortNes, donnees.naissances);
+  const tauxMortaliteNeonatale = pourcentage(donnees.mortNes, donnees.naissances);
+  const couvertureVaccinale = pourcentage(kpi.dosesAdministrees, kpi.doses);
+  const tauxGarcons = pourcentage(donnees.garcons, donnees.naissances);
+  const tauxFilles = pourcentage(donnees.filles, donnees.naissances);
 
   const handleExportReport = () => {
-    onShowToast(`Rapport sanitaire officiel (${selectedPeriod.toUpperCase()}) généré et prêt au téléchargement.`);
+    onShowToast(
+      `Rapport sanitaire officiel (${selectedPeriod.toUpperCase()}) généré depuis les statistiques de l'établissement.`,
+    );
   };
+
+  const cartes = [
+    {
+      libelle: 'Total Naissances',
+      valeur: String(donnees.naissances),
+      detail: `${donnees.naissances - donnees.mortNes} naissances vivantes (${tauxSurvie})`,
+      Icone: Baby,
+      accent: 'text-emerald-500',
+      valeurClasse: 'text-[#103d34] dark:text-[#f0fdf9]',
+      detailClasse: 'text-emerald-600 dark:text-emerald-400',
+    },
+    {
+      libelle: 'Répartition par sexe',
+      valeur: `${donnees.garcons} / ${donnees.filles}`,
+      detail: `${tauxGarcons} garçons · ${tauxFilles} filles`,
+      Icone: Activity,
+      accent: 'text-emerald-500',
+      valeurClasse: 'text-[#103d34] dark:text-[#f0fdf9]',
+      detailClasse: 'text-emerald-600 dark:text-emerald-400',
+    },
+    {
+      libelle: 'Doses PEV Administrées',
+      valeur: String(kpi.dosesAdministrees),
+      detail: `${couvertureVaccinale} des ${kpi.doses} échéances du calendrier`,
+      Icone: ShieldCheck,
+      accent: 'text-emerald-500',
+      valeurClasse: 'text-[#103d34] dark:text-[#f0fdf9]',
+      detailClasse: 'text-emerald-600 dark:text-emerald-400',
+    },
+    {
+      libelle: 'Mortalité Néonatale',
+      valeur: `${donnees.mortNes}`,
+      detail: `${tauxMortaliteNeonatale} des naissances · ${donnees.deces} décès déclarés`,
+      Icone: Heart,
+      accent: 'text-rose-500',
+      valeurClasse: 'text-rose-600 dark:text-rose-400',
+      detailClasse: 'text-rose-600 dark:text-rose-400',
+    },
+  ];
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
-      {/* Header section matching user story */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#103d34] dark:text-[#f0fdf9]">
-            Statistiques Épidémiologiques & Sanitaires de l’Établissement
+            Statistiques Épidémiologiques & Sanitaires
           </h2>
           <p className="text-xs text-[#526f67] dark:text-emerald-200/70">
-            Maternité Blanche Gomez · Vue consolidée pour le responsable de santé et la Direction Médicale.
+            {etablissement || 'Établissement'} — vue consolidée pour le responsable de santé et la Direction Médicale.
           </p>
         </div>
 
-        {/* Period Selector & Export */}
         <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
           <div className="flex items-center gap-1 p-1 bg-slate-200/70 dark:bg-white/10 rounded-2xl">
             {(['mois', 'trimestre', 'annee'] as const).map((p) => (
@@ -74,19 +152,18 @@ export const AgentStatistics: React.FC<AgentStatisticsProps> = ({ onShowToast })
         </div>
       </div>
 
-      {/* Sub-view switcher: Vue Consolidée | Natalité | Mortalité */}
       <div className="flex items-center gap-2 border-b border-slate-200 dark:border-white/10 pb-2 overflow-x-auto no-scrollbar">
         {[
-          { key: 'consolidee', label: 'Vue Consolidée Établissement', icon: BarChart3 },
-          { key: 'natalite', label: 'Statistiques de Natalité', icon: Baby },
-          { key: 'mortalite', label: 'Statistiques de Mortalité', icon: Activity },
+          { key: 'consolidee' as const, label: 'Vue Consolidée', icon: BarChart3 },
+          { key: 'natalite' as const, label: 'Statistiques de Natalité', icon: Baby },
+          { key: 'mortalite' as const, label: 'Statistiques de Mortalité', icon: Activity },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
           return (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key as 'consolidee' | 'natalite' | 'mortalite')}
+              onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 isActive
                   ? 'bg-[#1b5e52] text-white shadow-xs dark:bg-emerald-500 dark:text-black'
@@ -100,297 +177,266 @@ export const AgentStatistics: React.FC<AgentStatisticsProps> = ({ onShowToast })
         })}
       </div>
 
-      {/* 1. VUE CONSOLIDÉE */}
       {activeTab === 'consolidee' && (
         <div className="space-y-6">
-          {/* 4 Main KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-1.5">
-              <span className="text-xs text-slate-400 flex items-center justify-between">
-                <span>Total Naissances</span>
-                <Baby className="w-4 h-4 text-emerald-500" />
-              </span>
-              <div className="text-3xl font-bold font-serif text-[#103d34] dark:text-[#f0fdf9]">
-                {statsConsolidees.totalNaissances}
-              </div>
-              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                {statsConsolidees.naissancesVivantes} naissances vivantes ({statsConsolidees.tauxSurvie})
-              </p>
-            </div>
-
-            <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-1.5">
-              <span className="text-xs text-slate-400 flex items-center justify-between">
-                <span>Délai Déclaration &lt; 30j</span>
-                <Clock className="w-4 h-4 text-emerald-500" />
-              </span>
-              <div className="text-3xl font-bold font-serif text-[#103d34] dark:text-[#f0fdf9]">
-                {statsConsolidees.tauxDeclaration30j}
-              </div>
-              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                Conforme aux objectifs du Ministère
-              </p>
-            </div>
-
-            <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-1.5">
-              <span className="text-xs text-slate-400 flex items-center justify-between">
-                <span>Doses PEV Administrées</span>
-                <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              </span>
-              <div className="text-3xl font-bold font-serif text-[#103d34] dark:text-[#f0fdf9]">
-                {statsConsolidees.vaccinsAdministres}
-              </div>
-              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                100% traçabilité numérique des lots
-              </p>
-            </div>
-
-            <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-1.5">
-              <span className="text-xs text-slate-400 flex items-center justify-between">
-                <span>Mortalité Maternelle</span>
-                <Heart className="w-4 h-4 text-rose-500" />
-              </span>
-              <div className="text-3xl font-bold font-serif text-emerald-600 dark:text-emerald-400">
-                0
-              </div>
-              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                0 décès maternel sur la période
-              </p>
-            </div>
+            {cartes.map((carte) => {
+              const Icon = carte.Icone;
+              return (
+                <div
+                  key={carte.libelle}
+                  className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-1.5"
+                >
+                  <span className="text-xs text-slate-400 flex items-center justify-between">
+                    <span>{carte.libelle}</span>
+                    <Icon className={`w-4 h-4 ${carte.accent}`} />
+                  </span>
+                  <div className={`text-3xl font-bold font-serif ${carte.valeurClasse}`}>
+                    {carte.valeur}
+                  </div>
+                  <p className={`text-[11px] font-medium ${carte.detailClasse}`}>
+                    {carte.detail}
+                  </p>
+                </div>
+              );
+            })}
           </div>
 
-          {/* Consolidated Overview Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Health Indicators Breakdown */}
             <div className="p-6 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-4">
               <h3 className="text-base font-bold text-[#103d34] dark:text-[#f0fdf9]">
-                Indicateurs de Performance Maternelle & Néonatale
+                Indicateurs de suivi
               </h3>
               <div className="space-y-3 text-xs">
                 <div>
                   <div className="flex justify-between font-semibold pb-1">
-                    <span>Transmission État Civil sous 48h</span>
-                    <span className="text-emerald-600">96.8%</span>
+                    <span>Dossiers soldés</span>
+                    <span className="text-emerald-600">
+                      {pourcentage(kpi.dossiersComplets, kpi.dossiers)}
+                    </span>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-white/10 h-2 rounded-full overflow-hidden">
-                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: '96.8%' }} />
+                    <div
+                      className="bg-emerald-500 h-full rounded-full"
+                      style={{ width: pourcentage(kpi.dossiersComplets, kpi.dossiers) }}
+                    />
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between font-semibold pb-1">
-                    <span>Couverture Vaccinale BCG & Polio 0</span>
-                    <span className="text-emerald-600">99.1%</span>
+                    <span>Couverture du calendrier vaccinal</span>
+                    <span className="text-emerald-600">{couvertureVaccinale}</span>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-white/10 h-2 rounded-full overflow-hidden">
-                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: '99.1%' }} />
+                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: couvertureVaccinale }} />
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between font-semibold pb-1">
-                    <span>Taux d'Accouchement par Césarienne</span>
-                    <span className="text-amber-600">18.2% (Norme OMS 15-20%)</span>
+                    <span>Taux de survie néonatale</span>
+                    <span className="text-emerald-600">{tauxSurvie}</span>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-white/10 h-2 rounded-full overflow-hidden">
-                    <div className="bg-amber-500 h-full rounded-full" style={{ width: '18.2%' }} />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between font-semibold pb-1">
-                    <span>Mortalité Néonatale Précoce (&lt; 7 jours)</span>
-                    <span className="text-rose-600">0.7% ({statsConsolidees.decesNeonatals} cas)</span>
-                  </div>
-                  <div className="w-full bg-slate-100 dark:bg-white/10 h-2 rounded-full overflow-hidden">
-                    <div className="bg-rose-500 h-full rounded-full" style={{ width: '0.7%' }} />
+                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: tauxSurvie }} />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Ministry Transmission Log */}
             <div className="p-6 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-[#103d34] dark:text-[#f0fdf9]">
-                  Transmission des Registres Sanitaires
+                  Répartition mensuelle
                 </h3>
                 <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
-                  En ligne
+                  {donnees.lignes.length > 0 ? `${donnees.lignes.length} mois` : 'Aucune donnée'}
                 </span>
               </div>
-              <div className="space-y-3 text-xs">
-                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 flex items-center justify-between">
-                  <div>
-                    <strong className="block text-slate-800 dark:text-white">Registre Mensuel de Natalité</strong>
-                    <span className="text-slate-400 text-[11px]">Transmis à la Direction de l'Épidémiologie</span>
-                  </div>
-                  <span className="text-emerald-600 font-bold font-mono">Validé</span>
-                </div>
 
-                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 flex items-center justify-between">
-                  <div>
-                    <strong className="block text-slate-800 dark:text-white">Notification des Décès & Événements Périnatals</strong>
-                    <span className="text-slate-400 text-[11px]">Système National de Surveillance (DHIS2)</span>
-                  </div>
-                  <span className="text-emerald-600 font-bold font-mono">Synchronisé</span>
+              {donnees.lignes.length === 0 ? (
+                <p className="text-xs text-slate-500 dark:text-emerald-200/70">
+                  Aucune statistique n'a encore été publiée pour la période demandée.
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-100 dark:border-white/10 text-slate-400 text-[11px] uppercase tracking-wider">
+                        <th className="py-2 pr-3">Mois</th>
+                        <th className="py-2 px-3 text-right">Naissances</th>
+                        <th className="py-2 px-3 text-right">Garçons</th>
+                        <th className="py-2 px-3 text-right">Filles</th>
+                        <th className="py-2 pl-3 text-right">Mort-nés</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                      {donnees.lignes.map((ligne) => (
+                        <tr key={ligne.mois}>
+                          <td className="py-2 pr-3 font-semibold text-[#103d34] dark:text-emerald-100">
+                            {ligne.mois}
+                          </td>
+                          <td className="py-2 px-3 text-right text-[#38554d] dark:text-emerald-200/80">
+                            {ligne.naissances}
+                          </td>
+                          <td className="py-2 px-3 text-right text-[#38554d] dark:text-emerald-200/80">
+                            {ligne.garcons}
+                          </td>
+                          <td className="py-2 px-3 text-right text-[#38554d] dark:text-emerald-200/80">
+                            {ligne.filles}
+                          </td>
+                          <td className="py-2 pl-3 text-right text-[#38554d] dark:text-emerald-200/80">
+                            {ligne.mort_nes}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-
-                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 flex items-center justify-between">
-                  <div>
-                    <strong className="block text-slate-800 dark:text-white">Rapport PEV Traçabilité des Doses</strong>
-                    <span className="text-slate-400 text-[11px]">Coordination Centrale de Vaccination</span>
-                  </div>
-                  <span className="text-emerald-600 font-bold font-mono">À jour</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* 2. STATISTIQUES DE NATALITÉ */}
       {activeTab === 'natalite' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-1">
               <span className="text-xs text-slate-400">Répartition par Sexe</span>
               <div className="text-xl font-bold text-[#103d34] dark:text-emerald-200">
-                51.4% Garçons · 48.6% Filles
+                {tauxGarcons} Garçons · {tauxFilles} Filles
               </div>
-              <p className="text-[11px] text-slate-500">73 garçons / 69 filles enregistrés</p>
+              <p className="text-[11px] text-slate-500">
+                {donnees.garcons} garçons / {donnees.filles} filles enregistrés
+              </p>
             </div>
 
             <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-1">
-              <span className="text-xs text-slate-400">Poids Moyen de Naissance</span>
+              <span className="text-xs text-slate-400">Naissances Vivantes</span>
               <div className="text-xl font-bold text-[#103d34] dark:text-emerald-200">
-                3,340 kg
+                {donnees.naissances - donnees.mortNes}
               </div>
-              <p className="text-[11px] text-slate-500">Normal (89.4% entre 2.5 et 4.0 kg)</p>
+              <p className="text-[11px] text-slate-500">sur {donnees.naissances} naissances enregistrées</p>
             </div>
 
             <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-1">
-              <span className="text-xs text-slate-400">Âge Gestationnel Moyen</span>
+              <span className="text-xs text-slate-400">Dossiers suivis</span>
               <div className="text-xl font-bold text-[#103d34] dark:text-emerald-200">
-                39.2 SA
+                {kpi.dossiers}
               </div>
-              <p className="text-[11px] text-slate-500">4.2% de naissances prématurées (&lt; 37 SA)</p>
+              <p className="text-[11px] text-slate-500">{kpi.dossiersComplets} dossiers soldés</p>
             </div>
           </div>
 
-          {/* Breakdown Tables */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-6 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-3">
+          <div className="p-6 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-[#103d34] dark:text-[#f0fdf9]">
-                Modes d'Accouchement
+                Natalité par mois
               </h3>
-              <div className="space-y-2.5 text-xs">
-                <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 dark:bg-white/5">
-                  <span className="font-semibold">Voie basse spontanée</span>
-                  <span className="font-bold text-emerald-600">78.2% (111 cas)</span>
-                </div>
-                <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 dark:bg-white/5">
-                  <span className="font-semibold">Césarienne programmée / urgente</span>
-                  <span className="font-bold text-amber-600">18.2% (26 cas)</span>
-                </div>
-                <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 dark:bg-white/5">
-                  <span className="font-semibold">Accouchement assisté (Instrumental)</span>
-                  <span className="font-bold text-slate-600">3.6% (5 cas)</span>
-                </div>
-              </div>
+              <span className="text-xs text-slate-400 font-mono">
+                {selectedPeriod === 'mois' ? 'Ce mois' : selectedPeriod === 'trimestre' ? 'Trimestre' : 'Année'}
+              </span>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-3">
-              <h3 className="text-base font-bold text-[#103d34] dark:text-[#f0fdf9]">
-                Distribution du Poids Néonatal
-              </h3>
-              <div className="space-y-2.5 text-xs">
-                <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 dark:bg-white/5">
-                  <span className="font-semibold">Poids normal (2 500 g – 4 000 g)</span>
-                  <span className="font-bold text-emerald-600">89.4% (127 bébés)</span>
-                </div>
-                <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 dark:bg-white/5">
-                  <span className="font-semibold">Faible poids de naissance (&lt; 2 500 g)</span>
-                  <span className="font-bold text-amber-600">7.8% (11 bébés)</span>
-                </div>
-                <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 dark:bg-white/5">
-                  <span className="font-semibold">Macrosomie (&gt; 4 000 g)</span>
-                  <span className="font-bold text-slate-600">2.8% (4 bébés)</span>
-                </div>
+            {donnees.lignes.length === 0 ? (
+              <p className="text-xs text-slate-500 dark:text-emerald-200/70">
+                Aucune donnée de natalité publiée pour la période demandée.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {donnees.lignes.map((ligne) => {
+                  const largeur = pourcentage(ligne.naissances, donnees.naissances);
+                  return (
+                    <div key={ligne.mois} className="text-xs">
+                      <div className="flex justify-between font-semibold pb-1">
+                        <span>{ligne.mois}</span>
+                        <span className="text-emerald-600">
+                          {ligne.naissances} naissances ({ligne.garcons}G / {ligne.filles}F)
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-100 dark:bg-white/10 h-2 rounded-full overflow-hidden">
+                        <div className="bg-emerald-500 h-full rounded-full" style={{ width: largeur }} />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* 3. STATISTIQUES DE MORTALITÉ */}
       {activeTab === 'mortalite' && (
         <div className="space-y-6">
           <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-300 dark:border-emerald-800/40 text-xs text-[#134e43] dark:text-emerald-200 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
               <span>
-                <strong>Zéro décès maternel</strong> enregistré dans notre établissement sur l'ensemble de la période déclarée.
+                <strong>{donnees.deces} décès</strong> enregistrés dans notre établissement sur la période déclarée.
               </span>
             </div>
             <span className="font-bold font-mono text-[11px] px-2.5 py-1 rounded bg-white dark:bg-black border">
-              Objectif ODD 3.1 Validé
+              {tauxMortaliteNeonatale} de mortalité néonatale
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-1">
-              <span className="text-slate-400">Mortalité Néonatale Précoce</span>
+              <span className="text-slate-400">Mortalité Néonatale</span>
               <div className="text-2xl font-bold font-serif text-slate-800 dark:text-white">
-                0.7% (1 décès)
+                {tauxMortaliteNeonatale} ({donnees.mortNes} mort-nés)
               </div>
-              <p className="text-[11px] text-slate-500">Taux inférieur à la moyenne nationale</p>
+              <p className="text-[11px] text-slate-500">Calculé sur {donnees.naissances} naissances</p>
             </div>
 
             <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-1">
-              <span className="text-slate-400">Mortinaissances (Mort-nés)</span>
+              <span className="text-slate-400">Décès déclarés</span>
               <div className="text-2xl font-bold font-serif text-slate-800 dark:text-white">
-                0.7% (1 cas)
+                {donnees.deces}
               </div>
-              <p className="text-[11px] text-slate-500">Prise en charge obstétrique d'urgence</p>
+              <p className="text-[11px] text-slate-500">Toutes causes confondues sur la période</p>
             </div>
 
             <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-1">
-              <span className="text-slate-400">Transmission Légale</span>
+              <span className="text-slate-400">Taux de Survie</span>
               <div className="text-2xl font-bold font-serif text-emerald-600 dark:text-emerald-400">
-                100%
+                {tauxSurvie}
               </div>
-              <p className="text-[11px] text-slate-500">Tous les constats notifiés au Ministère</p>
+              <p className="text-[11px] text-slate-500">
+                {donnees.naissances - donnees.mortNes} naissances vivantes
+              </p>
             </div>
           </div>
 
-          {/* Causes répertoriées & Audit des décès */}
           <div className="p-6 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-[#103d34] dark:text-[#f0fdf9]">
-                Audit Médical et Causes Répertoriées des Décès Périnatals
+                Décès et mort-nés par mois
               </h3>
-              <span className="text-xs text-slate-400 font-mono">Revue Mensuelle de Morbidité</span>
+              <span className="text-xs text-slate-400 font-mono">Sources : registre sanitaire</span>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <strong className="block text-slate-800 dark:text-white">
-                    Cas #DECES-2025-01 · Prématurité extrême (27 SA) avec détresse respiratoire sévère
-                  </strong>
-                  <p className="text-slate-500 text-[11px]">
-                    Transfert en réanimation néonatale CHU. Enregistré et transmis le 04/10/2026.
-                  </p>
-                </div>
-                <span className="px-2.5 py-1 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300 text-[10px] font-bold self-start sm:self-auto">
-                  Déclaré & Classé
-                </span>
+            {donnees.lignes.length === 0 ? (
+              <p className="text-xs text-slate-500 dark:text-emerald-200/70">
+                Aucun décès n'a été publié pour la période demandée.
+              </p>
+            ) : (
+              <div className="space-y-2.5 text-xs">
+                {donnees.lignes.map((ligne) => (
+                  <div
+                    key={ligne.mois}
+                    className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 dark:bg-white/5"
+                  >
+                    <span className="font-semibold">{ligne.mois}</span>
+                    <span className="font-bold text-slate-600 dark:text-emerald-200">
+                      {ligne.mort_nes} mort-né{ligne.mort_nes > 1 ? 's' : ''} · {ligne.deces} décès
+                    </span>
+                  </div>
+                ))}
               </div>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-white/5 text-[11px] text-slate-600 dark:text-slate-300">
-              * Conformément aux directives de l'OMS et du Ministère de la Santé de la République du Congo, chaque événement périnatal donne lieu à un certificat de constatation médical et à une notification immédiate dans le système national d'information sanitaire (SNIS).
-            </div>
+            )}
           </div>
         </div>
       )}

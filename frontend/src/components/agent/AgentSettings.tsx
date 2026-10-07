@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { Shield } from 'lucide-react';
-import { CURRENT_AGENT } from '../../data/mockDashboardData';
+import type { AgentUser } from '../../types/dashboard';
 
 interface AgentSettingsProps {
+  agent: AgentUser;
   onShowToast: (msg: string) => void;
 }
 
-export const AgentSettings: React.FC<AgentSettingsProps> = ({ onShowToast }) => {
-  const [nom, setNom] = useState(CURRENT_AGENT.nom);
-  const [role, setRole] = useState(CURRENT_AGENT.role);
-  const [etablissement, setEtablissement] = useState(CURRENT_AGENT.etablissement);
-  const [matricule, setMatricule] = useState(CURRENT_AGENT.matricule);
-  const [ville, setVille] = useState(CURRENT_AGENT.ville);
+export const AgentSettings: React.FC<AgentSettingsProps> = ({ agent, onShowToast }) => {
+  const [nom, setNom] = useState(agent.nom);
+  const [role, setRole] = useState(agent.role);
+  const [etablissement, setEtablissement] = useState(agent.etablissement);
+  const [matricule, setMatricule] = useState(agent.matricule);
+  const [ville, setVille] = useState(agent.ville);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onShowToast('Paramètres de l’agent et de l’établissement enregistrés.');
+    onShowToast('Profil professionnel consulté : la modification du compte agent n’est pas encore reliée à l’API.');
   };
 
   return (
@@ -52,7 +53,7 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({ onShowToast }) => 
               type="text"
               required
               value={role}
-              onChange={(e) => setRole(e.target.value as 'Sage-femme' | 'Officier État Civil' | 'Médecin Chef')}
+              onChange={(e) => setRole(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-emerald-500/30 bg-white dark:bg-black text-[#103d34] dark:text-emerald-100 text-sm"
             />
           </div>
@@ -102,8 +103,8 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({ onShowToast }) => 
         <div className="p-4 rounded-2xl bg-[#ebf5f0] dark:bg-[#121c19] border border-[#134e43]/20 dark:border-emerald-500/30 flex items-center gap-3">
           <Shield className="w-5 h-5 text-[#1b7e5c] dark:text-emerald-400 flex-shrink-0" />
           <div className="text-xs text-[#2b4c42] dark:text-emerald-200">
-            <span className="font-bold block">Signature électronique certifiée active</span>
-            <span>Certificat n° CERT-SECURE-2026-BZV-881 (Validité : 31/12/2026)</span>
+            <span className="font-bold block">Session professionnelle authentifiée</span>
+            <span>Connexion sécurisée par jeton · rattachée à {agent.etablissement || 'votre établissement'}</span>
           </div>
         </div>
 

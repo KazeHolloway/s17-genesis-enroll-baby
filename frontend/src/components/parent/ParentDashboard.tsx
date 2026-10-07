@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Bell,
   Calendar,
+  CalendarCheck,
   CheckCircle2,
+  Clock,
   FileText,
   Home,
   LogOut,
@@ -15,9 +17,7 @@ import {
   Baby,
   Menu,
   X,
-  KeyRound,
   Printer,
-  Heart,
 } from 'lucide-react';
 import { Logo } from '../Logo';
 import { ThemeToggle } from '../ThemeToggle';
@@ -27,10 +27,8 @@ import { ParentVaccinations } from './ParentVaccinations';
 import { ParentDocuments } from './ParentDocuments';
 import { ParentNotifications } from './ParentNotifications';
 import { ParentSettings } from './ParentSettings';
-import { ChildRegisterWizard } from '../dashboard/ChildRegisterWizard';
-import { AppointmentModal } from '../dashboard/AppointmentModal';
 import { CivilDeclarationCountdown } from '../CivilDeclarationCountdown';
-import { LinkChildByCodeModal } from '../LinkChildByCodeModal';
+import type { Utilisateur } from '../../services/api';
 
 interface ParentDashboardProps {
   childrenList: Child[];
@@ -38,9 +36,8 @@ interface ParentDashboardProps {
   documents: DocumentItem[];
   notifications: NotificationItem[];
   initialChildId?: string | null;
-  onAddChild: (child: Child) => void;
-  onUpdateChild?: (child: Child) => void;
-  onUpdateVaccines?: (vaccines: VaccineItem[]) => void;
+  /** Compte parent connecté, utilisé pour les noms affichés. */
+  utilisateur?: Utilisateur | null;
   onLogout: () => void;
   onSwitchToAgent: () => void;
 }
@@ -51,23 +48,17 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
   documents,
   notifications,
   initialChildId,
-  onAddChild,
-  onUpdateChild,
-  onUpdateVaccines,
+  utilisateur,
   onLogout,
 }) => {
+  const nomComplet = (utilisateur?.nom_complet || '').trim();
+  const prenomParent = nomComplet.split(/\s+/)[0] || 'Parent';
+  const initialeParent = (prenomParent[0] || 'P').toUpperCase();
   const [currentNav, setCurrentNav] = useState<'accueil' | 'enfants' | 'vaccins' | 'documents' | 'notifications' | 'parametres'>(initialChildId ? 'enfants' : 'accueil');
   const [selectedChildId, setSelectedChildId] = useState<string | null>(initialChildId || null);
 
   // Modals state
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
-  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
-  const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
-  const [, setShowDeclarationModal] = useState(false);
-  const [, setShowDossierModal] = useState(false);
-  const [, setChildForModal] = useState<Child | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [completedDeadlines, setCompletedDeadlines] = useState<string[]>([]);
 
   // Mobile Drawer state
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
@@ -80,130 +71,75 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const unreadNotifsCount = notifications.filter((n) => !n.lu).length;
+  /* Les notifications proviennent d'une source externe : leur état « lu » est
+     donc conservé localement plutôt que modifié sur la prop. */
+  const [lues, setLues] = useState<string[]>([]);
+  const notificationsAffichees = useMemo(
+    () => notifications.map((n) => ({ ...n, lu: n.lu || lues.includes(n.id) })),
+    [notifications, lues],
+  );
+  const marquerToutesLues = () => {
+    setLues(notifications.map((n) => n.id));
+    showToast('Toutes les notifications sont marquées comme lues.');
+  };
+
+  const unreadNotifsCount = notificationsAffichees.filter((n) => !n.lu).length;
 
   const handleOpenChildDossier = (childId: string) => {
     setSelectedChildId(childId);
     setCurrentNav('enfants');
   };
 
-  const handleCompleteDeadline = (
-    deadlineKey: string,
-    type: 'declaration' | 'vaccination' | 'visite',
-    childId: string,
-    meta?: { vaccineId?: string }
-  ) => {
-    setCompletedDeadlines((prev) => [...prev, deadlineKey]);
-
-    if (type === 'declaration') {
-      const child = childrenList.find((c) => c.id === childId);
-      if (child && onUpdateChild) {
-        onUpdateChild({
-          ...child,
-          status: 'complet',
-          delaiDeclarationJours: 0,
-          numeroActe: 'ACT-' + new Date().getFullYear() + '-VALIDE',
-          etapes: child.etapes.map((e) =>
-            e.titre.toLowerCase().includes('acte') || e.titre.toLowerCase().includes('déclaration')
-              ? { ...e, complete: true, date: 'Aujourd’hui' }
-              : e
-          ),
-        });
-      }
-      showToast("Déclaration de naissance enregistrée comme effectuée en mairie ! Le dossier de l'enfant est maintenant complet.");
-    } else if (type === 'vaccination') {
-      if (meta?.vaccineId && onUpdateVaccines) {
-        const updated = vaccines.map((v) =>
-          v.id === meta.vaccineId
-            ? { ...v, statut: 'administre' as const, dateEffective: new Date().toLocaleDateString('fr-FR') }
-            : v
-        );
-        onUpdateVaccines(updated);
-      }
-      showToast("Vaccin confirmé comme administré. Suivi vaccinal mis à jour.");
-    } else {
-      showToast("Échéance mise à jour avec succès dans le dossier.");
-    }
+  /* L'espace parent est strictement en lecture : `POST /rendez-vous`,
+     `POST /vaccinations/confirmer` et `PUT /declaration/dossier/:id/declarer`
+     sont réservés à `agent_maternite` et `admin`. Les actions de cette page
+     ouvrent donc la vue concernée au lieu de simuler une écriture. */
+  const ouvrirDossier = (childId?: string | null) => {
+    setSelectedChildId(childId ?? null);
+    setCurrentNav('enfants');
   };
 
-  // Find child with pending civil registration (Ticket 3)
+  // Enfant dont la déclaration état civil n'est pas encore enregistrée
   const pendingDeclarationChild = childrenList.find(
-    (c) =>
-      (c.status !== 'complet' || (c.delaiDeclarationJours !== undefined && c.delaiDeclarationJours > 0)) &&
-      !completedDeadlines.includes(`decl-${c.id}`)
+    (c) => c.status !== 'complet' || (c.delaiDeclarationJours ?? 0) > 0,
   );
 
-  // Find next vaccine (Ticket 3)
-  const upcomingVaccineItem = vaccines.find(
-    (v) => v.statut === 'a_venir' && !completedDeadlines.includes(`vac-${v.id}`)
-  );
+  // Prochaine dose à venir
+  const upcomingVaccineItem = vaccines.find((v) => v.statut === 'a_venir');
 
   const activeChild = childrenList.find((c) => c.id === selectedChildId) || childrenList[0] || null;
 
-  // Dynamic Upcoming Deadlines (Ticket 2)
+  // Échéances réellement issues de l'espace (déclaration en attente + doses à venir)
   const upcomingDeadlinesList = [
     ...(pendingDeclarationChild
       ? [
           {
             id: `decl-${pendingDeclarationChild.id}`,
-            key: `decl-${pendingDeclarationChild.id}`,
             type: 'declaration' as const,
             title: `Déclaration de naissance à l'État Civil (${pendingDeclarationChild.prenom})`,
             description: "Présentez la déclaration imprimée remise par la maternité à la mairie dans le délai légal de 30 jours.",
-            badge: `J-${pendingDeclarationChild.delaiDeclarationJours || 18} restant(s)`,
+            badge: `J-${pendingDeclarationChild.delaiDeclarationJours ?? 0} restant(s)`,
             badgeColor: 'amber',
-            date: 'Sous 30 jours',
             urgent: true,
             childId: pendingDeclarationChild.id,
-            actionLabel: "Marquer comme déclarée en mairie",
+            actionLabel: 'Voir le dossier',
           },
         ]
       : []),
-    ...(upcomingVaccineItem
-      ? [
-          {
-            id: `vac-${upcomingVaccineItem.id}`,
-            key: `vac-${upcomingVaccineItem.id}`,
-            type: 'vaccination' as const,
-            title: `${upcomingVaccineItem.nom} (${upcomingVaccineItem.dose})`,
-            description: `Vaccination PEV recommandée à ${upcomingVaccineItem.ageRecommande}. Lieu : Centre de santé ou CSI.`,
-            badge: upcomingVaccineItem.datePrevue,
-            badgeColor: 'emerald',
-            date: upcomingVaccineItem.datePrevue,
-            urgent: false,
-            childId: upcomingVaccineItem.childId,
-            meta: { vaccineId: upcomingVaccineItem.id },
-            actionLabel: "Confirmer administré",
-          },
-        ]
-      : []),
-    {
-      id: 'visite-postnatale-1',
-      key: 'visite-postnatale-1',
-      type: 'visite' as const,
-      title: 'Consultation pédiatrique & pesée du 1er mois',
-      description: 'Contrôle de croissance (poids, taille, périmètre crânien) et motricité du nouveau-né.',
-      badge: 'Dans 12 jours',
-      badgeColor: 'blue',
-      date: 'Novembre 2026',
-      urgent: false,
-      childId: childrenList[0]?.id || '',
-      actionLabel: "Marquer effectuée",
-    },
-    {
-      id: 'vac-penta2',
-      key: 'vac-penta2',
-      type: 'vaccination' as const,
-      title: 'Pentavalent 2 + Polio 2 + Rota 2 (10 semaines)',
-      description: 'Deuxième injection du calendrier vaccinal du Programme Élargi de Vaccination.',
-      badge: 'Dans 35 jours',
-      badgeColor: 'emerald',
-      date: 'Décembre 2026',
-      urgent: false,
-      childId: childrenList[0]?.id || '',
-      actionLabel: "Confirmer administré",
-    },
-  ].filter((d) => !completedDeadlines.includes(d.key));
+    ...vaccines
+      .filter((v) => v.statut === 'a_venir')
+      .map((upcomingVaccineItem) => ({
+        id: `vac-${upcomingVaccineItem.id}`,
+        type: 'vaccination' as const,
+        title: `${upcomingVaccineItem.nom} (${upcomingVaccineItem.dose})`,
+        description: `Vaccination PEV recommandée à ${upcomingVaccineItem.ageRecommande}.`,
+        badge: upcomingVaccineItem.datePrevue,
+        badgeColor: 'emerald',
+        urgent: false,
+        childId: upcomingVaccineItem.childId,
+        actionLabel: 'Voir le calendrier',
+      })),
+  ];
 
   return (
     <div className="min-h-screen bg-[#f4f7f5] dark:bg-black text-[#103d34] dark:text-[#e6f4f1] flex transition-colors duration-300">
@@ -363,7 +299,7 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
             {/* Desktop Greetings */}
             <div className="hidden md:block">
               <h1 className="text-xl sm:text-2xl font-bold text-[#103d34] dark:text-[#f0fdf9] leading-tight">
-                Bonjour, Awa !
+                Bonjour, {prenomParent} !
               </h1>
               <p className="text-xs sm:text-sm text-[#4d6a62] dark:text-emerald-200/70">
                 Voici un aperçu de votre espace et du dossier de votre enfant.
@@ -397,9 +333,8 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                     </span>
                     <button
                       onClick={() => {
-                        notifications.forEach((n) => (n.lu = true));
+                        marquerToutesLues();
                         setShowNotificationsDropdown(false);
-                        showToast('Toutes les notifications sont marquées comme lues.');
                       }}
                       className="text-[11px] font-semibold text-[#1b7e5c] dark:text-emerald-300 hover:underline"
                     >
@@ -408,7 +343,7 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                   </div>
 
                   <div className="space-y-2.5 max-h-64 overflow-y-auto">
-                    {notifications.map((notif) => (
+                    {notificationsAffichees.map((notif) => (
                       <div
                         key={notif.id}
                         className="p-2.5 rounded-xl bg-[#f9fcfa] dark:bg-[#121c19] border border-slate-100 dark:border-emerald-500/15 space-y-1"
@@ -439,10 +374,10 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
               title="Mon profil"
             >
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#1b5e52] dark:bg-emerald-600 text-white font-bold text-xs sm:text-sm flex items-center justify-center shadow-xs">
-                A
+                {initialeParent}
               </div>
               <span className="hidden sm:inline-block text-xs font-semibold text-[#103d34] dark:text-emerald-100">
-                Awa Moussana
+                {nomComplet || 'Mon profil'}
               </span>
             </div>
           </div>
@@ -456,7 +391,7 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
               {/* Mobile Greeting matching Screen 1 (iPhone 1) */}
               <div className="md:hidden space-y-1">
                 <h1 className="text-xl font-bold text-[#103d34] dark:text-[#f0fdf9]">
-                  Bonjour, Awa !
+                  Bonjour, {prenomParent} !
                 </h1>
                 <p className="text-xs text-[#526f67] dark:text-emerald-200/70">
                   Voici un aperçu de votre espace et des échéances de votre enfant.
@@ -464,22 +399,12 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
               </div>
 
               {/* COMPTE À REBOURS LÉGAL DE 30 JOURS ÉTAT CIVIL */}
-              {pendingDeclarationChild && (
-                <CivilDeclarationCountdown
-                  child={pendingDeclarationChild}
-                  onOpenDeclarationModal={() => {
-                    setChildForModal(pendingDeclarationChild);
-                    setShowDeclarationModal(true);
-                  }}
-                  onMarkDeclared={() =>
-                    handleCompleteDeadline(
-                      `decl-${pendingDeclarationChild.id}`,
-                      'declaration',
-                      pendingDeclarationChild.id
-                    )
-                  }
-                />
-              )}
+                {pendingDeclarationChild && (
+                  <CivilDeclarationCountdown
+                    child={pendingDeclarationChild}
+                    onOpenDeclarationModal={() => ouvrirDossier(pendingDeclarationChild.id)}
+                  />
+                )}
 
               {/* RAPPELS PRIORITAIRES DANS L'ESPACE PARENT (Ticket 3) */}
               <div className="space-y-3">
@@ -508,19 +433,19 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                     <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
                       <button
                         type="button"
-                        onClick={() => handleCompleteDeadline(`vac-${upcomingVaccineItem.id}`, 'vaccination', upcomingVaccineItem.childId, { vaccineId: upcomingVaccineItem.id })}
+                        onClick={() => setCurrentNav('vaccins')}
                         className="px-3.5 py-2 rounded-xl bg-[#1b5e52] hover:bg-[#144b41] text-white text-xs font-bold transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5"
                       >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Confirmer administré</span>
+                        <Calendar className="w-3.5 h-3.5" />
+                        <span>Voir le calendrier</span>
                       </button>
                       <button
                         type="button"
-                        onClick={() => setIsAppointmentOpen(true)}
+                        onClick={() => setCurrentNav('vaccins')}
                         className="px-3.5 py-2 rounded-xl bg-white dark:bg-black border border-emerald-500/30 text-[#134e43] dark:text-emerald-200 text-xs font-semibold hover:bg-emerald-50 transition-colors cursor-pointer flex items-center gap-1.5"
                       >
-                        <Calendar className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Gérer RDV</span>
+                        <CalendarCheck className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Voir les rappels 24 h</span>
                       </button>
                     </div>
                   </div>
@@ -569,17 +494,13 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                             className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${
                               d.type === 'declaration'
                                 ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
-                                : d.type === 'vaccination'
-                                ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
-                                : 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300'
+                                : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
                             }`}
                           >
                             {d.type === 'declaration' ? (
                               <FileText className="w-4 h-4" />
-                            ) : d.type === 'vaccination' ? (
-                              <Syringe className="w-4 h-4" />
                             ) : (
-                              <Heart className="w-4 h-4" />
+                              <Syringe className="w-4 h-4" />
                             )}
                           </div>
                           <div>
@@ -591,9 +512,7 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                                 className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                                   d.badgeColor === 'amber'
                                     ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300'
-                                    : d.badgeColor === 'emerald'
-                                    ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300'
-                                    : 'bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300'
+                                    : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300'
                                 }`}
                               >
                                 {d.badge}
@@ -606,24 +525,16 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                         </div>
 
                         <div className="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
-                          {d.type === 'declaration' && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setChildForModal(childrenList.find((c) => c.id === d.childId) || null);
-                                setShowDeclarationModal(true);
-                              }}
-                              className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-white dark:hover:bg-black text-[#134e43] dark:text-emerald-200 text-xs font-semibold cursor-pointer"
-                            >
-                              Imprimer
-                            </button>
-                          )}
                           <button
                             type="button"
-                            onClick={() => handleCompleteDeadline(d.key, d.type, d.childId, (d as { meta?: { vaccineId?: string } }).meta)}
+                            onClick={() =>
+                              d.type === 'declaration'
+                                ? ouvrirDossier(d.childId)
+                                : setCurrentNav('vaccins')
+                            }
                             className="px-3.5 py-1.5 rounded-xl bg-[#1b5e52] hover:bg-[#144b41] text-white text-xs font-bold shadow-2xs cursor-pointer flex items-center gap-1.5"
                           >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <ArrowRight className="w-3.5 h-3.5" />
                             <span>{d.actionLabel}</span>
                           </button>
                         </div>
@@ -636,10 +547,7 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
               {/* CARTES ACCÈS DIRECT PARCOURS PAPIER & CERTIFICAT NUMÉRIQUE (Ticket 4 & 5) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div
-                  onClick={() => {
-                    setChildForModal(activeChild);
-                    setShowDeclarationModal(true);
-                  }}
+                  onClick={() => ouvrirDossier(activeChild?.id)}
                   className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs flex items-center gap-4 cursor-pointer hover:border-emerald-500/50 hover:shadow-md transition-all group"
                 >
                   <div className="w-12 h-12 rounded-2xl bg-[#ebf5f0] dark:bg-[#121c19] text-[#134e43] dark:text-emerald-300 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
@@ -656,10 +564,7 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                 </div>
 
                 <div
-                  onClick={() => {
-                    setChildForModal(activeChild);
-                    setShowDossierModal(true);
-                  }}
+                  onClick={() => ouvrirDossier(activeChild?.id)}
                   className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs flex items-center gap-4 cursor-pointer hover:border-emerald-500/50 hover:shadow-md transition-all group"
                 >
                   <div className="w-12 h-12 rounded-2xl bg-[#ebf5f0] dark:bg-[#121c19] text-[#134e43] dark:text-emerald-300 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
@@ -697,14 +602,30 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                           {child.prenom} {child.nom}
                         </h2>
                         <p className="text-xs text-[#526f67] dark:text-emerald-200/70 mt-0.5">
-                          Né le {child.dateNaissance} · {child.poids} · {child.taille}
+                          Né le {child.dateNaissance}
+                          {child.poids ? ` · ${child.poids}` : ''}
+                          {child.taille ? ` · ${child.taille}` : ''}
                         </p>
                       </div>
 
                       <div>
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#e8f7f2] dark:bg-emerald-950/60 text-[#1b7e5c] dark:text-emerald-300 border border-[#1b7e5c]/20 dark:border-emerald-500/30">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Dossier complet</span>
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${
+                            child.status === 'complet'
+                              ? 'bg-[#e8f7f2] dark:bg-emerald-950/60 text-[#1b7e5c] dark:text-emerald-300 border-[#1b7e5c]/20 dark:border-emerald-500/30'
+                              : 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-500/25'
+                          }`}
+                        >
+                          {child.status === 'complet' ? (
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          ) : (
+                            <Clock className="w-3.5 h-3.5" />
+                          )}
+                          <span>
+                            {child.status === 'complet'
+                              ? 'Dossier complet'
+                              : 'Dossier à compléter'}
+                          </span>
                         </span>
                       </div>
 
@@ -738,13 +659,17 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
 
                     <div className="space-y-1">
                       <div className="text-2xl font-bold font-serif text-[#103d34] dark:text-[#f0fdf9]">
-                        15 oct. 2025
+                        {upcomingVaccineItem ? upcomingVaccineItem.datePrevue : 'Aucune'}
                       </div>
                       <p className="text-sm font-medium text-[#2d4d44] dark:text-emerald-200">
-                        VPI - 2ème dose
+                        {upcomingVaccineItem
+                          ? `${upcomingVaccineItem.nom} · ${upcomingVaccineItem.dose}`
+                          : 'Aucune dose à venir'}
                       </p>
                       <p className="text-xs font-semibold text-[#1b7e5c] dark:text-emerald-400">
-                        Il reste 17 jours
+                        {upcomingVaccineItem
+                          ? `Recommandé à ${upcomingVaccineItem.ageRecommande}`
+                          : 'Rappel automatique'}
                       </p>
                     </div>
                   </div>
@@ -768,15 +693,14 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                     </h3>
 
                     <div className="space-y-3 pt-1">
-                      {[
-                        { titre: 'Déclaration de naissance', date: '12 avr. 2025' },
-                        { titre: 'Acte de naissance', date: '20 avr. 2025' },
-                        { titre: 'Carnet de santé', date: '25 avr. 2025' },
-                        { titre: 'Compte parent créé', date: '28 avr. 2025' },
-                      ].map((step, idx) => (
+                      {(activeChild?.etapes ?? []).map((step, idx) => (
                         <div key={idx} className="flex items-center justify-between text-xs sm:text-sm">
                           <div className="flex items-center gap-2.5">
-                            <CheckCircle2 className="w-4 h-4 text-[#1b7e5c] dark:text-emerald-400 flex-shrink-0" />
+                            {step.complete ? (
+                              <CheckCircle2 className="w-4 h-4 text-[#1b7e5c] dark:text-emerald-400 flex-shrink-0" />
+                            ) : (
+                              <Clock className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                            )}
                             <span className="font-medium text-[#103d34] dark:text-emerald-100">
                               {step.titre}
                             </span>
@@ -786,6 +710,11 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                           </span>
                         </div>
                       ))}
+                      {!activeChild?.etapes?.length && (
+                        <p className="text-xs text-slate-400">
+                          Aucune étape disponible pour le moment.
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -822,30 +751,6 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                 </div>
               </div>
 
-              {/* Quick Action Banner to link child with maternity code (FRD Rule) */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-[#ebf5f0] dark:bg-[#0a0a0a] border border-[#134e43]/20 dark:border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-[#134e43] dark:bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-2xs">
-                    <KeyRound className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-[#103d34] dark:text-emerald-100">
-                      Rattacher un autre enfant avec son code maternité
-                    </h4>
-                    <p className="text-xs text-[#4b6a62] dark:text-emerald-200/70">
-                      Entrez le code d'accès unique remis par la sage-femme pour consulter son dossier.
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setIsLinkModalOpen(true)}
-                  className="px-4 py-2 rounded-xl bg-[#1b5e52] hover:bg-[#144b41] dark:bg-emerald-500 dark:text-black dark:hover:bg-emerald-400 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1.5"
-                >
-                  <KeyRound className="w-3.5 h-3.5" />
-                  <span>Rattacher avec code</span>
-                </button>
-              </div>
             </div>
           )}
 
@@ -857,8 +762,6 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
               documents={documents}
               selectedChildId={selectedChildId}
               onSelectChild={(id) => setSelectedChildId(id)}
-              onOpenLinkModal={() => setIsLinkModalOpen(true)}
-              onOpenAppointmentModal={() => setIsAppointmentOpen(true)}
               onShowToast={showToast}
             />
           )}
@@ -866,7 +769,6 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
           {currentNav === 'vaccins' && (
             <ParentVaccinations
               vaccines={vaccines}
-              onOpenAppointmentModal={() => setIsAppointmentOpen(true)}
               onShowToast={showToast}
             />
           )}
@@ -880,16 +782,14 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
 
           {currentNav === 'notifications' && (
             <ParentNotifications
-              notifications={notifications}
-              onMarkAllRead={() => {
-                notifications.forEach((n) => (n.lu = true));
-                showToast('Toutes les notifications sont marquées comme lues.');
-              }}
+              notifications={notificationsAffichees}
+              onMarkAllRead={marquerToutesLues}
             />
           )}
 
           {currentNav === 'parametres' && (
             <ParentSettings
+              utilisateur={utilisateur}
               onShowToast={showToast}
               onNavigateToChildren={() => {
                 setCurrentNav('enfants');
@@ -1002,14 +902,16 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
               {/* User profile mini badge */}
               <div className="p-3.5 rounded-2xl bg-white/10 dark:bg-white/5 border border-white/10 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-[#1b5e52] dark:bg-emerald-600 text-white font-bold flex items-center justify-center text-sm shadow-xs">
-                  A
+                  {initialeParent}
                 </div>
                 <div className="min-w-0">
                   <h4 className="text-sm font-bold text-white truncate">
-                    Awa Moussana
+                    {nomComplet || 'Mon profil'}
                   </h4>
                   <p className="text-[11px] text-emerald-300/80 truncate">
-                    Mère de {childrenList[0]?.prenom || 'Moussa'}
+                    {childrenList.length > 0
+                      ? `Parent de ${childrenList.map((c) => c.prenom).slice(0, 2).join(', ')}`
+                      : 'Aucun enfant rattaché'}
                   </p>
                 </div>
               </div>
@@ -1142,35 +1044,6 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
           </div>
         </div>
       )}
-
-      {/* Child Register Wizard Modal (Reserved for administrative flows) */}
-      <ChildRegisterWizard
-        isOpen={isWizardOpen}
-        onClose={() => setIsWizardOpen(false)}
-        onSuccess={(newChild) => {
-          onAddChild(newChild);
-          showToast(`L'enfant ${newChild.prenom} ${newChild.nom} a été enregistré avec succès.`);
-        }}
-      />
-
-      {/* Link Child By Maternity Access Code Modal (FRD Rule: Parent does not register newborn) */}
-      <LinkChildByCodeModal
-        isOpen={isLinkModalOpen}
-        onClose={() => setIsLinkModalOpen(false)}
-        childrenList={childrenList}
-        onSuccessLinked={(linkedChild) => {
-          setSelectedChildId(linkedChild.id);
-          setCurrentNav('enfants');
-          showToast(`Le dossier de ${linkedChild.prenom} ${linkedChild.nom} est maintenant rattaché à votre espace.`);
-        }}
-      />
-
-      {/* Appointment Modal */}
-      <AppointmentModal
-        isOpen={isAppointmentOpen}
-        onClose={() => setIsAppointmentOpen(false)}
-        onBookSuccess={(details) => showToast(details)}
-      />
     </div>
   );
 };

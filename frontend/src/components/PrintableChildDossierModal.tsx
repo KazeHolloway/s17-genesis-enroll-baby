@@ -20,7 +20,7 @@ export const PrintableChildDossierModal: React.FC<PrintableChildDossierModalProp
     window.print();
   };
 
-  const codeAcces = child.codeAccesParent || 'MOU-2025-88';
+  const codeAcces = child.codeAccesParent || '—';
 
   const pevSchedule = [
     { dose: 'BCG (Tuberculose)', moment: 'À la naissance', voie: 'Intradermique', prevue: child.dateNaissance, statut: 'Fait à la maternité' },

@@ -79,8 +79,31 @@ export interface NotificationItem {
 
 export interface AgentUser {
   nom: string;
-  role: 'Sage-femme' | 'Officier État Civil' | 'Médecin Chef';
+  role: string;
   etablissement: string;
   matricule: string;
   ville: string;
+}
+
+/** Indicateurs calculés depuis `GET /api/statistiques` et le registre agent. */
+export interface AgentKpi {
+  naissances: number;
+  naissancesVivantes: number;
+  tauxSurvie: string;
+  dossiers: number;
+  dossiersComplets: number;
+  doses: number;
+  dosesAdministrees: number;
+  deces: number;
+  mortNes: number;
+  garcons: number;
+  filles: number;
+  parMois: Array<{
+    mois: string;
+    naissances: number;
+    garcons: number;
+    filles: number;
+    mort_nes: number;
+    deces: number;
+  }>;
 }

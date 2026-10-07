@@ -13,7 +13,9 @@ import RequireAuth from "./components/dashboard/RequireAuth";
 import ParentLayout from "./layouts/ParentLayout";
 import AgentLayout from "./layouts/AgentLayout";
 
-import ParentDashboard from "./pages/parent/ParentDashboard";
+import DashboardParentMode from "./pages/dashboard/DashboardParentMode";
+import DashboardAgentMode from "./pages/dashboard/DashboardAgentMode";
+
 import ParentChildren from "./pages/parent/ParentChildren";
 import ParentChildDetail from "./pages/parent/ParentChildDetail";
 import ParentVaccinations from "./pages/parent/ParentVaccinations";
@@ -21,7 +23,6 @@ import ParentDocuments from "./pages/parent/ParentDocuments";
 import ParentNotifications from "./pages/parent/ParentNotifications";
 import ParentSettings from "./pages/parent/ParentSettings";
 
-import AgentDashboard from "./pages/agent/AgentDashboard";
 import AgentNewborn from "./pages/agent/AgentNewborn";
 import AgentRecords from "./pages/agent/AgentRecords";
 import DossierEnfant from "./pages/dossiers-enfants/DossierEnfant";
@@ -31,11 +32,16 @@ import AgentSettings from "./pages/agent/AgentSettings";
 /**
  * Routage de l'application.
  *
- * Les espaces `/parent/*` et `/agent/*` sont branchés sur les layouts et les
- * pages API existants : navigation de la coquille, données de l'espace parent
- * (`useEspaceParent`) et écrans agent (registre, vaccinations, création de
- * dossier). Les deux sections sont protégées par `RequireAuth` : sans session,
- * la connexion est exigée ; un compte qui n'a pas le rôle bascule vers son propre
+ * `/parent/dashboard` et `/agent/dashboard` rendent les tableaux de bord
+ * riches (interface du commit de référence), alimentés par les API actuelles
+ * (`useEspaceParent`, `GET /api/enfants`, `GET /api/dossiers`,
+ * `GET /api/statistiques`). Ils portent leur propre navigation interne et sont
+ * donc montés hors des layouts.
+ *
+ * Les sous-routes métier (`/parent/enfants/:id`, `/agent/dossiers/:id`,
+ * `/agent/nouveau-ne`, …) sont conservées telles quelles pour les liens
+ * directs. Les deux espaces passent par `RequireAuth` : sans session la
+ * connexion est exigée, un compte du mauvais rôle bascule vers son propre
  * tableau de bord.
  */
 function App() {
@@ -48,7 +54,19 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<RedirectionDashboard />} />
 
-      {/* Espace parent */}
+      {/* Espace parent — tableau de bord riche (hors coquille : il porte sa
+          propre navigation interne) */}
+      <Route
+        path="/parent/dashboard"
+        element={
+          <RequireAuth role="parent">
+            <DashboardParentMode />
+          </RequireAuth>
+        }
+      />
+
+      {/* Sous-routes métier de l'espace parent : conservées telles quelles
+          pour les liens directs et les écrans à profondeur (détail enfant) */}
       <Route
         path="/parent"
         element={
@@ -58,7 +76,6 @@ function App() {
         }
       >
         <Route index element={<Navigate to="/parent/dashboard" replace />} />
-        <Route path="dashboard" element={<ParentDashboard />} />
         <Route path="enfants" element={<ParentChildren />} />
         <Route path="enfants/:id" element={<ParentChildDetail />} />
         <Route path="vaccinations" element={<ParentVaccinations />} />
@@ -67,7 +84,17 @@ function App() {
         <Route path="parametres" element={<ParentSettings />} />
       </Route>
 
-      {/* Espace agent / admin */}
+      {/* Espace agent / admin — tableau de bord riche */}
+      <Route
+        path="/agent/dashboard"
+        element={
+          <RequireAuth role="agent_maternite">
+            <DashboardAgentMode />
+          </RequireAuth>
+        }
+      />
+
+      {/* Sous-routes métier de l'espace agent : conservées telles quelles */}
       <Route
         path="/agent"
         element={
@@ -77,7 +104,6 @@ function App() {
         }
       >
         <Route index element={<Navigate to="/agent/dashboard" replace />} />
-        <Route path="dashboard" element={<AgentDashboard />} />
         <Route path="nouveau-ne" element={<AgentNewborn />} />
         <Route path="dossiers" element={<AgentRecords />} />
         <Route path="dossiers/:id" element={<DossierEnfant />} />

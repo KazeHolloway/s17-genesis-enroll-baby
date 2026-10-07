@@ -19,7 +19,7 @@ export const PrintableDeclarationModal: React.FC<PrintableDeclarationModalProps>
     window.print();
   };
 
-  const declarationNumber = child.referenceMaternite || `DECL-${new Date().getFullYear()}-BZV-04128`;
+  const declarationNumber = child.referenceMaternite || '—';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200">
@@ -82,7 +82,7 @@ export const PrintableDeclarationModal: React.FC<PrintableDeclarationModalProps>
                   Réf. Déclaration : <strong>{declarationNumber}</strong>
                 </span>
                 <span className="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
-                  Certificat Numérique Associé : <strong>CERT-{child.id.toUpperCase()}-SECURE</strong>
+                  Certificat Numérique Associé : <strong>{child.referenceMaternite || '—'}</strong>
                 </span>
               </div>
             </div>
@@ -195,7 +195,7 @@ export const PrintableDeclarationModal: React.FC<PrintableDeclarationModalProps>
         {/* Modal Bottom Actions */}
         <div className="p-4 bg-slate-50 dark:bg-black/50 border-t border-slate-200 dark:border-white/10 flex items-center justify-between print:hidden">
           <p className="text-xs text-slate-500">
-            Code d'accès parent associé : <strong className="font-mono text-emerald-600 dark:text-emerald-400">{child.codeAccesParent || 'MOU-2025-88'}</strong>
+            Code d'accès parent associé : <strong className="font-mono text-emerald-600 dark:text-emerald-400">{child.codeAccesParent || '—'}</strong>
           </p>
           <div className="flex gap-2">
             <button
