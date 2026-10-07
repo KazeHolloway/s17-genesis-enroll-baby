@@ -8,6 +8,27 @@ Auteurs : **Kaze** (Kaze Holloway) et **Dorcasse** (Benicia, Benicia264) pour le
 
 ## [Non publié]
 
+### 7 octobre 2026 (mise en ligne)
+
+#### Ajouté
+- Mise en ligne : base PostgreSQL sur Neon, API et site statique sur Render (Kaze)
+- Console d'administration des comptes agents : routes `/api/agents` (liste, création, modification, suppression) réservées à l'administrateur, colonnes `matricule` et `metier`, script `npm run migrate` (PR #45, Aristote)
+- Refonte des tableaux de bord agent et parent, reliés à l'API, avec documents imprimables (PR #45, Aristote)
+- 9 agents de maternité de test dans `seed.sql`, identiques à ceux de Neon (PR #43, Kaze)
+- Diagramme entité-relation `ERD.md` : 15 tables, énumérations, contraintes et automatismes (Kaze)
+- QR code vers la démo en ligne dans le README (Kaze)
+
+#### Modifié
+- README : démo en ligne, conception de la base, répartition des tâches, résultats et liens (Kaze)
+- Documentation de l'API : routes `/api/agents` et adresse de l'API en ligne (`BACKEND-API.md`)
+
+#### Corrigé
+- Redirection du parent vers la liste de ses enfants depuis le dossier de l'enfant (PR #43, Kaze)
+- Ajout de `trust proxy` pour que la limitation des tentatives fonctionne derrière Render (PR #43, Kaze)
+- Lecture de `VITE_API_URL` dans les deux clients API du front (PR #44, Kaze)
+- Régénération du `package-lock.json` pour installer les dépendances Linux au déploiement (PR #44, Kaze)
+- Restauration du type `CountdownDeclaration` et de la lecture de `VITE_API_URL` dans `api.ts` avant la fusion du tableau de bord (PR #45, Kaze)
+
 ### Du 4 au 6 octobre 2026 (finalisation)
 
 #### Ajouté

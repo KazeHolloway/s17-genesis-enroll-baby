@@ -28,12 +28,13 @@ Un code ne sert qu'une fois : si un parent a déjà créé son compte avec, l'in
 
 ## 2. Pour tester tout de suite
 
-Le fichier `backend/src/database/seed.sql` crée deux comptes de test :
+Le fichier `backend/src/database/seed.sql` crée ces comptes de test :
 
 | Rôle | Téléphone | Mot de passe |
 |---|---|---|
 | Agent de maternité | `+242060000001` | `Agent123!` |
 | Admin | `+242060000002` | `Admin123!` |
+| Agents de maternité 2 à 10 | `+242060000003` à `+242060000011` | `Agent123!` |
 
 Le seed contient aussi des données prêtes à l'emploi : 10 enfants, leurs parents, leurs dossiers, des vaccinations et des rendez-vous.
 
@@ -59,7 +60,7 @@ Le certificat public de Sarah Okemba est visible sur `/api/certificats/seed-cert
 
 Pour obtenir un code tout neuf : se connecter en agent, appeler `POST /api/enfants/enregistrement` (voir plus bas), copier `dossier.code_acces`, puis l'utiliser sur `POST /api/parents/inscription`.
 
-Lancer le backend : `npm run dev:back` (port `5000`). URL de base : `http://localhost:5000/api`.
+Lancer le backend : `npm run dev:back` (port `5000`). URL de base en local : `http://localhost:5000/api`. URL de base en ligne : `https://s17-genesis-enroll-baby.onrender.com/api` (vérification : `/api/health`).
 
 ## 3. Règles générales à connaître
 
@@ -220,6 +221,21 @@ fenetre.print();
 ### J. Liste des établissements
 
 `GET /api/etablissements` (tout utilisateur connecté) renvoie `data`, un tableau des établissements actifs triés par nom : `id`, `nom`, `ville`, `adresse`, `telephone`. Utile pour afficher le nom de l'établissement où l'enfant est suivi.
+
+### K. Console d'administration des comptes agents (admin)
+
+Toutes ces routes sont réservées au rôle `admin` (sinon `403`) et répondent `{ success, message, data }`.
+
+- `GET /api/agents` : liste des comptes agents et administrateurs.
+- `POST /api/agents` : crée un compte. Obligatoires : `nom`, `telephone`, `matricule`, `etablissement`, `mot_de_passe` (8 caractères minimum, provisoire). Facultatifs : `email`, `ville`, `role`.
+- `PUT /api/agents/:id` : modifie un compte, mêmes champs. `mot_de_passe` n'est pris en compte que s'il est envoyé, et `actif` (`true` ou `false`) active ou désactive le compte.
+- `DELETE /api/agents/:id` : supprime un compte.
+
+Le champ `role` est un libellé : `Sage-femme`, `Officier État Civil`, `Médecin Chef` ou `Administrateur`. Seul `Administrateur` donne le rôle technique `admin`, les autres donnent `agent_maternite`. Le matricule est mis en majuscules.
+
+Erreurs : `400` champ manquant, mot de passe trop court, ou tentative de désactiver ou supprimer son propre compte. `404` agent introuvable. `409` téléphone ou matricule déjà utilisé, ou compte encore rattaché à des dossiers (suppression impossible).
+
+La suppression d'un enfant (`DELETE /api/enfants/:id`) et d'un dossier (`DELETE /api/dossiers/:id`) existe aussi, mais elle est réservée à l'administrateur.
 
 ## 5. Questions fréquentes
 
