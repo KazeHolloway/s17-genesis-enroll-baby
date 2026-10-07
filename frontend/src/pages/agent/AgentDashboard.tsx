@@ -25,7 +25,11 @@ import {
   type Echeance,
 } from "@/services/api";
 import type { LucideIcon } from "lucide-react";
-import type { NewbornRecord, PendingVaccination, RecordStatus } from "@/lib/dashboard/types";
+import type {
+  NewbornRecord,
+  PendingVaccination,
+  RecordStatus,
+} from "@/lib/dashboard/types";
 
 interface Compteur {
   id: string;
@@ -113,10 +117,7 @@ export default function AgentDashboard() {
               .then((detail) => {
                 const parent = detail.parents[0];
                 if (!parent) return [enfant.id, "—"] as const;
-                return [
-                  enfant.id,
-                  `${parent.prenom} ${parent.nom}`,
-                ] as const;
+                return [enfant.id, `${parent.prenom} ${parent.nom}`] as const;
               })
               .catch(() => [enfant.id, "—"] as const),
           ),
@@ -136,7 +137,9 @@ export default function AgentDashboard() {
       } catch (e: unknown) {
         if (ignore) return;
         setErreur(
-          e instanceof ApiError ? e.message : "Impossible de charger le tableau de bord.",
+          e instanceof ApiError
+            ? e.message
+            : "Impossible de charger le tableau de bord.",
         );
         setChargement(false);
       }
@@ -177,7 +180,7 @@ export default function AgentDashboard() {
       babyName: `${dossier.enfant_prenom} ${dossier.enfant_nom}`,
       parentName: parentsParEnfant.get(dossier.enfant_id) ?? "—",
       birthDate: enfant ? formaterDate(enfant.date_naissance) : "—",
-      status: ("actif" as RecordStatus),
+      status: "actif" as RecordStatus,
       statusLabel: dossier.statut === "actif" ? "Dossier actif" : "Archivé",
     };
   });
@@ -270,8 +273,8 @@ export default function AgentDashboard() {
               {aSuivre.length} vaccination{plural(aSuivre.length)} à suivre
             </h4>
             <p className="app-alert-text mt-0.5">
-              Échéances à venir ou en retard à confirmer et à relancer auprès des
-              familles.
+              Échéances à venir ou en retard à confirmer et à relancer auprès
+              des familles.
             </p>
           </div>
         </div>
@@ -319,7 +322,7 @@ export default function AgentDashboard() {
       </div>
 
       {/* ---------- Registre des dernières déclarations ---------- */}
-      <DashboardCard label="Registre des naissances" className="overflow-hidden p-0">
+      <DashboardCard label="Registre enfants" className="overflow-hidden p-0">
         <div className="flex flex-col items-start justify-between gap-3 p-6 sm:flex-row sm:items-center">
           <div>
             <h3 className="text-base font-bold text-[var(--app-heading)]">
@@ -492,7 +495,8 @@ export default function AgentDashboard() {
 
 const statusStyles: Record<RecordStatus, string> = {
   complet: "bg-[var(--app-sage-soft)] text-[var(--app-emerald)]",
-  "a-valider": "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+  "a-valider":
+    "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
   incomplet: "bg-[var(--app-action)] text-white",
 };
 

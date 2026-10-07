@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -14,15 +14,21 @@ import {
   Menu,
   X,
   BarChart3,
-} from 'lucide-react';
-import { Logo } from '../Logo';
-import { ThemeToggle } from '../ThemeToggle';
-import type { AgentKpi, AgentUser, Child, VaccineItem, DocumentItem } from '../../types/dashboard';
-import { AgentNewborn } from './AgentNewborn';
-import { AgentRecords } from './AgentRecords';
-import { AgentVaccinations } from './AgentVaccinations';
-import { AgentStatistics } from './AgentStatistics';
-import { AgentSettings } from './AgentSettings';
+} from "lucide-react";
+import { Logo } from "../Logo";
+import { ThemeToggle } from "../ThemeToggle";
+import type {
+  AgentKpi,
+  AgentUser,
+  Child,
+  VaccineItem,
+  DocumentItem,
+} from "../../types/dashboard";
+import { AgentNewborn } from "./AgentNewborn";
+import { AgentRecords } from "./AgentRecords";
+import { AgentVaccinations } from "./AgentVaccinations";
+import { AgentStatistics } from "./AgentStatistics";
+import { AgentSettings } from "./AgentSettings";
 
 interface AgentDashboardProps {
   agent: AgentUser | null;
@@ -49,17 +55,17 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   onLogout,
 }) => {
   const identite = agent ?? {
-    nom: '',
-    role: '',
-    etablissement: '',
-    matricule: '',
-    ville: '',
+    nom: "",
+    role: "",
+    etablissement: "",
+    matricule: "",
+    ville: "",
   };
 
   /** Dossiers dont le délai de déclaration J+30 se rapproche. */
   const dossiersUrgents = childrenList.filter((c) => {
-    if (c.status === 'complet') return false;
-    const [jour, mois, annee] = c.dateNaissance.split('/');
+    if (c.status === "complet") return false;
+    const [jour, mois, annee] = c.dateNaissance.split("/");
     const naissance = annee
       ? new Date(`${annee}-${mois}-${jour}`)
       : new Date(c.dateNaissance);
@@ -68,8 +74,12 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   }).length;
 
   const naissancesRecentes = childrenList.slice(0, 5);
-  const [activeTab, setActiveTab] = useState<'apercu' | 'nouveau' | 'registre' | 'vaccins' | 'stats' | 'settings'>('apercu');
-  const [vaccineSubTab, setVaccineSubTab] = useState<'confirmation' | 'lots' | 'rendezvous'>('confirmation');
+  const [activeTab, setActiveTab] = useState<
+    "apercu" | "nouveau" | "registre" | "vaccins" | "stats" | "settings"
+  >("apercu");
+  const [vaccineSubTab, setVaccineSubTab] = useState<
+    "confirmation" | "lots" | "rendezvous"
+  >("confirmation");
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -79,8 +89,8 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   };
 
   const openVaccineConfirmation = () => {
-    setVaccineSubTab('confirmation');
-    setActiveTab('vaccins');
+    setVaccineSubTab("confirmation");
+    setActiveTab("vaccins");
   };
 
   const handleValidateChildAct = (childId: string) => {
@@ -88,17 +98,19 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
     if (child) {
       onUpdateChild?.({
         ...child,
-        status: 'complet',
+        status: "complet",
         etapes: [
           ...child.etapes,
           {
-            titre: 'Acte officiel certifié par l’Officier d’État Civil',
-            date: 'Aujourd’hui',
+            titre: "Acte officiel certifié par l’Officier d’État Civil",
+            date: "Aujourd’hui",
             complete: true,
           },
         ],
       });
-      showToast(`Dossier de ${child.prenom} ${child.nom} soldé : l'acte peut être délivré.`);
+      showToast(
+        `Dossier de ${child.prenom} ${child.nom} soldé : l'acte peut être délivré.`,
+      );
     }
   };
 
@@ -128,11 +140,11 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
           {/* Navigation Links matching directory architecture */}
           <nav className="space-y-1.5 pt-2">
             <button
-              onClick={() => setActiveTab('apercu')}
+              onClick={() => setActiveTab("apercu")}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                activeTab === 'apercu'
-                  ? 'bg-[#1b5e52] dark:bg-[#1a2b27] text-white dark:text-emerald-300 font-semibold shadow-xs'
-                  : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                activeTab === "apercu"
+                  ? "bg-[#1b5e52] dark:bg-[#1a2b27] text-white dark:text-emerald-300 font-semibold shadow-xs"
+                  : "text-emerald-100/70 hover:text-white hover:bg-white/5"
               }`}
             >
               <Activity className="w-4 h-4 text-emerald-400" />
@@ -140,11 +152,11 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             </button>
 
             <button
-              onClick={() => setActiveTab('nouveau')}
+              onClick={() => setActiveTab("nouveau")}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                activeTab === 'nouveau'
-                  ? 'bg-[#1b5e52] dark:bg-[#1a2b27] text-white dark:text-emerald-300 font-semibold shadow-xs'
-                  : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                activeTab === "nouveau"
+                  ? "bg-[#1b5e52] dark:bg-[#1a2b27] text-white dark:text-emerald-300 font-semibold shadow-xs"
+                  : "text-emerald-100/70 hover:text-white hover:bg-white/5"
               }`}
             >
               <Plus className="w-4 h-4 text-emerald-400" />
@@ -152,16 +164,16 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             </button>
 
             <button
-              onClick={() => setActiveTab('registre')}
+              onClick={() => setActiveTab("registre")}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                activeTab === 'registre'
-                  ? 'bg-[#1b5e52] dark:bg-[#1a2b27] text-white dark:text-emerald-300 font-semibold shadow-xs'
-                  : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                activeTab === "registre"
+                  ? "bg-[#1b5e52] dark:bg-[#1a2b27] text-white dark:text-emerald-300 font-semibold shadow-xs"
+                  : "text-emerald-100/70 hover:text-white hover:bg-white/5"
               }`}
             >
               <div className="flex items-center gap-3">
                 <FileText className="w-4 h-4 text-emerald-400" />
-                <span>Registre des naissances</span>
+                <span>Registre enfants</span>
               </div>
               <span className="text-xs font-mono bg-white/10 px-2 py-0.5 rounded-full">
                 {childrenList.length}
@@ -170,62 +182,41 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
             <button
               onClick={() => {
-                setActiveTab('vaccins');
-                setVaccineSubTab('confirmation');
+                setActiveTab("vaccins");
+                setVaccineSubTab("confirmation");
               }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                activeTab === 'vaccins' && vaccineSubTab === 'confirmation'
-                  ? 'bg-[#1b5e52] dark:bg-[#1a2b27] text-white dark:text-emerald-300 font-semibold shadow-xs'
-                  : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                activeTab === "vaccins" && vaccineSubTab === "confirmation"
+                  ? "bg-[#1b5e52] dark:bg-[#1a2b27] text-white dark:text-emerald-300 font-semibold shadow-xs"
+                  : "text-emerald-100/70 hover:text-white hover:bg-white/5"
               }`}
             >
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 <span>Confirmation Statuts</span>
               </div>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
-                Statuts
-              </span>
             </button>
 
             <button
-              onClick={() => {
-                setActiveTab('vaccins');
-                setVaccineSubTab('lots');
-              }}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                activeTab === 'vaccins' && vaccineSubTab !== 'confirmation'
-                  ? 'bg-[#1b5e52] dark:bg-[#1a2b27] text-white dark:text-emerald-300 font-semibold shadow-xs'
-                  : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Syringe className="w-4 h-4 text-emerald-400" />
-              <span>Suivi Vaccinal & Lots</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('stats')}
+              onClick={() => setActiveTab("stats")}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                activeTab === 'stats'
-                  ? 'bg-[#1b5e52] dark:bg-[#1a2b27] text-white dark:text-emerald-300 font-semibold shadow-xs'
-                  : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                activeTab === "stats"
+                  ? "bg-[#1b5e52] dark:bg-[#1a2b27] text-white dark:text-emerald-300 font-semibold shadow-xs"
+                  : "text-emerald-100/70 hover:text-white hover:bg-white/5"
               }`}
             >
               <div className="flex items-center gap-3">
                 <BarChart3 className="w-4 h-4 text-emerald-400" />
-                <span>Statistiques Établissement</span>
+                <span>Statistiques</span>
               </div>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-400/20 text-emerald-300">
-                SNIS
-              </span>
             </button>
 
             <button
-              onClick={() => setActiveTab('settings')}
+              onClick={() => setActiveTab("settings")}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                activeTab === 'settings'
-                  ? 'bg-[#1b5e52] dark:bg-[#1a2b27] text-white dark:text-emerald-300 font-semibold shadow-xs'
-                  : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                activeTab === "settings"
+                  ? "bg-[#1b5e52] dark:bg-[#1a2b27] text-white dark:text-emerald-300 font-semibold shadow-xs"
+                  : "text-emerald-100/70 hover:text-white hover:bg-white/5"
               }`}
             >
               <Settings className="w-4 h-4 text-emerald-400" />
@@ -241,7 +232,9 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
               {identite.role}
             </span>
             <strong className="text-xs text-white block">{identite.nom}</strong>
-            <p className="text-[10px] text-emerald-200/70">{identite.etablissement}</p>
+            <p className="text-[10px] text-emerald-200/70">
+              {identite.etablissement}
+            </p>
           </div>
 
           <button
@@ -278,14 +271,17 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs text-[#526f67] dark:text-emerald-200/70 truncate">
-                {identite.nom} · <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{identite.role}</span>
+                {identite.nom} ·{" "}
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                  {identite.role}
+                </span>
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
             <button
-              onClick={() => setActiveTab('nouveau')}
+              onClick={() => setActiveTab("nouveau")}
               className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#1b5e52] hover:bg-[#144b41] dark:bg-emerald-500 dark:text-black text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
             >
               <Plus className="w-4 h-4" />
@@ -296,7 +292,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
             {/* Agent Avatar */}
             <div
-              onClick={() => setActiveTab('settings')}
+              onClick={() => setActiveTab("settings")}
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#1b5e52] dark:bg-emerald-600 text-white font-bold text-xs sm:text-sm flex items-center justify-center shadow-xs cursor-pointer"
               title="Paramètres de l'agent"
             >
@@ -304,26 +300,28 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                 .split(/\s+/)
                 .filter(Boolean)
                 .map((partie) => partie.charAt(0))
-                .join('')
+                .join("")
                 .slice(0, 2)
-                .toUpperCase() || 'AG'}
+                .toUpperCase() || "AG"}
             </div>
           </div>
         </header>
 
         {/* Content Tabs */}
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
-          {activeTab === 'apercu' && (
+          {activeTab === "apercu" && (
             <div className="space-y-6">
               {/* 4 KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <div
-                  onClick={() => setActiveTab('stats')}
+                  onClick={() => setActiveTab("stats")}
                   className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-[#134e43]/15 dark:border-emerald-500/25 shadow-xs space-y-2 cursor-pointer hover:border-emerald-500/50 hover:shadow-md transition-all group"
                   title="Cliquer pour consulter les statistiques épidémiologiques et sanitaires"
                 >
                   <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span className="group-hover:text-emerald-600 dark:group-hover:text-emerald-400 font-medium">Naissances & Survie</span>
+                    <span className="group-hover:text-emerald-600 dark:group-hover:text-emerald-400 font-medium">
+                      Naissances & Survie
+                    </span>
                     <BarChart3 className="w-4 h-4 text-[#1b7e5c] dark:text-emerald-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold font-serif text-[#103d34] dark:text-[#f0fdf9]">
@@ -367,7 +365,9 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                   title="Cliquer pour gérer la confirmation des statuts vaccinaux"
                 >
                   <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span className="group-hover:text-emerald-600 dark:group-hover:text-emerald-400 font-medium">Vaccins & Statuts</span>
+                    <span className="group-hover:text-emerald-600 dark:group-hover:text-emerald-400 font-medium">
+                      Vaccins & Statuts
+                    </span>
                     <Syringe className="w-4 h-4 text-[#1b7e5c] dark:text-emerald-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold font-serif text-[#103d34] dark:text-[#f0fdf9]">
@@ -388,10 +388,13 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                   </div>
                   <div>
                     <h4 className="text-xs sm:text-sm font-bold text-[#103d34] dark:text-emerald-200">
-                      Confirmation du statut d'un vaccin administré (Module Sage-Femme / Agent)
+                      Confirmation du statut d'un vaccin administré (Module
+                      Sage-Femme / Agent)
                     </h4>
                     <p className="text-xs text-slate-600 dark:text-emerald-300/80">
-                      Suivez les doses à venir, enregistrez les vaccins administrés ou signalez les doses non administrées avec plan de relance.
+                      Suivez les doses à venir, enregistrez les vaccins
+                      administrés ou signalez les doses non administrées avec
+                      plan de relance.
                     </p>
                   </div>
                 </div>
@@ -413,16 +416,20 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                   </div>
                   <div>
                     <h4 className="text-xs sm:text-sm font-bold text-amber-900 dark:text-amber-200">
-                      Rappel légal : {dossiersUrgents} dossier{dossiersUrgents > 1 ? 's' : ''} proche{dossiersUrgents > 1 ? 's' : ''} du délai légal de 30 jours
+                      Rappel légal : {dossiersUrgents} dossier
+                      {dossiersUrgents > 1 ? "s" : ""} proche
+                      {dossiersUrgents > 1 ? "s" : ""} du délai légal de 30
+                      jours
                     </h4>
                     <p className="text-xs text-amber-800/80 dark:text-amber-300/80">
-                      Les parents ont reçu un rappel automatique. L’officier d’état civil peut certifier les dossiers en 1 clic.
+                      Les parents ont reçu un rappel automatique. L’officier
+                      d’état civil peut certifier les dossiers en 1 clic.
                     </p>
                   </div>
                 </div>
 
                 <button
-                  onClick={() => setActiveTab('registre')}
+                  onClick={() => setActiveTab("registre")}
                   className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold whitespace-nowrap cursor-pointer"
                 >
                   Voir les dossiers urgents
@@ -437,12 +444,13 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                       Dernières déclarations enregistrées
                     </h3>
                     <p className="text-xs text-slate-400">
-                      Registre synchronisé en temps réel avec les maternités et mairies.
+                      Registre synchronisé en temps réel avec les maternités et
+                      mairies.
                     </p>
                   </div>
 
                   <button
-                    onClick={() => setActiveTab('registre')}
+                    onClick={() => setActiveTab("registre")}
                     className="text-xs font-semibold text-[#1b5e52] dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer self-start sm:self-auto"
                   >
                     <span>Consulter le registre complet</span>
@@ -469,19 +477,22 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                               {c.prenom} {c.nom}
                             </h4>
                             <span className="text-[11px] text-slate-400">
-                              Né le {c.dateNaissance} · {c.sexe}{c.poids ? ` (${c.poids})` : ''}
+                              Né le {c.dateNaissance} · {c.sexe}
+                              {c.poids ? ` (${c.poids})` : ""}
                             </span>
                           </div>
                         </div>
 
                         <span
                           className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                            c.status === 'complet'
-                              ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
-                              : 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
+                            c.status === "complet"
+                              ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300"
+                              : "bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300"
                           }`}
                         >
-                          {c.status === 'complet' ? '✓ Acte émis' : 'En attente'}
+                          {c.status === "complet"
+                            ? "✓ Acte émis"
+                            : "En attente"}
                         </span>
                       </div>
 
@@ -490,7 +501,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                           {c.referenceMaternite}
                         </span>
                         <button
-                          onClick={() => setActiveTab('registre')}
+                          onClick={() => setActiveTab("registre")}
                           className="px-3 py-1 rounded-lg bg-[#1b5e52] text-white text-xs font-semibold cursor-pointer"
                         >
                           Examiner
@@ -515,7 +526,10 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                       {naissancesRecentes.map((c) => (
-                        <tr key={c.id} className="hover:bg-[#f9fcfa] dark:hover:bg-[#121c19] transition-colors">
+                        <tr
+                          key={c.id}
+                          className="hover:bg-[#f9fcfa] dark:hover:bg-[#121c19] transition-colors"
+                        >
                           <td className="py-3 px-3 font-semibold text-[#103d34] dark:text-emerald-100">
                             <div className="flex items-center gap-2.5">
                               <img
@@ -524,9 +538,12 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                                 className="w-8 h-8 rounded-full object-cover border border-[#1b5e52]/30"
                               />
                               <div>
-                                <span>{c.prenom} {c.nom}</span>
+                                <span>
+                                  {c.prenom} {c.nom}
+                                </span>
                                 <span className="block text-[11px] font-normal text-slate-400">
-                                  {c.sexe}{c.poids ? ` · ${c.poids}` : ''}
+                                  {c.sexe}
+                                  {c.poids ? ` · ${c.poids}` : ""}
                                 </span>
                               </div>
                             </div>
@@ -539,23 +556,25 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                           </td>
                           <td className="py-3 px-3 text-xs text-[#48665e] dark:text-emerald-200/80">
                             {c.mere.nom
-                              ? `Mère : ${c.mere.nom}${c.mere.telephone ? ` (${c.mere.telephone})` : ''}`
-                              : 'Parents non renseignés'}
+                              ? `Mère : ${c.mere.nom}${c.mere.telephone ? ` (${c.mere.telephone})` : ""}`
+                              : "Parents non renseignés"}
                           </td>
                           <td className="py-3 px-3">
                             <span
                               className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                                c.status === 'complet'
-                                  ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
-                                  : 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
+                                c.status === "complet"
+                                  ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300"
+                                  : "bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300"
                               }`}
                             >
-                              {c.status === 'complet' ? '✓ Acte émis' : 'En attente mairie'}
+                              {c.status === "complet"
+                                ? "✓ Acte émis"
+                                : "En attente mairie"}
                             </span>
                           </td>
                           <td className="py-3 px-3 text-right">
                             <button
-                              onClick={() => setActiveTab('registre')}
+                              onClick={() => setActiveTab("registre")}
                               className="px-3 py-1 rounded-lg bg-[#ebf5f0] dark:bg-[#121c19] hover:bg-[#134e43] hover:text-white dark:hover:bg-emerald-500 dark:hover:text-black text-xs font-semibold text-[#134e43] dark:text-emerald-300 transition-colors cursor-pointer"
                             >
                               Examiner
@@ -570,17 +589,17 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             </div>
           )}
 
-          {activeTab === 'nouveau' && (
+          {activeTab === "nouveau" && (
             <AgentNewborn
               onAddChild={onAddChild}
               creer={creer}
               etablissement={identite.etablissement}
               onShowToast={showToast}
-              onCancel={() => setActiveTab('apercu')}
+              onCancel={() => setActiveTab("apercu")}
             />
           )}
 
-          {activeTab === 'registre' && (
+          {activeTab === "registre" && (
             <AgentRecords
               childrenList={childrenList}
               onValidateChildAct={handleValidateChildAct}
@@ -588,7 +607,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             />
           )}
 
-          {activeTab === 'vaccins' && (
+          {activeTab === "vaccins" && (
             <AgentVaccinations
               vaccines={vaccines}
               childrenList={childrenList}
@@ -597,11 +616,15 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             />
           )}
 
-          {activeTab === 'stats' && (
-            <AgentStatistics kpi={kpi} etablissement={identite.etablissement} onShowToast={showToast} />
+          {activeTab === "stats" && (
+            <AgentStatistics
+              kpi={kpi}
+              etablissement={identite.etablissement}
+              onShowToast={showToast}
+            />
           )}
 
-          {activeTab === 'settings' && (
+          {activeTab === "settings" && (
             <AgentSettings agent={identite} onShowToast={showToast} />
           )}
         </main>
@@ -611,14 +634,16 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#070707]/95 backdrop-blur-xl border-t border-slate-200/90 dark:border-white/10 px-2 py-1.5 flex items-center justify-around shadow-2xl safe-area-bottom">
         {/* 1. Aperçu */}
         <button
-          onClick={() => setActiveTab('apercu')}
+          onClick={() => setActiveTab("apercu")}
           className={`flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-2xl min-h-[50px] min-w-[56px] transition-all active:scale-95 cursor-pointer ${
-            activeTab === 'apercu'
-              ? 'text-[#1b5e52] dark:text-emerald-400 font-bold'
-              : 'text-slate-400 dark:text-slate-500 hover:text-slate-700'
+            activeTab === "apercu"
+              ? "text-[#1b5e52] dark:text-emerald-400 font-bold"
+              : "text-slate-400 dark:text-slate-500 hover:text-slate-700"
           }`}
         >
-          <div className={`p-1.5 rounded-xl transition-colors ${activeTab === 'apercu' ? 'bg-[#ebf5f0] dark:bg-[#121c19] text-[#1b5e52] dark:text-emerald-300' : ''}`}>
+          <div
+            className={`p-1.5 rounded-xl transition-colors ${activeTab === "apercu" ? "bg-[#ebf5f0] dark:bg-[#121c19] text-[#1b5e52] dark:text-emerald-300" : ""}`}
+          >
             <Activity className="w-5 h-5" />
           </div>
           <span className="text-[10px]">Aperçu</span>
@@ -626,14 +651,16 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
         {/* 2. Déclarer (+ Action highlight) */}
         <button
-          onClick={() => setActiveTab('nouveau')}
+          onClick={() => setActiveTab("nouveau")}
           className={`flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-2xl min-h-[50px] min-w-[56px] transition-all active:scale-95 cursor-pointer ${
-            activeTab === 'nouveau'
-              ? 'text-[#1b5e52] dark:text-emerald-400 font-bold'
-              : 'text-slate-400 dark:text-slate-500 hover:text-slate-700'
+            activeTab === "nouveau"
+              ? "text-[#1b5e52] dark:text-emerald-400 font-bold"
+              : "text-slate-400 dark:text-slate-500 hover:text-slate-700"
           }`}
         >
-          <div className={`p-1.5 rounded-xl transition-colors ${activeTab === 'nouveau' ? 'bg-[#1b5e52] text-white shadow-xs' : 'bg-emerald-100 dark:bg-emerald-950/60 text-[#1b5e52] dark:text-emerald-300'}`}>
+          <div
+            className={`p-1.5 rounded-xl transition-colors ${activeTab === "nouveau" ? "bg-[#1b5e52] text-white shadow-xs" : "bg-emerald-100 dark:bg-emerald-950/60 text-[#1b5e52] dark:text-emerald-300"}`}
+          >
             <Plus className="w-5 h-5" />
           </div>
           <span className="text-[10px]">Déclarer</span>
@@ -641,14 +668,16 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
         {/* 3. Registre */}
         <button
-          onClick={() => setActiveTab('registre')}
+          onClick={() => setActiveTab("registre")}
           className={`relative flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-2xl min-h-[50px] min-w-[56px] transition-all active:scale-95 cursor-pointer ${
-            activeTab === 'registre'
-              ? 'text-[#1b5e52] dark:text-emerald-400 font-bold'
-              : 'text-slate-400 dark:text-slate-500 hover:text-slate-700'
+            activeTab === "registre"
+              ? "text-[#1b5e52] dark:text-emerald-400 font-bold"
+              : "text-slate-400 dark:text-slate-500 hover:text-slate-700"
           }`}
         >
-          <div className={`relative p-1.5 rounded-xl transition-colors ${activeTab === 'registre' ? 'bg-[#ebf5f0] dark:bg-[#121c19] text-[#1b5e52] dark:text-emerald-300' : ''}`}>
+          <div
+            className={`relative p-1.5 rounded-xl transition-colors ${activeTab === "registre" ? "bg-[#ebf5f0] dark:bg-[#121c19] text-[#1b5e52] dark:text-emerald-300" : ""}`}
+          >
             <FileText className="w-5 h-5" />
             <span className="absolute -top-0.5 -right-0.5 px-1 min-w-[15px] h-[15px] rounded-full bg-[#1b5e52] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-black">
               {childrenList.length}
@@ -659,14 +688,16 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
         {/* 4. Suivi Vaccinal PEV */}
         <button
-          onClick={() => setActiveTab('vaccins')}
+          onClick={() => setActiveTab("vaccins")}
           className={`flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-2xl min-h-[50px] min-w-[56px] transition-all active:scale-95 cursor-pointer ${
-            activeTab === 'vaccins'
-              ? 'text-[#1b5e52] dark:text-emerald-400 font-bold'
-              : 'text-slate-400 dark:text-slate-500 hover:text-slate-700'
+            activeTab === "vaccins"
+              ? "text-[#1b5e52] dark:text-emerald-400 font-bold"
+              : "text-slate-400 dark:text-slate-500 hover:text-slate-700"
           }`}
         >
-          <div className={`p-1.5 rounded-xl transition-colors ${activeTab === 'vaccins' ? 'bg-[#ebf5f0] dark:bg-[#121c19] text-[#1b5e52] dark:text-emerald-300' : ''}`}>
+          <div
+            className={`p-1.5 rounded-xl transition-colors ${activeTab === "vaccins" ? "bg-[#ebf5f0] dark:bg-[#121c19] text-[#1b5e52] dark:text-emerald-300" : ""}`}
+          >
             <Syringe className="w-5 h-5" />
           </div>
           <span className="text-[10px]">Vaccins</span>
@@ -730,13 +761,13 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
               <nav className="space-y-1.5 pt-1">
                 <button
                   onClick={() => {
-                    setActiveTab('apercu');
+                    setActiveTab("apercu");
                     setIsMobileDrawerOpen(false);
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === 'apercu'
-                      ? 'bg-[#1b5e52] text-white font-semibold shadow-xs'
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                    activeTab === "apercu"
+                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
+                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
                   }`}
                 >
                   <Activity className="w-4 h-4 text-emerald-400" />
@@ -745,13 +776,13 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
                 <button
                   onClick={() => {
-                    setActiveTab('nouveau');
+                    setActiveTab("nouveau");
                     setIsMobileDrawerOpen(false);
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === 'nouveau'
-                      ? 'bg-[#1b5e52] text-white font-semibold shadow-xs'
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                    activeTab === "nouveau"
+                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
+                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
                   }`}
                 >
                   <Plus className="w-4 h-4 text-emerald-400" />
@@ -760,18 +791,18 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
                 <button
                   onClick={() => {
-                    setActiveTab('registre');
+                    setActiveTab("registre");
                     setIsMobileDrawerOpen(false);
                   }}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === 'registre'
-                      ? 'bg-[#1b5e52] text-white font-semibold shadow-xs'
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                    activeTab === "registre"
+                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
+                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <FileText className="w-4 h-4 text-emerald-400" />
-                    <span>Registre des naissances</span>
+                    <span>Registre enfants</span>
                   </div>
                   <span className="text-xs font-mono bg-white/10 px-2 py-0.5 rounded-full">
                     {childrenList.length}
@@ -780,14 +811,14 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
                 <button
                   onClick={() => {
-                    setActiveTab('vaccins');
-                    setVaccineSubTab('confirmation');
+                    setActiveTab("vaccins");
+                    setVaccineSubTab("confirmation");
                     setIsMobileDrawerOpen(false);
                   }}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === 'vaccins' && vaccineSubTab === 'confirmation'
-                      ? 'bg-[#1b5e52] text-white font-semibold shadow-xs'
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                    activeTab === "vaccins" && vaccineSubTab === "confirmation"
+                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
+                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -801,14 +832,14 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
                 <button
                   onClick={() => {
-                    setActiveTab('vaccins');
-                    setVaccineSubTab('lots');
+                    setActiveTab("vaccins");
+                    setVaccineSubTab("lots");
                     setIsMobileDrawerOpen(false);
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === 'vaccins' && vaccineSubTab !== 'confirmation'
-                      ? 'bg-[#1b5e52] text-white font-semibold shadow-xs'
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                    activeTab === "vaccins" && vaccineSubTab !== "confirmation"
+                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
+                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
                   }`}
                 >
                   <Syringe className="w-4 h-4 text-emerald-400" />
@@ -817,33 +848,30 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
                 <button
                   onClick={() => {
-                    setActiveTab('stats');
+                    setActiveTab("stats");
                     setIsMobileDrawerOpen(false);
                   }}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === 'stats'
-                      ? 'bg-[#1b5e52] text-white font-semibold shadow-xs'
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                    activeTab === "stats"
+                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
+                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <BarChart3 className="w-4 h-4 text-emerald-400" />
-                    <span>Statistiques Établissement</span>
+                    <span>Statistiques</span>
                   </div>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-400/20 text-emerald-300">
-                    SNIS
-                  </span>
                 </button>
 
                 <button
                   onClick={() => {
-                    setActiveTab('settings');
+                    setActiveTab("settings");
                     setIsMobileDrawerOpen(false);
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === 'settings'
-                      ? 'bg-[#1b5e52] text-white font-semibold shadow-xs'
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                    activeTab === "settings"
+                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
+                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
                   }`}
                 >
                   <Settings className="w-4 h-4 text-emerald-400" />
