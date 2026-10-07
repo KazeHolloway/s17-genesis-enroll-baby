@@ -357,7 +357,7 @@ Le détail complet est dans [CONTRIBUTING.md](CONTRIBUTING.md).
 3. **Parent :** créer son compte avec ce code d'accès, puis se connecter pour voir le dossier de son enfant, le compte à rebours de 30 jours, le calendrier vaccinal et les rappels.
 4. **Compte parent de test déjà prêt :** `+242061000010` / `Parent123!`.
 5. **Administrateur :** `+242060000002` / `Admin123!` (console de gestion des comptes agents et statistiques de l'établissement).
-6. **Agents supplémentaires :** `+242060000003` à `+242060000011`, déjà créés sur la démo en ligne et dans `seed.sql`.
+6. **Agents supplémentaires :** `+242060000003` à `+242060000011` / `Agent123!`, déjà créés sur la démo en ligne et dans `seed.sql`.
 
 La liste complète des routes de l'API est dans [`backend/BACKEND-API.md`](backend/BACKEND-API.md).
 

@@ -34,7 +34,7 @@ Le fichier `backend/src/database/seed.sql` crée ces comptes de test :
 |---|---|---|
 | Agent de maternité | `+242060000001` | `Agent123!` |
 | Admin | `+242060000002` | `Admin123!` |
-| Agents de maternité 2 à 10 | `+242060000003` à `+242060000011` | fourni par l'équipe |
+| Agents de maternité 2 à 10 | `+242060000003` à `+242060000011` | `Agent123!` |
 
 Le seed contient aussi des données prêtes à l'emploi : 10 enfants, leurs parents, leurs dossiers, des vaccinations et des rendez-vous.
 
