@@ -182,7 +182,7 @@ export const RendezVousSuivi: React.FC<RendezVousSuiviProps> = ({
     setRappels((prev) => [nouveauRappel, ...prev]);
 
     if (onShowToast) {
-      onShowToast(`Rendez-vous enregistré ! Rappel SMS automatique programmé pour le ${new Date(dateAffichageStr).toLocaleDateString('fr-FR')} (24h avant).`);
+      onShowToast(`Rendez-vous enregistré ! Rappel automatique programmé pour le ${new Date(dateAffichageStr).toLocaleDateString('fr-FR')} (24h avant).`);
     }
 
     setFormData({
@@ -365,7 +365,7 @@ export const RendezVousSuivi: React.FC<RendezVousSuiviProps> = ({
             </button>
 
             <span className="text-xs text-slate-500 dark:text-slate-400">
-              * Génère immédiatement le rappel SMS 24h avant l'échéance.
+              * Génère immédiatement un rappel 24h avant l'échéance.
             </span>
           </div>
         </form>
@@ -467,7 +467,7 @@ export const RendezVousSuivi: React.FC<RendezVousSuiviProps> = ({
         </div>
 
         <small className="footer-note">
-          * Le rappel automatique est déclenché 24 heures avant la date prévue du rendez-vous par notification et SMS.
+          * Le rappel automatique est déclenché 24 heures avant la date prévue du rendez-vous et affiché dans l'espace parent.
         </small>
       </section>
 
@@ -482,7 +482,7 @@ export const RendezVousSuivi: React.FC<RendezVousSuiviProps> = ({
             </div>
           </div>
           <p className="section-description">
-            Automatisation des relances SMS et notifications aux familles 24h avant chaque vaccination.
+            Automatisation des relances et des notifications aux familles 24h avant chaque vaccination.
           </p>
         </div>
 

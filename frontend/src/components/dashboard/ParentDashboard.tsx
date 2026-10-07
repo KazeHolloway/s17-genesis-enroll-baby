@@ -595,7 +595,7 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                               onClick={() => showToast(`Rappel activé pour le vaccin : ${v.nom}`)}
                               className="text-xs text-[#1b5e52] dark:text-emerald-400 font-semibold hover:underline cursor-pointer"
                             >
-                              Rappel SMS
+                              Rappel
                             </button>
                           </div>
                         </div>
@@ -705,7 +705,7 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-1">Numéro de téléphone (pour rappels SMS)</label>
+                      <label className="block text-xs font-semibold text-slate-400 mb-1">Numéro de téléphone (pour les rappels)</label>
                       <input
                         type="tel"
                         defaultValue="+242 06 12 34 56"

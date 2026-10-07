@@ -217,7 +217,7 @@ export const ParentSettings: React.FC<ParentSettingsProps> = ({
               </div>
               <button
                 type="button"
-                onClick={() => onShowToast('Lien de réinitialisation envoyé par SMS')}
+                onClick={() => onShowToast("Lien de réinitialisation envoyé dans l'espace parent")}
                 className="text-xs font-bold text-[#1b5e52] dark:text-emerald-400 hover:underline"
               >
                 Changer
@@ -227,7 +227,7 @@ export const ParentSettings: React.FC<ParentSettingsProps> = ({
             <div className="p-3.5 rounded-xl bg-[#f8fbf9] dark:bg-[#121c19] border border-slate-200 dark:border-emerald-500/20 flex items-center justify-between">
               <div>
                 <span className="font-semibold block text-[#103d34] dark:text-emerald-100">Authentification à deux facteurs</span>
-                <span className="text-emerald-700 dark:text-emerald-400 font-medium">✓ Activée par SMS</span>
+                <span className="text-emerald-700 dark:text-emerald-400 font-medium">✓ Activée</span>
               </div>
               <span className="text-xs text-slate-400">Géré</span>
             </div>

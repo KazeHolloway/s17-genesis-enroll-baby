@@ -374,7 +374,7 @@ export const ChildRegisterWizard: React.FC<ChildRegisterWizardProps> = ({
               >
                 <div className="p-3.5 rounded-2xl bg-[#ebf5f0] dark:bg-[#121c19] border border-[#134e43]/20 dark:border-emerald-500/30 flex items-center gap-2 text-xs text-[#134e43] dark:text-emerald-200">
                   <Users className="w-4 h-4 flex-shrink-0" />
-                  <span>Ces coordonnées permettent l'envoi des rappels SMS et de l'acte d'état civil.</span>
+                  <span>Ces coordonnées permettent l'envoi des rappels et de l'acte d'état civil.</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

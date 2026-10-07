@@ -97,7 +97,7 @@ export const ParentVaccinations: React.FC<ParentVaccinationsProps> = ({
                   Prendre un rendez-vous & Programmer les rappels
                 </h4>
                 <p className="text-[11px] text-slate-500 dark:text-emerald-200/70">
-                  Le système déclenche automatiquement le rappel SMS 24 heures avant l'échéance.
+                  Le système déclenche automatiquement un rappel 24 heures avant l'échéance.
                 </p>
               </div>
             </div>
@@ -211,7 +211,7 @@ export const ParentVaccinations: React.FC<ParentVaccinationsProps> = ({
         <div className="p-4 rounded-2xl bg-[#ebf5f0] dark:bg-[#121c19] border border-[#134e43]/20 dark:border-emerald-500/30 flex items-start sm:items-center gap-3">
           <Bell className="w-5 h-5 text-[#1b7e5c] dark:text-emerald-400 flex-shrink-0 mt-0.5 sm:mt-0" />
           <p className="text-xs text-[#2b4c42] dark:text-emerald-200 leading-relaxed">
-            Les rappels sont automatiquement envoyés par SMS à la mère 24h avant chaque échéance vaccinale.
+            Les rappels sont automatiquement affichés dans l'espace parent 24h avant chaque échéance vaccinale.
           </p>
         </div>
       </>

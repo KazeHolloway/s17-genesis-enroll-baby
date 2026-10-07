@@ -21,7 +21,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onBookSuccess(`Rendez-vous confirmé pour le ${new Date(date).toLocaleDateString('fr-FR')} à ${heure} (${centre}). Un rappel SMS vous sera envoyé.`);
+    onBookSuccess(`Rendez-vous confirmé pour le ${new Date(date).toLocaleDateString('fr-FR')} à ${heure} (${centre}). Un rappel vous sera envoyé dans l'espace parent.`);
     onClose();
   };
 

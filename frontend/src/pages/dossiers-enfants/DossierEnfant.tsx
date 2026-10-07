@@ -26,7 +26,7 @@ type Dossier = {
   taille_naissance: string | null;
   statut_vital: string;
   numero_dossier: string | null;
-  parents: Parent[];
+  parents?: Parent[];
 };
 const LIENS: Record<string, string> = {
   mere: 'Mère',
@@ -189,12 +189,12 @@ export default function DossierEnfant() {
             <h2 className="bb-titre-section">
               Parents
             </h2>
-            {dossier.parents.length === 0 && (
+            {(dossier.parents ?? []).length === 0 && (
               <p className="bb-aide">
                 Aucun parent enregistré.
               </p>
             )}
-            {dossier.parents.map(
+            {(dossier.parents ?? []).map(
               (parent) => (
                 <div
                   key={parent.id}

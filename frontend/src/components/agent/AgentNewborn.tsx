@@ -270,7 +270,7 @@ export const AgentNewborn: React.FC<AgentNewbornProps> = ({
 
             <div>
               <label className="block text-xs font-semibold text-[#103d34] dark:text-emerald-200 mb-1.5">
-                Téléphone de la mère (reçoit le SMS de confirmation) *
+                Téléphone de la mère (pour le suivi & les rappels) *
               </label>
               <input
                 type="tel"

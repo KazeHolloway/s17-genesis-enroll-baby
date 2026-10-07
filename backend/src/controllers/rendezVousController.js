@@ -11,6 +11,9 @@ export const postRendezVous = async (req, res) => {
     if (!Number.isInteger(enfant_id) || !date_rdv) {
       return res.status(400).json({ success: false, message: 'enfant_id et date_rdv sont obligatoires' });
     }
+    if (motif !== undefined && motif !== null && String(motif).length > 255) {
+      return res.status(400).json({ success: false, message: 'Le motif est trop long (255 caractères maximum)' });
+    }
     const date = new Date(date_rdv);
     if (isNaN(date) || date <= new Date()) {
       return res.status(400).json({ success: false, message: 'La date du rendez-vous doit être valide et dans le futur' });
@@ -28,10 +31,20 @@ export const postRendezVous = async (req, res) => {
     if (error.code === '23503') {
       return res.status(400).json({ success: false, message: 'Vaccination introuvable' });
     }
+    if (error.code === '23502') {
+      return res.status(400).json({ success: false, message: 'Une donnée obligatoire fait défaut (établissement de l’enfant absent)' });
+    }
     if (error.code === '22P02') {
       return res.status(400).json({ success: false, message: 'Une valeur envoyée a un format invalide' });
     }
-    res.status(500).json({ success: false, message: 'Erreur serveur lors de la création du rendez-vous' });
+    if (error.code === '22001') {
+      return res.status(400).json({ success: false, message: 'Une valeur est trop longue (motif : 255 caractères maximum)' });
+    }
+    res.status(500).json({
+      success: false,
+      message: 'Erreur serveur lors de la création du rendez-vous',
+      ...(process.env.NODE_ENV !== 'production' ? { details: error.message } : {})
+    });
   }
 };
 

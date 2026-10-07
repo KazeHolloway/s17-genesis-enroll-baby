@@ -325,7 +325,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                       Rappel légal : 2 naissances approchent du délai de 30 jours
                     </h4>
                     <p className="text-xs text-amber-800/80 dark:text-amber-300/80">
-                      Les parents ont reçu un rappel SMS automatique. L’officier d’état civil peut certifier les dossiers en 1 clic.
+                      Les parents ont reçu un rappel automatique. L’officier d’état civil peut certifier les dossiers en 1 clic.
                     </p>
                   </div>
                 </div>
@@ -663,10 +663,10 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                         </td>
                         <td className="py-3.5 px-3 text-right">
                           <button
-                            onClick={() => showToast(`SMS de rappel relancé pour : ${v.nom}`)}
+                            onClick={() => showToast(`Rappel de vaccination relancé pour : ${v.nom}`)}
                             className="px-2.5 py-1 rounded-lg bg-[#ebf5f0] dark:bg-[#121c19] text-[#1b5e52] dark:text-emerald-300 text-xs font-semibold hover:underline cursor-pointer"
                           >
-                            Relance SMS
+                            Relance rappel
                           </button>
                         </td>
                       </tr>

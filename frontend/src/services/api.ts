@@ -15,7 +15,10 @@
 
 import type { CountdownDeclaration } from "@/lib/types";
 
-const API_URL = "http://localhost:5000/api";
+/** Origine du serveur API, pour reconstruire les URLs relatives (certificat…). */
+export const API_ORIGIN = "http://localhost:5000";
+
+const API_URL = `${API_ORIGIN}/api`;
 
 const TOKEN_KEY = "enroll_baby_token";
 
@@ -423,12 +426,118 @@ export interface EnfantAgent {
   prenom: string;
   sexe: "M" | "F";
   date_naissance: string;
+  lieu_naissance: string | null;
   etablissement_id: number;
   statut_vital: string;
+  /** Horodatage d'enregistrement (`created_at` de la table). */
+  created_at: string;
+}
+
+/**
+ * Détail d'un enfant (`GET /api/enfants/:id`) : le dossier et ses parents.
+ * Le parent de l'enfant n'est pas dans la liste : seule cette route l'expose.
+ */
+export interface EnfantDetail extends EnfantAgent {
+  numero_dossier: string | null;
+  parents: ParentPayload[];
 }
 
 export function getEnfants() {
   return request<EnfantAgent[]>("/enfants");
+}
+
+export function getEnfantDetail(id: number) {
+  return request<EnfantDetail>(`/enfants/${id}`);
+}
+
+/* ---------- Dossiers et statistiques (agent) ---------- */
+
+/** Ligne de `GET /api/dossiers` (agent ou admin), avec l'enfant associé. */
+export interface DossierAgent {
+  id: number;
+  numero_dossier: string;
+  statut: "actif" | "archive";
+  enfant_id: number;
+  enfant_nom: string;
+  enfant_prenom: string;
+  created_at: string;
+}
+
+export function getDossiers() {
+  return request<{ success: boolean; data: DossierAgent[] }>("/dossiers");
+}
+
+export interface StatistiquesParMois {
+  mois: string;
+  naissances: number;
+  garcons: number;
+  filles: number;
+  mort_nes: number;
+  deces: number;
+}
+
+export interface Statistiques {
+  periode: { debut: string; fin: string };
+  total: {
+    naissances: number;
+    garcons: number;
+    filles: number;
+    mort_nes: number;
+    deces: number;
+  };
+  par_mois: StatistiquesParMois[];
+}
+
+/** `GET /api/statistiques?debut=AAAA-MM-JJ&fin=AAAA-MM-JJ` (agent ou admin). */
+export function getStatistiques(debut: string, fin: string) {
+  return request<{
+    success: boolean;
+    data: Statistiques;
+  }>(`/statistiques?debut=${debut}&fin=${fin}`);
+}
+
+/* ---------- Documents imprimables ---------- */
+
+/** `GET /api/imprimable/dossier/:id` : page HTML complète du dossier. */
+export function getDossierImprimable(dossierId: number) {
+  return request<string>(`/imprimable/dossier/${dossierId}`, { expect: "text" });
+}
+
+/** `GET /api/declarations/dossier/:id/imprimable` : déclaration de naissance. */
+export function getDeclarationImprimable(dossierId: number) {
+  return request<string>(`/declarations/dossier/${dossierId}/imprimable`, {
+    expect: "text",
+  });
+}
+
+/**
+ * `GET /api/declarations/dossier/:id` : déclaration (générée si besoin) et lien
+ * de certificat. Le `certificat_url` renvoyé est relatif (`/api/certificats/…`).
+ */
+export interface DeclarationDossier {
+  numero: string;
+  date_emission: string;
+  statut: string;
+  certificat_url: string | null;
+  compte_a_rebours: unknown;
+}
+
+export function getDeclarationDossier(dossierId: number) {
+  return request<{ success: boolean; data: DeclarationDossier }>(
+    `/declarations/dossier/${dossierId}`,
+  );
+}
+
+/**
+ * Le certificat est une route publique protégée par son jeton : on reconstruit
+ * une URL absolue depuis l'origine du serveur pour `window.open`.
+ */
+export function certificatUrlAbsolu(url: string): string {
+  try {
+    return new URL(url, API_ORIGIN).toString();
+  } catch {
+    return url;
+  }
 }
 
 /**

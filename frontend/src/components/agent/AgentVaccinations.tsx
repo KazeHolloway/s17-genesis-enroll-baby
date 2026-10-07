@@ -150,11 +150,11 @@ export const AgentVaccinations: React.FC<AgentVaccinationsProps> = ({
               </div>
 
               <button
-                onClick={() => onShowToast(`Rappel SMS envoyé aux parents pour le vaccin : ${v.nom}`)}
+                onClick={() => onShowToast(`Rappel envoyé aux parents pour le vaccin : ${v.nom}`)}
                 className="w-full py-2.5 px-3 rounded-xl bg-[#ebf5f0] hover:bg-[#134e43] hover:text-white dark:bg-[#1b2b27] dark:hover:bg-emerald-500 dark:hover:text-black text-[#1b7e5c] dark:text-emerald-300 text-xs font-bold transition-colors cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5"
               >
                 <Bell className="w-3.5 h-3.5" />
-                <span>Envoyer rappel SMS aux parents</span>
+                <span>Envoyer un rappel aux parents</span>
               </button>
             </div>
           ))}
@@ -199,10 +199,10 @@ export const AgentVaccinations: React.FC<AgentVaccinationsProps> = ({
                   </td>
                   <td className="py-3.5 px-3 text-right">
                     <button
-                      onClick={() => onShowToast(`Rappel SMS envoyé aux parents pour le vaccin : ${v.nom}`)}
+                      onClick={() => onShowToast(`Rappel envoyé aux parents pour le vaccin : ${v.nom}`)}
                       className="px-2.5 py-1 rounded-lg bg-[#ebf5f0] dark:bg-[#121c19] text-[#1b7e5c] dark:text-emerald-300 text-xs font-semibold hover:underline cursor-pointer"
                     >
-                      Envoyer SMS
+                      Envoyer le rappel
                     </button>
                   </td>
                 </tr>

@@ -379,7 +379,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                       Rappel légal : 2 naissances approchent du délai légal de 30 jours
                     </h4>
                     <p className="text-xs text-amber-800/80 dark:text-amber-300/80">
-                      Les parents ont reçu un rappel SMS automatique. L’officier d’état civil peut certifier les dossiers en 1 clic.
+                      Les parents ont reçu un rappel automatique. L’officier d’état civil peut certifier les dossiers en 1 clic.
                     </p>
                   </div>
                 </div>

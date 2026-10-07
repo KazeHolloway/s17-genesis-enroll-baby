@@ -409,6 +409,7 @@ export default function RendezVousSuivi({ mode }: { mode: Mode }) {
                 <textarea
                   id="motif"
                   name="motif"
+                  maxLength={255}
                   value={formData.motif}
                   onChange={handleChange}
                   required
