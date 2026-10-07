@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfcfa" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    />
+    <title>Enroll Baby</title>
+    <meta name="description" content="Un avenir en bonne santé, dès la naissance." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+<script>
+      // Applique le thème avant le premier rendu pour éviter tout clignotement.
+      // Sans choix enregistré, on part sur "light" comme `ThemeContext` : les
+      // dashboards et la landing sont concus clairs. Retomber sur la
+      // préférence OS donnait un écran noir à qui l'avait activée au système.
+      (function () {
+        try {
+          var stored = localStorage.getItem("enroll-baby-theme");
+          var prefersDark =
+            window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var theme;
+          if (stored === "light" || stored === "dark") {
+            theme = stored;
+          } else if (stored === "system") {
+            // Choix explicite de suivre l'OS : il faut le résoudre ici aussi,
+            // sinon React rejoue le theme au montage et l'ecran clignote.
+            theme = prefersDark ? "dark" : "light";
+          } else {
+            theme = "light";
+          }
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
