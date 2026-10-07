@@ -11,8 +11,6 @@ import {
   Plus,
   Settings,
   Syringe,
-  Menu,
-  X,
   BarChart3,
 } from "lucide-react";
 import { Logo } from "../Logo";
@@ -80,7 +78,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   const [vaccineSubTab, setVaccineSubTab] = useState<
     "confirmation" | "lots" | "rendezvous"
   >("confirmation");
-  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -252,15 +249,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
         {/* Header */}
         <header className="sticky top-0 z-30 px-3 sm:px-6 py-3 sm:py-4 bg-white/90 dark:bg-[#070707]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 flex items-center justify-between gap-2 sm:gap-4">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            {/* Mobile Hamburger Drawer Trigger */}
-            <button
-              onClick={() => setIsMobileDrawerOpen(true)}
-              className="md:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-[#103d34] dark:text-emerald-300 transition-colors cursor-pointer flex-shrink-0"
-              aria-label="Ouvrir le menu agent"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <h1 className="text-sm sm:text-xl font-bold text-[#103d34] dark:text-[#f0fdf9] truncate">
@@ -703,199 +691,18 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
           <span className="text-[10px]">Vaccins</span>
         </button>
 
-        {/* 5. Menu Drawer */}
+        {/* 5. Déconnexion */}
         <button
-          onClick={() => setIsMobileDrawerOpen(true)}
-          className="relative flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-2xl min-h-[50px] min-w-[56px] text-slate-400 dark:text-slate-500 hover:text-slate-700 transition-all active:scale-95 cursor-pointer"
+          onClick={onLogout}
+          className="flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-2xl min-h-[50px] min-w-[62px] transition-all active:scale-95 cursor-pointer text-[#1b5e52] dark:text-emerald-400 font-bold"
         >
-          <div className="relative p-1.5 rounded-xl">
-            <Menu className="w-5 h-5" />
+          <div className="p-1.5 rounded-xl">
+            <LogOut className="w-5 h-5" />
           </div>
-          <span className="text-[10px]">Menu</span>
+          <span className="text-[10px]">Déconnexion</span>
         </button>
       </nav>
-
-      {/* MOBILE SLIDE-OVER DRAWER FOR AGENTS */}
-      {isMobileDrawerOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
-          {/* Backdrop */}
-          <div
-            onClick={() => setIsMobileDrawerOpen(false)}
-            className="fixed inset-0 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200"
-          />
-
-          {/* Drawer Content */}
-          <div className="relative w-4/5 max-w-xs bg-[#0c2822] dark:bg-[#0a0a0a] text-white h-full flex flex-col justify-between p-5 z-50 shadow-2xl animate-in slide-in-from-left duration-200 border-r border-[#153f36]/70 dark:border-white/10">
-            <div className="space-y-6">
-              {/* Header inside drawer */}
-              <div className="flex items-center justify-between pt-1">
-                <Logo variant="white" />
-                <button
-                  onClick={() => setIsMobileDrawerOpen(false)}
-                  className="p-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
-                  aria-label="Fermer le menu"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Agent Profile Card */}
-              <div className="p-3.5 rounded-2xl bg-white/10 dark:bg-white/5 border border-white/10 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] uppercase font-bold text-emerald-300">
-                    {identite.role}
-                  </span>
-                  <span className="text-[10px] font-mono text-emerald-400 bg-white/10 px-1.5 py-0.5 rounded">
-                    {identite.matricule}
-                  </span>
-                </div>
-                <h4 className="text-sm font-bold text-white truncate">
-                  {identite.nom}
-                </h4>
-                <p className="text-[11px] text-emerald-200/80 truncate">
-                  {identite.etablissement}
-                </p>
-              </div>
-
-              {/* Navigation links */}
-              <nav className="space-y-1.5 pt-1">
-                <button
-                  onClick={() => {
-                    setActiveTab("apercu");
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === "apercu"
-                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
-                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <Activity className="w-4 h-4 text-emerald-400" />
-                  <span>Tableau de bord</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setActiveTab("nouveau");
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === "nouveau"
-                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
-                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <Plus className="w-4 h-4 text-emerald-400" />
-                  <span>Déclarer une naissance</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setActiveTab("registre");
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === "registre"
-                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
-                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-4 h-4 text-emerald-400" />
-                    <span>Registre enfants</span>
-                  </div>
-                  <span className="text-xs font-mono bg-white/10 px-2 py-0.5 rounded-full">
-                    {childrenList.length}
-                  </span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setActiveTab("vaccins");
-                    setVaccineSubTab("confirmation");
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === "vaccins" && vaccineSubTab === "confirmation"
-                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
-                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    <span>Confirmation Statuts</span>
-                  </div>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-400/20 text-emerald-300">
-                    Statuts
-                  </span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setActiveTab("vaccins");
-                    setVaccineSubTab("lots");
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === "vaccins" && vaccineSubTab !== "confirmation"
-                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
-                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <Syringe className="w-4 h-4 text-emerald-400" />
-                  <span>Suivi Vaccinal & Lots</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setActiveTab("stats");
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === "stats"
-                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
-                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <BarChart3 className="w-4 h-4 text-emerald-400" />
-                    <span>Statistiques</span>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setActiveTab("settings");
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    activeTab === "settings"
-                      ? "bg-[#1b5e52] text-white font-semibold shadow-xs"
-                      : "text-emerald-100/70 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <Settings className="w-4 h-4 text-emerald-400" />
-                  <span>Paramètres Agent</span>
-                </button>
-              </nav>
-            </div>
-
-            {/* Drawer Footer */}
-            <div className="pt-4 border-t border-white/10 space-y-2">
-              <button
-                onClick={() => {
-                  setIsMobileDrawerOpen(false);
-                  onLogout();
-                }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-emerald-100/75 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-              >
-                <LogOut className="w-4 h-4 text-emerald-400" />
-                <span>Déconnexion</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
+

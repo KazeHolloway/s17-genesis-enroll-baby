@@ -14,9 +14,6 @@ import {
   ChevronRight,
   ArrowRight,
   User,
-  Baby,
-  Menu,
-  X,
   Printer,
 } from 'lucide-react';
 import { Logo } from '../Logo';
@@ -59,9 +56,6 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
 
   // Modals state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  // Mobile Drawer state
-  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   // Notifications dropdown
   const [showNotificationsDropdown, setShowNotificationsDropdown] = useState(false);
@@ -282,15 +276,6 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
         {/* Top Header matching image.png */}
         <header className="sticky top-0 z-30 px-3 sm:px-6 py-3 sm:py-4 bg-white/90 dark:bg-[#070707]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 flex items-center justify-between gap-2 sm:gap-4">
           <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Mobile Hamburger Drawer Trigger */}
-            <button
-              onClick={() => setIsMobileDrawerOpen(true)}
-              className="md:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-[#103d34] dark:text-emerald-300 transition-colors cursor-pointer"
-              aria-label="Ouvrir le menu mobile"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-
             {/* Mobile Logo Indicator matching iPhone 1 mockup */}
             <div className="md:hidden flex items-center">
               <Logo className="scale-[0.85] origin-left" />
@@ -872,178 +857,20 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
             </div>
             <span className="text-[11px]">Profil</span>
           </button>
+
+          {/* 5. Déconnexion */}
+          <button
+            onClick={onLogout}
+            className="flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-2xl min-h-[50px] min-w-[62px] transition-all active:scale-95 cursor-pointer text-[#1b5e52] dark:text-emerald-400 font-bold"
+          >
+            <div className="p-1.5 rounded-xl">
+              <LogOut className="w-5 h-5" />
+            </div>
+            <span className="text-[11px]">Déconnexion</span>
+          </button>
         </nav>
       </div>
 
-      {/* MOBILE SLIDE-OVER DRAWER */}
-      {isMobileDrawerOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
-          {/* Backdrop */}
-          <div
-            onClick={() => setIsMobileDrawerOpen(false)}
-            className="fixed inset-0 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200"
-          />
-
-          {/* Drawer Content */}
-          <div className="relative w-4/5 max-w-xs bg-[#123830] dark:bg-[#0a0a0a] text-white h-full flex flex-col justify-between p-5 z-50 shadow-2xl animate-in slide-in-from-left duration-200 border-r border-[#194c41]/50 dark:border-white/10">
-            <div className="space-y-6">
-              {/* Header inside drawer */}
-              <div className="flex items-center justify-between pt-1">
-                <Logo variant="white" />
-                <button
-                  onClick={() => setIsMobileDrawerOpen(false)}
-                  className="p-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
-                  aria-label="Fermer le menu"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* User profile mini badge */}
-              <div className="p-3.5 rounded-2xl bg-white/10 dark:bg-white/5 border border-white/10 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#1b5e52] dark:bg-emerald-600 text-white font-bold flex items-center justify-center text-sm shadow-xs">
-                  {initialeParent}
-                </div>
-                <div className="min-w-0">
-                  <h4 className="text-sm font-bold text-white truncate">
-                    {nomComplet || 'Mon profil'}
-                  </h4>
-                  <p className="text-[11px] text-emerald-300/80 truncate">
-                    {childrenList.length > 0
-                      ? `Parent de ${childrenList.map((c) => c.prenom).slice(0, 2).join(', ')}`
-                      : 'Aucun enfant rattaché'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Navigation links */}
-              <nav className="space-y-1.5 pt-1">
-                <button
-                  onClick={() => {
-                    setCurrentNav('accueil');
-                    setSelectedChildId(null);
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    currentNav === 'accueil' && !selectedChildId
-                      ? 'bg-[#1b4d42] text-emerald-200 font-semibold shadow-xs'
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <Home className="w-4 h-4 text-emerald-300" />
-                  <span>Accueil</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setCurrentNav('enfants');
-                    setSelectedChildId(null);
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    currentNav === 'enfants'
-                      ? 'bg-[#1b4d42] text-emerald-200 font-semibold shadow-xs'
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Baby className="w-4 h-4 text-emerald-300" />
-                    <span>Mes enfants</span>
-                  </div>
-                  <span className="text-xs font-mono bg-white/10 px-2 py-0.5 rounded-full">
-                    {childrenList.length}
-                  </span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setCurrentNav('vaccins');
-                    setSelectedChildId(null);
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    currentNav === 'vaccins'
-                      ? 'bg-[#1b4d42] text-emerald-200 font-semibold shadow-xs'
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <Syringe className="w-4 h-4 text-emerald-300" />
-                  <span>Vaccinations</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setCurrentNav('documents');
-                    setSelectedChildId(null);
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    currentNav === 'documents'
-                      ? 'bg-[#1b4d42] text-emerald-200 font-semibold shadow-xs'
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <FileText className="w-4 h-4 text-emerald-300" />
-                  <span>Documents</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setCurrentNav('notifications');
-                    setSelectedChildId(null);
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    currentNav === 'notifications'
-                      ? 'bg-[#1b4d42] text-emerald-200 font-semibold shadow-xs'
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Bell className="w-4 h-4 text-emerald-300" />
-                    <span>Notifications</span>
-                  </div>
-                  {unreadNotifsCount > 0 && (
-                    <span className="w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
-                      {unreadNotifsCount}
-                    </span>
-                  )}
-                </button>
-
-                <button
-                  onClick={() => {
-                    setCurrentNav('parametres');
-                    setSelectedChildId(null);
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
-                    currentNav === 'parametres'
-                      ? 'bg-[#1b4d42] text-emerald-200 font-semibold shadow-xs'
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <Settings className="w-4 h-4 text-emerald-300" />
-                  <span>Paramètres</span>
-                </button>
-              </nav>
-            </div>
-
-            {/* Drawer Footer */}
-            <div className="pt-4 border-t border-white/10 space-y-2">
-              <button
-                onClick={() => {
-                  setIsMobileDrawerOpen(false);
-                  onLogout();
-                }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-emerald-100/75 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-              >
-                <LogOut className="w-4 h-4 text-emerald-400" />
-                <span>Se déconnecter</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
