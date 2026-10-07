@@ -34,7 +34,6 @@ interface AgentDashboardProps {
   childrenList: Child[];
   vaccines: VaccineItem[];
   documents: DocumentItem[];
-  onUpdateChild?: (child: Child) => void;
   /** Persiste un nouveau-né côté API, puis renvoie l'enregistrement réel. */
   creer?: (child: Child) => Promise<Child>;
   onAddChild: (child: Child) => void;
@@ -47,7 +46,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   kpi,
   childrenList,
   vaccines,
-  onUpdateChild,
   creer,
   onAddChild,
   onLogout,
@@ -88,27 +86,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   const openVaccineConfirmation = () => {
     setVaccineSubTab("confirmation");
     setActiveTab("vaccins");
-  };
-
-  const handleValidateChildAct = (childId: string) => {
-    const child = childrenList.find((c) => c.id === childId);
-    if (child) {
-      onUpdateChild?.({
-        ...child,
-        status: "complet",
-        etapes: [
-          ...child.etapes,
-          {
-            titre: "Acte officiel certifié par l’Officier d’État Civil",
-            date: "Aujourd’hui",
-            complete: true,
-          },
-        ],
-      });
-      showToast(
-        `Dossier de ${child.prenom} ${child.nom} soldé : l'acte peut être délivré.`,
-      );
-    }
   };
 
   return (
@@ -590,7 +567,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
           {activeTab === "registre" && (
             <AgentRecords
               childrenList={childrenList}
-              onValidateChildAct={handleValidateChildAct}
               onShowToast={showToast}
             />
           )}

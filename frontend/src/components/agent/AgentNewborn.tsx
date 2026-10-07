@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Baby, Users, ShieldCheck, FileText, KeyRound, Copy, Printer, Check } from 'lucide-react';
+import { Baby, Users, ShieldCheck, KeyRound, Copy, Printer, Check } from 'lucide-react';
 import type { Child, ChildGender } from '../../types/dashboard';
 import { PrintableChildDossierModal } from '../PrintableChildDossierModal';
-import { PrintableDeclarationModal } from '../PrintableDeclarationModal';
 
 interface AgentNewbornProps {
   onAddChild: (newChild: Child) => void;
@@ -23,7 +22,6 @@ export const AgentNewborn: React.FC<AgentNewbornProps> = ({
   const [createdChild, setCreatedChild] = useState<Child | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
   const [showPrintDossier, setShowPrintDossier] = useState(false);
-  const [showPrintDeclaration, setShowPrintDeclaration] = useState(false);
   const [envoi, setEnvoi] = useState(false);
 
   // Enfant
@@ -385,22 +383,8 @@ export const AgentNewborn: React.FC<AgentNewbornProps> = ({
               </p>
             </div>
 
-            {/* Printable Documents (Ticket 4 & Ticket 5) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-              <button
-                type="button"
-                onClick={() => setShowPrintDeclaration(true)}
-                className="p-3.5 rounded-2xl bg-white dark:bg-black border border-slate-200 dark:border-white/10 hover:border-emerald-500/40 transition-colors flex items-center gap-3 cursor-pointer group shadow-2xs"
-              >
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-                  <FileText className="w-5 h-5" />
-                </div>
-                <div>
-                  <strong className="text-xs text-[#103d34] dark:text-emerald-100 block">Déclaration Mairie</strong>
-                  <span className="text-[10px] text-slate-400">Pour l'État Civil sous 30 jours</span>
-                </div>
-              </button>
-
+            {/* Printable Documents (Ticket 5) */}
+            <div className="text-left">
               <button
                 type="button"
                 onClick={() => setShowPrintDossier(true)}
@@ -451,13 +435,6 @@ export const AgentNewborn: React.FC<AgentNewbornProps> = ({
         <PrintableChildDossierModal
           isOpen={showPrintDossier}
           onClose={() => setShowPrintDossier(false)}
-          child={createdChild}
-        />
-      )}
-      {showPrintDeclaration && createdChild && (
-        <PrintableDeclarationModal
-          isOpen={showPrintDeclaration}
-          onClose={() => setShowPrintDeclaration(false)}
           child={createdChild}
         />
       )}

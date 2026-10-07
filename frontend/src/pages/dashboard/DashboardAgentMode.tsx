@@ -221,11 +221,6 @@ export default function DashboardAgentMode() {
         childrenList={enfants}
         vaccines={vaccins}
         documents={[]}
-        onUpdateChild={(child) =>
-          setEnfants((prev) =>
-            prev.map((c) => (c.id === child.id ? child : c)),
-          )
-        }
         onAddChild={() => setRecharge((r) => r + 1)}
         creer={creer}
         onLogout={() => {

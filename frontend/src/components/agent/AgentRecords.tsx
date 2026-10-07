@@ -3,30 +3,25 @@ import {
   FileText,
   Search,
   Filter,
-  FileCheck2,
   X,
   ShieldCheck,
   Printer,
 } from 'lucide-react';
 import type { Child } from '../../types/dashboard';
 import { PrintableChildDossierModal } from '../PrintableChildDossierModal';
-import { PrintableDeclarationModal } from '../PrintableDeclarationModal';
 
 interface AgentRecordsProps {
   childrenList: Child[];
-  onValidateChildAct: (childId: string) => void;
   onShowToast: (msg: string) => void;
 }
 
 export const AgentRecords: React.FC<AgentRecordsProps> = ({
   childrenList,
-  onValidateChildAct,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'complet' | 'en_cours'>('all');
   const [selectedChild, setSelectedChild] = useState<Child | null>(null);
   const [childToPrintDossier, setChildToPrintDossier] = useState<Child | null>(null);
-  const [childToPrintDeclaration, setChildToPrintDeclaration] = useState<Child | null>(null);
 
   const filteredChildren = childrenList.filter((child) => {
     const matchesSearch =
@@ -270,44 +265,15 @@ export const AgentRecords: React.FC<AgentRecordsProps> = ({
               </div>
 
               <div className="pt-2 flex flex-col gap-2.5">
-                {selectedChild.status === 'en_cours' ? (
-                  <button
-                    onClick={() => {
-                      onValidateChildAct(selectedChild.id);
-                      setSelectedChild(null);
-                    }}
-                    className="w-full py-3 rounded-xl bg-[#1b5e52] hover:bg-[#144b41] dark:bg-emerald-500 dark:text-black text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-                  >
-                    <FileCheck2 className="w-4 h-4" />
-                    <span>Valider & Émettre l'acte de naissance</span>
-                  </button>
-                ) : (
-                  <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs text-center font-semibold border border-emerald-200 dark:border-emerald-800/40">
-                    ✓ Acte officiel délivré et accessible aux parents
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                  <button
-                    onClick={() => {
-                      setChildToPrintDeclaration(selectedChild);
-                    }}
-                    className="w-full py-2.5 px-3 rounded-xl border border-[#1b5e52]/30 dark:border-emerald-500/30 text-xs font-semibold text-[#103d34] dark:text-emerald-200 hover:bg-emerald-50 dark:hover:bg-[#121c19] flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                  >
-                    <FileText className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Déclaration Mairie (30j)</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setChildToPrintDossier(selectedChild);
-                    }}
-                    className="w-full py-2.5 px-3 rounded-xl border border-[#1b5e52]/30 dark:border-emerald-500/30 text-xs font-semibold text-[#103d34] dark:text-emerald-200 hover:bg-emerald-50 dark:hover:bg-[#121c19] flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                  >
-                    <Printer className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Dossier Papier Autonome</span>
-                  </button>
-                </div>
+                <button
+                  onClick={() => {
+                    setChildToPrintDossier(selectedChild);
+                  }}
+                  className="w-full py-2.5 px-3 rounded-xl border border-[#1b5e52]/30 dark:border-emerald-500/30 text-xs font-semibold text-[#103d34] dark:text-emerald-200 hover:bg-emerald-50 dark:hover:bg-[#121c19] flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                >
+                  <Printer className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Dossier Papier Autonome</span>
+                </button>
               </div>
             </div>
           </div>
@@ -320,13 +286,6 @@ export const AgentRecords: React.FC<AgentRecordsProps> = ({
           isOpen={!!childToPrintDossier}
           onClose={() => setChildToPrintDossier(null)}
           child={childToPrintDossier}
-        />
-      )}
-      {childToPrintDeclaration && (
-        <PrintableDeclarationModal
-          isOpen={!!childToPrintDeclaration}
-          onClose={() => setChildToPrintDeclaration(null)}
-          child={childToPrintDeclaration}
         />
       )}
     </div>
