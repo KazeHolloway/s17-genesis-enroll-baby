@@ -16,7 +16,11 @@
 import type { CountdownDeclaration } from "@/lib/types";
 
 /** Origine du serveur API, pour reconstruire les URLs relatives (certificat…). */
-export const API_ORIGIN = "http://localhost:5000";
+export const API_ORIGIN =
+  import.meta.env.VITE_API_URL ??
+  (import.meta.env.PROD
+    ? "https://s17-genesis-enroll-baby.onrender.com"
+    : "http://localhost:5000");
 
 const API_URL = `${API_ORIGIN}/api`;
 
