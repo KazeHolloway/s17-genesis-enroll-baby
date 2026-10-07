@@ -340,6 +340,45 @@ function decouperNom(complet: string): { prenom: string; nom: string } {
   };
 }
 
+/** Champs d'une personne parente (colonnes de la table `parents`). */
+type PersonneParente = {
+  /** Nom complet affiché. */
+  nom: string;
+  prenom?: string;
+  nomFamille?: string;
+  telephone: string;
+  email?: string;
+  adresse?: string;
+};
+
+/**
+ * `PersonneParente` → `ParentPayload` (`nom`/`prenom` séparés, comme dans le
+ * seed). Renvoie `null` si aucun champ n'est renseigné.
+ */
+function versParentPayload(
+  personne: PersonneParente,
+  lien: ParentPayload["lien"],
+): ParentPayload | null {
+  const prenomSaisi = (personne.prenom ?? "").trim();
+  const nomFamilleSaisi = (personne.nomFamille ?? "").trim();
+  const decoupe = decouperNom(personne.nom);
+
+  const nom = nomFamilleSaisi || decoupe.nom;
+  const prenom = prenomSaisi || decoupe.prenom;
+
+  // L'API exige un nom ET un prénom pour chaque parent transmis.
+  if (!nom || !prenom) return null;
+
+  return {
+    nom,
+    prenom,
+    lien,
+    telephone: personne.telephone || undefined,
+    email: personne.email || undefined,
+    adresse: personne.adresse || undefined,
+  };
+}
+
 /**
  * `Child` édité dans le formulaire agent → payload de
  * `POST /api/enfants/enregistrement`.
@@ -348,25 +387,16 @@ export function childVersEnregistrement(child: Child): {
   enfant: EnfantPayload;
   parents: ParentPayload[];
 } {
-  const mere = decouperNom(child.mere.nom);
-  const pere = decouperNom(child.pere.nom);
-
   const parents: ParentPayload[] = [];
-  if (mere.prenom || mere.nom) {
-    parents.push({
-      nom: mere.nom,
-      prenom: mere.prenom,
-      lien: "mere",
-      telephone: child.mere.telephone || undefined,
-    });
-  }
-  if (pere.prenom || pere.nom) {
-    parents.push({
-      nom: pere.nom,
-      prenom: pere.prenom,
-      lien: "pere",
-      telephone: child.pere.telephone || undefined,
-    });
+
+  for (const [personne, lien] of [
+    [child.mere, "mere"],
+    [child.pere, "pere"],
+    [child.tuteur, "tuteur"],
+  ] as const) {
+    if (!personne) continue;
+    const payload = versParentPayload(personne, lien);
+    if (payload) parents.push(payload);
   }
 
   return {

@@ -17,16 +17,37 @@ export interface Child {
   delaiDeclarationJours?: number;
   numeroActe?: string;
   mere: {
+    /** Nom complet affiché (« Sylvie Ngoma »). */
     nom: string;
+    /** Prénom saisi au formulaire. */
+    prenom?: string;
+    /** Nom de famille seul (« Ngoma »), pour l'API. */
+    nomFamille?: string;
     telephone: string;
+    email?: string;
+    adresse?: string;
     profession?: string;
     nationalite?: string;
   };
   pere: {
+    /** Nom complet affiché (« Jean Ngoma »). */
     nom: string;
+    prenom?: string;
+    nomFamille?: string;
     telephone: string;
+    email?: string;
+    adresse?: string;
     profession?: string;
     nationalite?: string;
+  };
+  /** Tuteur légal : facultatif, ignoré si aucun champ n'est renseigné. */
+  tuteur?: {
+    nom: string;
+    prenom?: string;
+    nomFamille?: string;
+    telephone: string;
+    email?: string;
+    adresse?: string;
   };
   prochaineVaccination?: {
     date: string;

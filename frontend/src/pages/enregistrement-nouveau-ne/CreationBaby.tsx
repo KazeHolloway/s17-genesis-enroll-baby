@@ -183,6 +183,12 @@ export default function CreationBaby() {
     event: FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
+    // Une touche Entrée ne doit pas sauter les étapes : on avance au lieu
+    // d'enregistrer avant d'avoir affiché la vérification.
+    if (etape < ETAPES.length) {
+      allerSuivant();
+      return;
+    }
     setErreur('');
     const fd = new FormData(formRef.current ?? undefined);
     const { enfant, erreur: erreurEnfant } =

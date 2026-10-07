@@ -86,42 +86,61 @@ const Signup = () => {
   };
 
   return (
-    <section className="bg-login min-h-screen w-full flex items-center justify-center p-4">
+    <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#faf9f5] p-4">
+      {/* Décor végétal — coin supérieur droit (pure illustration, non cliquable) */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 200 200"
+        fill="none"
+        className="pointer-events-none absolute -top-10 -right-10 h-56 w-56 text-[#1b5e52] opacity-[0.13]"
+      >
+        <path
+          d="M196 4C150 28 118 66 104 118"
+          stroke="currentColor"
+          strokeWidth="4"
+          strokeLinecap="round"
+        />
+        <path d="M170 24c-20 4-33 20-33 40 22 0 38-18 33-40z" fill="currentColor" />
+        <path d="M131 61c-19 6-30 23-28 43 21-2 35-21 28-43z" fill="currentColor" />
+        <path d="M186 64c-17 9-25 27-21 46 20-5 31-26 21-46z" fill="currentColor" />
+        <path d="M110 104c-17 9-25 27-21 46 20-5 31-26 21-46z" fill="currentColor" />
+      </svg>
+
       {/* Retour à la landing. `fixed` et non `absolute` : le parent est un
           conteneur `flex` sans hauteur propre, un lien en absolute se
           positionnerait par rapport à la page entière et disparaissait au
           défilement sur mobile. */}
-      <Link
-        to="/"
-        className="fixed top-4 left-4 z-10 inline-flex min-h-[44px] items-center gap-2 rounded-btn btn-interaction px-3 py-2 text-sm font-semibold text-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary/50"
-      >
-        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        Retour
-      </Link>
+      <div className="relative w-full max-w-[440px] rounded-[28px] border border-[#144c42]/10 bg-white p-6 sm:p-8 shadow-[0_20px_60px_-30px_rgba(16,61,52,0.45)]">
+        {/* Retour à la landing, ancré dans la carte (même placement que Login). */}
+        <Link
+          to="/"
+          className="mb-5 inline-flex w-fit min-h-[36px] items-center gap-1.5 rounded-full border border-primary/15 bg-white px-3 py-1.5 text-xs font-semibold text-primary btn-interaction hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary/50"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+          Retour
+        </Link>
 
-      <div className="w-full max-w-xl min-h-225 backdrop-blur-sm flex flex-col justify-center items-center gap-8 p-8 md:p-12 rounded-2xl shadow-xl border border-primary/10">
-        <div>
-          <img src={logo} alt="" width={100} height={10} />
-        </div>
+        <img src={logo} alt="Enroll Baby" className="mb-6 h-12 w-auto" />
 
         {/* Header */}
-        <div className="text-center space-y-2">
+        <header className="text-left">
           <h1 className="headline-xl-mobile md:headline-xl text-primary">
             Créer un compte
           </h1>
-          <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             Pour accéder à votre espace personnel et recevoir les rappels de
             vaccination
           </p>
-        </div>
+        </header>
 
-        <form className="flex flex-col gap-5 w-full" onSubmit={handleSubmit}>
+        <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit}>
           {/* Inputs */}
           <div className="form-group">
-            <label className="text-sm font-medium text-primary">
-              Nom Complet
+            <label htmlFor="nom-complet" className="text-sm font-medium text-primary">
+              Nom complet
             </label>
             <input
+              id="nom-complet"
               type="text"
               autoComplete="name"
               className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
@@ -137,10 +156,11 @@ const Signup = () => {
           {/* L'API authentifie sur le téléphone : un champ `type="email"`
               rejetait le format `+24206...` avant même l'envoi. */}
           <div className="form-group">
-            <label className="text-sm font-medium text-primary">
+            <label htmlFor="telephone" className="text-sm font-medium text-primary">
               Numéro de téléphone
             </label>
             <input
+              id="telephone"
               type="tel"
               autoComplete="tel"
               className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
@@ -154,8 +174,9 @@ const Signup = () => {
           </div>
 
           <div className="form-group">
-            <label className="text-sm font-medium text-primary">Email</label>
+            <label htmlFor="email" className="text-sm font-medium text-primary">Email</label>
             <input
+              id="email"
               type="email"
               autoComplete="email"
               className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
@@ -184,10 +205,11 @@ const Signup = () => {
           {/* Le code d'accès est ce qui rattache le compte au dossier de
               l'enfant : sans lui, le backend refuse l'inscription. */}
           <div className="form-group">
-            <label className="text-sm font-medium text-primary">
+            <label htmlFor="code-acces" className="text-sm font-medium text-primary">
               Code d'accès
             </label>
             <input
+              id="code-acces"
               type="text"
               className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
               placeholder="Code reçu de l'établissement"
@@ -211,7 +233,7 @@ const Signup = () => {
           </label>
 
           <CustomButton
-            className="w-full py-3 mt-2"
+            className="w-full py-3 mt-1"
             isLoading={isLoading}
             icon={<ArrowRight />}
             disabled={isLoading}
@@ -225,7 +247,7 @@ const Signup = () => {
         </form>
 
         {/* Footer link */}
-        <p className="text-sm text-muted-foreground">
+        <p className="mt-6 text-center text-sm text-muted-foreground">
           Déjà un compte ?{" "}
           <Link
             to="/login"

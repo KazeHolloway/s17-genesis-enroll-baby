@@ -273,7 +273,8 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
         </header>
 
         {/* Content Tabs */}
-        <main className="p-4 sm:p-6 lg:p-8 space-y-6">
+        {/* pb-28 : laisse passer la barre d'onglets fixe en bas (mobile) */}
+        <main className="p-4 sm:p-6 lg:p-8 pb-28 md:pb-8 space-y-6">
           {activeTab === "apercu" && (
             <div className="space-y-6">
               {/* 4 KPI Cards */}
