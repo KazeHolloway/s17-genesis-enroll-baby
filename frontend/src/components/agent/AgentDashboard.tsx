@@ -112,7 +112,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#f3f7f4] dark:bg-black text-[#103d34] dark:text-[#e6f4f1] flex transition-colors duration-300">
+    <div className="h-screen overflow-hidden bg-[#f3f7f4] dark:bg-black text-[#103d34] dark:text-[#e6f4f1] flex transition-colors duration-300">
       {/* Toast Alert popup */}
       {toastMessage && (
         <div className="fixed top-6 right-6 z-50 p-4 bg-[#134e43] dark:bg-emerald-600 text-white text-xs sm:text-sm font-semibold rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-3">
@@ -122,7 +122,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
       )}
 
       {/* LEFT SIDEBAR: AGENT PRO */}
-      <aside className="w-64 xl:w-72 bg-[#0c2822] dark:bg-[#070707] text-white flex-shrink-0 hidden md:flex flex-col justify-between p-5 border-r border-[#153f36]/70 dark:border-white/10 transition-colors">
+      <aside className="w-64 xl:w-72 h-full overflow-y-auto bg-[#0c2822] dark:bg-[#070707] text-white flex-shrink-0 hidden md:flex flex-col justify-between p-5 border-r border-[#153f36]/70 dark:border-white/10 transition-colors">
         <div className="space-y-6">
           {/* Logo with Pro Tag */}
           <div className="px-2 pt-2 space-y-1">

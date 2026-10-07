@@ -136,7 +136,7 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-[#f4f7f5] dark:bg-black text-[#103d34] dark:text-[#e6f4f1] flex transition-colors duration-300">
+    <div className="h-screen overflow-hidden bg-[#f4f7f5] dark:bg-black text-[#103d34] dark:text-[#e6f4f1] flex transition-colors duration-300">
       {/* Toast Alert popup */}
       {toastMessage && (
         <div className="fixed top-6 right-6 z-50 p-4 bg-[#134e43] dark:bg-emerald-600 text-white text-xs sm:text-sm font-semibold rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-3">
@@ -146,7 +146,7 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
       )}
 
       {/* LEFT SIDEBAR matching image.png */}
-      <aside className="w-64 xl:w-72 bg-[#123830] dark:bg-[#070707] text-white flex-shrink-0 hidden md:flex flex-col justify-between p-5 border-r border-[#194c41]/50 dark:border-white/10 transition-colors">
+      <aside className="w-64 xl:w-72 h-full overflow-y-auto bg-[#123830] dark:bg-[#070707] text-white flex-shrink-0 hidden md:flex flex-col justify-between p-5 border-r border-[#194c41]/50 dark:border-white/10 transition-colors">
         <div className="space-y-6">
           {/* Brand Logo */}
           <div className="px-2 pt-2">
