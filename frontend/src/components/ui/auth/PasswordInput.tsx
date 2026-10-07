@@ -1,6 +1,9 @@
-import { Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { Eye, EyeOff, Lock } from "lucide-react";
+import { useId, useState } from "react";
 
+/* Champ mot de passe de la maquette : contrôle bordé (rayon 10px) avec
+   icône à gauche, texte sans bordure à l'intérieur et œil à droite.
+   Utilisé uniquement par Login et Signup. */
 export function PasswordInput({
   label,
   value,
@@ -13,14 +16,22 @@ export function PasswordInput({
   placeholder: string;
 }) {
   const [show, setShow] = useState(false);
+  const id = useId();
 
   return (
-    <div className="form-group">
-      <label className="text-sm font-medium text-primary">{label}</label>
-      <div className="relative">
+    <div className="flex flex-col gap-1.5">
+      <label
+        htmlFor={id}
+        className="text-[12px] font-medium text-muted-foreground"
+      >
+        {label}
+      </label>
+      <div className="flex items-center gap-2.5 rounded-[10px] border border-gris bg-white px-3 transition focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(27,94,82,0.12)]">
+        <Lock className="h-4 w-4 shrink-0 text-[#8a938f]" aria-hidden="true" />
         <input
+          id={id}
           type={show ? "text" : "password"}
-          className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 pr-12 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
+          className="min-w-0 flex-1 border-0 bg-transparent px-0 py-2 text-[13px] text-anthracite outline-none placeholder:text-[#8a938f]"
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -28,10 +39,10 @@ export function PasswordInput({
         <button
           type="button"
           onClick={() => setShow(!show)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition"
+          className="shrink-0 text-[#8a938f] transition hover:text-primary"
           tabIndex={-1}
         >
-          {show ? <EyeOff size={18} /> : <Eye size={18} />}
+          {show ? <EyeOff size={16} /> : <Eye size={16} />}
         </button>
       </div>
     </div>

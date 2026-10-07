@@ -27,7 +27,7 @@ type Dossier = {
   taille_naissance: string | null;
   statut_vital: string;
   numero_dossier: string | null;
-  parents: Parent[];
+  parents?: Parent[];
 };
 const LIENS: Record<string, string> = {
   mere: 'Mère',
@@ -61,8 +61,10 @@ export default function DossierEnfant() {
   const [dossier, setDossier] =
     useState<Dossier | null>(null);
   const [chargement, setChargement] =
-    useState(true);
-  const [erreur, setErreur] = useState('');
+    useState<boolean>(() => !id);
+  const [erreur, setErreur] = useState(() =>
+    id ? '' : 'Identifiant du dossier manquant.'
+  );
   const [nonConnecte, setNonConnecte] =
     useState(false);
   useEffect(() => {
@@ -194,12 +196,12 @@ export default function DossierEnfant() {
             <h2 className="bb-titre-section">
               Parents
             </h2>
-            {dossier.parents.length === 0 && (
+            {(dossier.parents ?? []).length === 0 && (
               <p className="bb-aide">
                 Aucun parent enregistré.
               </p>
             )}
-            {dossier.parents.map(
+            {(dossier.parents ?? []).map(
               (parent) => (
                 <div
                   key={parent.id}

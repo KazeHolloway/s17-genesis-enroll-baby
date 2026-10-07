@@ -18,6 +18,7 @@ import declarationRoute from './routes/declarationRoute.js';
 import certificatRoute from './routes/certificatRoute.js';
 import rendezVousRoute from './routes/rendezVousRoute.js';
 import etablissementRoute from './routes/etablissementRoute.js';
+import agentRoute from './routes/agentRoute.js';
 
 dotenv.config();
 const app = express();
@@ -47,6 +48,8 @@ app.use('/api/declarations', declarationRoute);
 app.use('/api/certificats', certificatRoute);
 app.use('/api/rendez-vous', rendezVousRoute)
 app.use('/api/etablissements', etablissementRoute);
+// Console super admin : comptes agents et administrateurs
+app.use('/api/agents', agentRoute);
 
 // --- Route de test de santé (Health check) ---
 app.get('/api/health', (req, res) => {

@@ -1,60 +1,263 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   AlertTriangle,
   ArrowRight,
   Baby,
   Clock,
-  FileWarning,
   FolderOpen,
   Syringe,
+  Users,
   UserRoundPlus,
 } from "lucide-react";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import StatCard from "@/components/dashboard/StatCard";
 import { cn } from "@/lib/utils";
 import {
-  agentIncompleteRecordsMock,
-  agentPendingVaccinationsMock,
-  agentProfileMock,
-  agentRecentEntriesMock,
-  agentRecordsMock,
-  agentStatsMock,
-} from "@/lib/dashboard/mockAgentData";
+  ApiError,
+  getCalendrierVaccinal,
+  getDossiers,
+  getEnfantDetail,
+  getEnfants,
+  getStatistiques,
+  type DossierAgent,
+  type EnfantAgent,
+  type Echeance,
+} from "@/services/api";
 import type { LucideIcon } from "lucide-react";
-import type { NewbornRecord, RecordStatus } from "@/lib/dashboard/types";
+import type {
+  NewbornRecord,
+  PendingVaccination,
+  RecordStatus,
+} from "@/lib/dashboard/types";
 
-/** Icone associee a chaque compteur, alignee sur l'ordre de `agentStatsMock`. */
-const statIcons: LucideIcon[] = [Baby, Clock, Syringe, FileWarning];
+interface Compteur {
+  id: string;
+  label: string;
+  value: number;
+  hint: string;
+  icone: LucideIcon;
+  to?: string;
+}
+
+interface LigneRecente {
+  id: string;
+  babyName: string;
+  enregistreLe: string;
+}
+
+interface EcheanceEnfant extends Echeance {
+  enfant: EnfantAgent;
+}
+
+/** `AAAA-MM-JJ` (ou ISO complet) → `JJ/MM/AAAA`. */
+function formaterDate(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleDateString("fr-FR");
+}
+
+function plural(nombre: number): string {
+  return nombre > 1 ? "s" : "";
+}
 
 /**
- * Accueil du dashboard Agent de maternité.
- *
- * Reprend la maquette de référence : quatre compteurs, un bandeau d'alerte
- * ambre, puis le registre des dernières déclarations. La page de déclaration
- * de naissance reste un placeholder : ce lot livre la coquille et l'accueil.
+ * Accueil du dashboard Agent de maternité, branché sur l'API :
+ *  - compteurs dérivés de `GET /api/statistiques` et `GET /api/dossiers` ;
+ *  - échéances vaccinales à suivre issues des calendriers des derniers dossiers ;
+ *  - registre des dernières déclarations réel du service de maternité.
  */
 export default function AgentDashboard() {
-  const agent = agentProfileMock;
-  const records = agentRecordsMock;
-  const incomplete = agentIncompleteRecordsMock;
-  const pendingVaccinations = agentPendingVaccinationsMock;
-  const recentEntries = agentRecentEntriesMock;
+  const [enfants, setEnfants] = useState<EnfantAgent[]>([]);
+  const [dossiers, setDossiers] = useState<DossierAgent[]>([]);
+  const [echeances, setEcheances] = useState<EcheanceEnfant[]>([]);
+  const [parentsParEnfant, setParentsParEnfant] = useState<Map<number, string>>(
+    new Map(),
+  );
+  const [totaux, setTotaux] = useState<{
+    naissances: number;
+    garcons: number;
+    filles: number;
+  } | null>(null);
+  const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState("");
+
+  useEffect(() => {
+    let ignore = false;
+    const fin = new Date().toISOString().slice(0, 10);
+    const debut = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+
+    async function charger() {
+      try {
+        const [listeEnfants, reponseDossiers, stats] = await Promise.all([
+          getEnfants(),
+          getDossiers(),
+          getStatistiques(debut, fin),
+        ]);
+
+        const recents = listeEnfants.slice(0, 6);
+        const calendriers = await Promise.all(
+          recents.map((enfant) =>
+            getCalendrierVaccinal(enfant.id)
+              .then((reponse) =>
+                reponse.data.echeances.map((echeance) => ({
+                  ...echeance,
+                  enfant,
+                })),
+              )
+              .catch(() => [] as EcheanceEnfant[]),
+          ),
+        );
+
+        const parents = await Promise.all(
+          recents.map((enfant) =>
+            getEnfantDetail(enfant.id)
+              .then((detail) => {
+                const parent = detail.parents[0];
+                if (!parent) return [enfant.id, "—"] as const;
+                return [enfant.id, `${parent.prenom} ${parent.nom}`] as const;
+              })
+              .catch(() => [enfant.id, "—"] as const),
+          ),
+        );
+
+        if (ignore) return;
+        setEnfants(listeEnfants);
+        setDossiers(reponseDossiers.data);
+        setEcheances(calendriers.flat());
+        setParentsParEnfant(new Map(parents));
+        setTotaux({
+          naissances: stats.data.total.naissances,
+          garcons: stats.data.total.garcons,
+          filles: stats.data.total.filles,
+        });
+        setChargement(false);
+      } catch (e: unknown) {
+        if (ignore) return;
+        setErreur(
+          e instanceof ApiError
+            ? e.message
+            : "Impossible de charger le tableau de bord.",
+        );
+        setChargement(false);
+      }
+    }
+
+    void charger();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  /* ---------- Données dérivées ---------- */
+
+  const aSuivre = echeances
+    .filter((echeance) => echeance.statut !== "effectue")
+    .sort(
+      (a, b) =>
+        new Date(a.date_prevue).getTime() - new Date(b.date_prevue).getTime(),
+    );
+
+  const pendingVaccinations: PendingVaccination[] = aSuivre
+    .slice(0, 6)
+    .map((echeance) => ({
+      id: `vac-${echeance.calendrier_id}`,
+      babyName: `${echeance.enfant.prenom} ${echeance.enfant.nom}`,
+      vaccineName: `${echeance.vaccin_nom} ${echeance.dose_numero}`,
+      dueDate: formaterDate(echeance.date_prevue),
+      overdueDays: echeance.jours_restants < 0 ? -echeance.jours_restants : 0,
+    }));
+
+  const enfantParId = new Map(enfants.map((e) => [e.id, e]));
+
+  const records: NewbornRecord[] = dossiers.slice(0, 6).map((dossier) => {
+    const enfant = enfantParId.get(dossier.enfant_id);
+    return {
+      id: `dossier-${dossier.id}`,
+      recordNumber: dossier.numero_dossier,
+      babyName: `${dossier.enfant_prenom} ${dossier.enfant_nom}`,
+      parentName: parentsParEnfant.get(dossier.enfant_id) ?? "—",
+      birthDate: enfant ? formaterDate(enfant.date_naissance) : "—",
+      status: "actif" as RecordStatus,
+      statusLabel: dossier.statut === "actif" ? "Dossier actif" : "Archivé",
+    };
+  });
+
+  const recentEntries: LigneRecente[] = enfants.slice(0, 5).map((enfant) => ({
+    id: `entree-${enfant.id}`,
+    babyName: `${enfant.prenom} ${enfant.nom}`,
+    enregistreLe: new Date(enfant.created_at).toLocaleString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+  }));
+
+  const compteurs: Compteur[] = [
+    {
+      id: "stat-nouveaux-nes",
+      label: "Nouveau-nés enregistrés",
+      value: totaux?.naissances ?? 0,
+      hint: "Sur les 30 derniers jours",
+      icone: Baby,
+    },
+    {
+      id: "stat-dossiers",
+      label: "Dossiers au registre",
+      value: dossiers.length,
+      hint: "Dossiers du service de maternité",
+      icone: FolderOpen,
+    },
+    {
+      id: "stat-filles-garcons",
+      label: "Naissances de filles",
+      value: totaux?.filles ?? 0,
+      hint: `Garçons : ${totaux?.garcons ?? 0} · 30 derniers jours`,
+      icone: Users,
+    },
+    {
+      id: "stat-vaccinations",
+      label: "Vaccinations à suivre",
+      value: aSuivre.length,
+      hint: "Échéances à venir ou en retard",
+      icone: Syringe,
+      to: "/agent/statuts",
+    },
+  ];
+
+  /* ---------- Rendu ---------- */
+
+  if (chargement) {
+    return (
+      <p className="text-sm text-[var(--app-muted)]" role="status">
+        Chargement du tableau de bord…
+      </p>
+    );
+  }
+
+  if (erreur) {
+    return (
+      <div className="app-card p-6" role="alert">
+        <p className="text-sm text-[var(--app-muted)]">{erreur}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* ---------- Compteurs ---------- */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
-        {agentStatsMock.map((stat, index) => (
+        {compteurs.map((stat) => (
           <StatCard
             key={stat.id}
             label={stat.label}
             value={stat.value}
             hint={stat.hint}
-            trend={stat.trend}
-            icon={statIcons[index] ?? Baby}
-            /* La carte « Vaccinations a suivre » est le raccourci vers la
-               confirmation des statuts : c'est la tache principale de l'agent. */
-            to={stat.id === "stat-vaccinations" ? "/agent/statuts" : undefined}
+            icon={stat.icone}
+            to={stat.to}
           />
         ))}
       </div>
@@ -67,13 +270,11 @@ export default function AgentDashboard() {
           </div>
           <div>
             <h4 className="app-alert-title">
-              {incomplete.length} dossier{plural(incomplete.length)} incomplet
-              {plural(incomplete.length)} et {pendingVaccinations.length} vaccination
-              {plural(pendingVaccinations.length)} à suivre
+              {aSuivre.length} vaccination{plural(aSuivre.length)} à suivre
             </h4>
             <p className="app-alert-text mt-0.5">
-              Documents manquants à régulariser et échéances de la semaine à
-              relancer auprès des familles.
+              Échéances à venir ou en retard à confirmer et à relancer auprès
+              des familles.
             </p>
           </div>
         </div>
@@ -89,12 +290,12 @@ export default function AgentDashboard() {
             to="/agent/dossiers"
             className="flex min-h-11 items-center justify-center whitespace-nowrap rounded-xl bg-amber-600 px-3.5 py-2.5 text-xs font-bold text-white transition-colors hover:bg-amber-700 sm:py-1.5"
           >
-            Voir les dossiers urgents
+            Voir le registre
           </Link>
         </div>
       </div>
 
-      {/* ---------- Actions principales ---------- */}
+      {/* ---------- Action principale ---------- */}
       <div className="app-card flex flex-col items-center gap-4 p-4 sm:flex-row sm:justify-between sm:p-5">
         <div className="flex w-full min-w-0 items-center gap-3 sm:w-auto">
           <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--app-brand)] text-white">
@@ -105,7 +306,8 @@ export default function AgentDashboard() {
               Enregistrer une nouvelle naissance
             </h4>
             <p className="truncate text-xs text-[var(--app-muted)]">
-              Session de {agent.firstName} {agent.lastName} · {agent.facility}
+              Le code d’accès est généré et remis aux parents à la fin du
+              formulaire.
             </p>
           </div>
         </div>
@@ -120,15 +322,14 @@ export default function AgentDashboard() {
       </div>
 
       {/* ---------- Registre des dernières déclarations ---------- */}
-      <DashboardCard label="Registre des naissances" className="overflow-hidden p-0">
+      <DashboardCard label="Registre enfants" className="overflow-hidden p-0">
         <div className="flex flex-col items-start justify-between gap-3 p-6 sm:flex-row sm:items-center">
           <div>
             <h3 className="text-base font-bold text-[var(--app-heading)]">
               Dernières déclarations enregistrées
             </h3>
             <p className="mt-0.5 text-xs text-[var(--app-faint)]">
-              {agent.facility} · registre synchronisé avec le service de
-              maternité.
+              Registre synchronisé avec le service de maternité.
             </p>
           </div>
 
@@ -138,11 +339,6 @@ export default function AgentDashboard() {
           </Link>
         </div>
 
-        {/* Mobile : cartes interactives. Initiales, référence maternité, contact
-            parent et bouton « Examiner » tactile (48px).
-            L'autel existe aussi dans les données mais la photo n'est pas
-            retenue ici : aucune photo de nouveau-né n'est fournie, et une
-            initiales est preferable a un conteneur vide. */}
         <ul className="flex flex-col gap-3 border-t border-[var(--app-border-soft)] pt-4 lg:hidden">
           {records.map((record) => (
             <li key={record.id}>
@@ -151,16 +347,13 @@ export default function AgentDashboard() {
           ))}
         </ul>
 
-        {/* `lg` et non `sm` : à 640px, 6 colonnes ne tiennent pas sans
-            défile ment horizontal, ce que l'utilisateur ne voit pas venir.
-            La liste empilée ci-dessus prend le relais jusqu'à 1024px. */}
         <div className="hidden overflow-x-auto lg:block">
           <table className="app-table">
             <thead>
               <tr>
                 <th>Enfant</th>
                 <th>Date de naissance</th>
-                <th>Réf. maternité</th>
+                <th>Réf. dossier</th>
                 <th>Parent</th>
                 <th>Statut</th>
                 <th className="text-right">Action</th>
@@ -204,55 +397,24 @@ export default function AgentDashboard() {
         </div>
       </DashboardCard>
 
-      {/* ---------- Dossiers incomplets + activité récente ---------- */}
+      {/* ---------- Vaccinations à suivre + derniers enregistrements ---------- */}
       <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
-        <DashboardCard label="Dossiers incomplets">
+        <DashboardCard label="Vaccinations à suivre">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-base font-bold text-[var(--app-heading)]">
-              À régulariser
+              Échéances en attente
             </h3>
             <span className="app-chip">
-              {incomplete.length} dossier{plural(incomplete.length)}
+              {aSuivre.length} échéance{plural(aSuivre.length)}
             </span>
           </div>
 
           <ul className="mt-4 space-y-2">
-            {incomplete.map((record) => (
-              <li
-                key={record.id}
-                className="flex items-start gap-3 rounded-xl border border-[var(--app-border-soft)] p-3"
-              >
-                <span className="app-icon-tile">
-                  <FileWarning className="size-4" aria-hidden="true" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-[var(--app-heading)]">
-                    {record.babyName}
-                  </p>
-                  <p className="mt-0.5 text-xs text-[var(--app-muted)]">
-                    {record.statusLabel}
-                  </p>
-                  <p className="mt-1 font-mono text-[0.625rem] text-[var(--app-faint)]">
-                    {record.recordNumber}
-                  </p>
-                </div>
+            {pendingVaccinations.length === 0 && (
+              <li className="rounded-xl border border-dashed border-[var(--app-border-soft)] p-4 text-center text-xs text-[var(--app-muted)]">
+                Aucune échéance sur les derniers dossiers.
               </li>
-            ))}
-          </ul>
-        </DashboardCard>
-
-        <DashboardCard label="Activité récente">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="text-base font-bold text-[var(--app-heading)]">
-              Vaccinations à suivre
-            </h3>
-            <span className="app-chip">
-              {pendingVaccinations.length} échéance
-              {plural(pendingVaccinations.length)}
-            </span>
-          </div>
-
-          <ul className="mt-4 space-y-2">
+            )}
             {pendingVaccinations.map((item) => (
               <li
                 key={item.id}
@@ -274,7 +436,7 @@ export default function AgentDashboard() {
                       : "bg-[var(--app-sage-soft)] text-[var(--app-emerald)]",
                   )}
                 >
-                  {item.overdueDays > 0 ? `+${item.overdueDays} j` : "À jour"}
+                  {item.overdueDays > 0 ? `+${item.overdueDays} j` : "À venir"}
                 </span>
               </li>
             ))}
@@ -290,28 +452,39 @@ export default function AgentDashboard() {
               <span>Registre complet</span>
             </Link>
           </div>
+        </DashboardCard>
 
-          {/* Derniers enregistrements, repliés pour garder la carte lisible. */}
-          <details className="mt-4 border-t border-[var(--app-border-soft)] pt-4">
-            <summary className="cursor-pointer text-xs font-semibold text-[var(--app-muted)]">
-              Voir les {recentEntries.length} derniers enregistrements
-            </summary>
-            <ul className="mt-3 space-y-2">
-              {recentEntries.map((entry) => (
-                <li
-                  key={entry.id}
-                  className="flex items-center justify-between gap-3 text-xs"
-                >
-                  <span className="truncate font-medium text-[var(--app-heading)]">
-                    {entry.babyName}
-                  </span>
-                  <span className="shrink-0 text-[var(--app-faint)]">
-                    {entry.recordedAt}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </details>
+        <DashboardCard label="Activité récente">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-base font-bold text-[var(--app-heading)]">
+              Derniers enregistrements
+            </h3>
+            <span className="app-chip">
+              {recentEntries.length} entrée{plural(recentEntries.length)}
+            </span>
+          </div>
+
+          <ul className="mt-4 space-y-2">
+            {recentEntries.length === 0 && (
+              <li className="rounded-xl border border-dashed border-[var(--app-border-soft)] p-4 text-center text-xs text-[var(--app-muted)]">
+                Aucun enregistrement pour l’instant.
+              </li>
+            )}
+            {recentEntries.map((entry) => (
+              <li
+                key={entry.id}
+                className="flex items-center justify-between gap-3 rounded-xl border border-[var(--app-border-soft)] p-3 text-sm"
+              >
+                <span className="truncate font-medium text-[var(--app-heading)]">
+                  {entry.babyName}
+                </span>
+                <span className="flex shrink-0 items-center gap-1.5 text-xs text-[var(--app-faint)]">
+                  <Clock className="size-3.5" aria-hidden="true" />
+                  {entry.enregistreLe}
+                </span>
+              </li>
+            ))}
+          </ul>
         </DashboardCard>
       </div>
     </div>
@@ -322,14 +495,15 @@ export default function AgentDashboard() {
 
 const statusStyles: Record<RecordStatus, string> = {
   complet: "bg-[var(--app-sage-soft)] text-[var(--app-emerald)]",
-  "a-valider": "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+  "a-valider":
+    "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
   incomplet: "bg-[var(--app-action)] text-white",
 };
 
 const statusLabels: Record<RecordStatus, string> = {
-  complet: "Dossier complet",
+  complet: "Dossier actif",
   "a-valider": "À valider",
-  incomplet: "Incomplet",
+  incomplet: "Archivé",
 };
 
 function StatusBadge({ status }: { status: RecordStatus }) {
@@ -347,11 +521,6 @@ function StatusBadge({ status }: { status: RecordStatus }) {
 
 /* ---------- Vue mobile du registre ---------- */
 
-/**
- * Carte de dossier, affichée à la place du tableau sous 1024px.
- * Toute la carte est cliquable et se termine par une action explicite : le
- * tableau masque cette colonne sous le pli du défilement horizontal.
- */
 function MobileRecordCard({ record }: { record: NewbornRecord }) {
   return (
     <Link
@@ -399,9 +568,6 @@ function MobileRecordCard({ record }: { record: NewbornRecord }) {
   );
 }
 
-/* ---------- Accords de pluriel francais ---------- */
-
-/** Initiales d'un nom d'enfant, pour les avatars de la vue mobile. */
 function initialsOf(name: string): string {
   return name
     .split(" ")
@@ -409,8 +575,4 @@ function initialsOf(name: string): string {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
-}
-
-function plural(count: number): string {
-  return count > 1 ? "s" : "";
 }

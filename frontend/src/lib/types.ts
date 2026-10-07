@@ -32,14 +32,6 @@ export type EnregistrementBaby = {
     parents: dataParent[];
 };
 
-/* ---------- Compte à rebours de déclaration (J+30) ---------- */
-
-export type CountdownDeclaration = {
-  statut: "en_cours" | "delai_expire" | "declaree";
-  jours_restants: number;
-  message: string;
-};
-
 /* ---------- Bouton générique (landing) ---------- */
 
 export interface CustomButtonProps {
@@ -48,3 +40,9 @@ export interface CustomButtonProps {
   handleClick?: MouseEventHandler<HTMLButtonElement>;
   btnType?: "button" | "submit";
 }
+
+export type CountdownDeclaration = {
+  statut: "en_cours" | "delai_expire" | "declaree";
+  jours_restants: number;
+  message: string;
+};
