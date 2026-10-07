@@ -1,4 +1,8 @@
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000';
+const API_URL =
+  import.meta.env.VITE_API_URL ??
+  (import.meta.env.PROD
+    ? 'https://s17-genesis-enroll-baby.onrender.com'
+    : 'http://localhost:5000');
 
 // Erreur spéciale : l'utilisateur n'est pas connecté (ou le token a expiré)
 export class NonConnecteError extends Error {}

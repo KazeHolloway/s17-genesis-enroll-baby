@@ -15,9 +15,12 @@
 
 import type { CountdownDeclaration } from "@/lib/types";
 
-const API_URL = import.meta.env.PROD
-  ? "https://s17-genesis-enroll-baby.onrender.com/api"
-  : "http://localhost:5000/api";
+const RACINE_API =
+  import.meta.env.VITE_API_URL ??
+  (import.meta.env.PROD
+    ? "https://s17-genesis-enroll-baby.onrender.com"
+    : "http://localhost:5000");
+const API_URL = `${RACINE_API}/api`;
 
 const TOKEN_KEY = "enroll_baby_token";
 
