@@ -70,6 +70,10 @@ CREATE TABLE public.utilisateurs (
     mot_de_passe_hash VARCHAR(255) NOT NULL,
     role public.role_utilisateur DEFAULT 'parent'::public.role_utilisateur NOT NULL,
     etablissement_id INT REFERENCES public.etablissements(id) ON DELETE SET NULL,
+    -- Console super admin : identifiant professionnel et libellé du rôle affiché
+    -- (la colonne `role` porte l'autorisation, `metier` porte le libellé)
+    matricule VARCHAR(30) UNIQUE,
+    metier VARCHAR(60),
     actif BOOLEAN DEFAULT true NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT now() NOT NULL,

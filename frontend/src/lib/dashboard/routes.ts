@@ -10,5 +10,8 @@ import type { Utilisateur } from "@/services/api";
  */
 export function routePourRole(role: Utilisateur["role"]): string {
   if (role === "parent") return "/parent/dashboard";
+  /* L'admin dispose de sa propre console (`AdminDashboard`) : troisième
+     branche prévue par le commentaire ci-dessus. */
+  if (role === "admin") return "/admin/dashboard";
   return "/agent/dashboard";
 }

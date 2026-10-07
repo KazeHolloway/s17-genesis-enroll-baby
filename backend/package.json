@@ -8,6 +8,7 @@
     "start": "node src/server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "migrate": "node src/database/migrate.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "keywords": [],

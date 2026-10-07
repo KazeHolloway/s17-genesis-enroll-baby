@@ -104,6 +104,13 @@ export interface AgentUser {
   etablissement: string;
   matricule: string;
   ville: string;
+  /** Champs de la console super admin (aucun équivalent API). */
+  id?: string;
+  email?: string;
+  telephone?: string;
+  service?: string;
+  actif?: boolean;
+  dateCreation?: string;
 }
 
 /** Indicateurs calculés depuis `GET /api/statistiques` et le registre agent. */

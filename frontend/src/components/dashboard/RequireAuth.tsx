@@ -16,7 +16,7 @@ export default function RequireAuth({
   role,
   children,
 }: {
-  role?: "parent" | "agent_maternite";
+  role?: "parent" | "agent_maternite" | "admin";
   children: ReactNode;
 }) {
   const { utilisateur, chargement } = useAuth();
@@ -41,8 +41,10 @@ export default function RequireAuth({
     role === undefined ||
     (role === "parent"
       ? utilisateur.role === "parent"
-      : utilisateur.role === "agent_maternite" ||
-        utilisateur.role === "admin");
+      : role === "admin"
+        ? utilisateur.role === "admin"
+        : utilisateur.role === "agent_maternite" ||
+          utilisateur.role === "admin");
 
   if (!autorise) {
     return <Navigate to={routePourRole(utilisateur.role)} replace />;

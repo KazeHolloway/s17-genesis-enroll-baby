@@ -15,6 +15,7 @@ import AgentLayout from "./layouts/AgentLayout";
 
 import DashboardParentMode from "./pages/dashboard/DashboardParentMode";
 import DashboardAgentMode from "./pages/dashboard/DashboardAgentMode";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 
 import ParentChildren from "./pages/parent/ParentChildren";
 import ParentChildDetail from "./pages/parent/ParentChildDetail";
@@ -90,6 +91,16 @@ function App() {
         element={
           <RequireAuth role="agent_maternite">
             <DashboardAgentMode />
+          </RequireAuth>
+        }
+      />
+
+      {/* Console super admin : gestion des comptes agents */}
+      <Route
+        path="/admin/dashboard"
+        element={
+          <RequireAuth role="admin">
+            <AdminDashboardPage />
           </RequireAuth>
         }
       />
