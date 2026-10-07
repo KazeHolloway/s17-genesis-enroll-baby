@@ -23,6 +23,9 @@ import agentRoute from './routes/agentRoute.js';
 dotenv.config();
 const app = express();
 
+// Derrière le proxy de Render, on fait confiance au premier proxy pour lire la vraie adresse du client
+app.set('trust proxy', 1);
+
 // --- Middlewares globaux ---
 app.use(cors()); // Autorise les requêtes cross-origin (depuis le front-end)
 app.use(express.json()); // Permet de lire le corps des requêtes en JSON

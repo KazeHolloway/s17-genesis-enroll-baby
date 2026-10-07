@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useAuth } from '@/contexts/useAuth';
 import {
   getData,
   NonConnecteError,
@@ -56,6 +57,7 @@ function Ligne({
 }
 export default function DossierEnfant() {
   const { id } = useParams();
+  const { utilisateur } = useAuth();
   const [dossier, setDossier] =
     useState<Dossier | null>(null);
   const [chargement, setChargement] =
@@ -69,6 +71,7 @@ export default function DossierEnfant() {
     if (!id) {
       return;
     }
+
     getData<Dossier>(`/api/enfants/${id}`)
       .then(setDossier)
       .catch((e: unknown) => {
@@ -90,7 +93,11 @@ export default function DossierEnfant() {
     <main className="bb-page">
       <section className="bb-carte">
         <Link
-          to="/agent/dossiers"
+          to={
+            utilisateur?.role === 'parent'
+              ? '/parent/enfants'
+              : '/agent/dossiers'
+          }
           className="bb-retour"
         >
           ← Retour à la liste
