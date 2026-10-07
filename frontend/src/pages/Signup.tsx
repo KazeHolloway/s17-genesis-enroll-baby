@@ -1,10 +1,31 @@
 import CustomButton from "../components/ui/CustomButton";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  KeyRound,
+  Mail,
+  Smartphone,
+  User,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthForm } from "../hooks/useAuthForm";
 import { PasswordInput } from "../components/ui/auth/PasswordInput";
 import { inscriptionParent, ApiError } from "../services/api";
 import logo from "../assets/logo.png";
+import visuel from "../assets/hero-maternity.jpg";
+
+/* Palette verte de l'application, scopée sur la section (les utilitaires
+   Tailwind compilent en `var(--color-*)`). */
+const PALETTE = {
+  ["--color-primary" as string]: "#1b5e52",
+  ["--color-secondary" as string]: "#d2e7dc",
+} as React.CSSProperties;
+
+const champ =
+  "min-w-0 flex-1 border-0 bg-transparent px-0 py-2 text-[13px] text-anthracite outline-none placeholder:text-[#8a938f]";
+const controle =
+  "flex items-center gap-2 rounded-[10px] border border-gris bg-white px-2.5 transition focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(27,94,82,0.12)]";
+const etiquette = "text-[12px] font-medium text-muted-foreground";
 
 const Signup = () => {
   const {
@@ -86,172 +107,198 @@ const Signup = () => {
   };
 
   return (
-    <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#faf9f5] p-4">
-      {/* Décor végétal — coin supérieur droit (pure illustration, non cliquable) */}
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 200 200"
-        fill="none"
-        className="pointer-events-none absolute -top-10 -right-10 h-56 w-56 text-[#1b5e52] opacity-[0.13]"
-      >
-        <path
-          d="M196 4C150 28 118 66 104 118"
-          stroke="currentColor"
-          strokeWidth="4"
-          strokeLinecap="round"
-        />
-        <path d="M170 24c-20 4-33 20-33 40 22 0 38-18 33-40z" fill="currentColor" />
-        <path d="M131 61c-19 6-30 23-28 43 21-2 35-21 28-43z" fill="currentColor" />
-        <path d="M186 64c-17 9-25 27-21 46 20-5 31-26 21-46z" fill="currentColor" />
-        <path d="M110 104c-17 9-25 27-21 46 20-5 31-26 21-46z" fill="currentColor" />
-      </svg>
-
-      {/* Retour à la landing. `fixed` et non `absolute` : le parent est un
-          conteneur `flex` sans hauteur propre, un lien en absolute se
-          positionnerait par rapport à la page entière et disparaissait au
-          défilement sur mobile. */}
-      <div className="relative w-full max-w-[440px] rounded-[28px] border border-[#144c42]/10 bg-white p-6 sm:p-8 shadow-[0_20px_60px_-30px_rgba(16,61,52,0.45)]">
-        {/* Retour à la landing, ancré dans la carte (même placement que Login). */}
+    /* Fond photo + dégradé vert sur toute la page : le formulaire compact est
+       entièrement visible dès l'arrivée, sans défilement. */
+    <section
+      style={
+        {
+          backgroundImage: `linear-gradient(160deg, rgba(16, 61, 52, 0.85), rgba(27, 94, 82, 0.55)), url(${visuel})`,
+          ...PALETTE,
+        } as React.CSSProperties
+      }
+      className="flex min-h-screen w-full items-center justify-center bg-cover bg-center p-4"
+    >
+      <div className="w-full max-w-[400px]">
         <Link
           to="/"
-          className="mb-5 inline-flex w-fit min-h-[36px] items-center gap-1.5 rounded-full border border-primary/15 bg-white px-3 py-1.5 text-xs font-semibold text-primary btn-interaction hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="mb-3 inline-flex min-h-[30px] w-fit items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold text-white btn-interaction hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
         >
           <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
           Retour
         </Link>
 
-        <img src={logo} alt="Enroll Baby" className="mb-6 h-12 w-auto" />
+        <article className="rounded-2xl border border-gris bg-white p-5 shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
+          {/* Header compact */}
+          <header className="mb-4 text-center">
+            <img
+              src={logo}
+              alt="Logo Enroll Baby"
+              className="mx-auto mb-1.5 h-auto w-14 object-contain"
+            />
+            <h1 className="text-lg font-bold text-primary">
+              Créer un compte
+            </h1>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Recevez les rappels de vaccination de votre enfant
+            </p>
+          </header>
 
-        {/* Header */}
-        <header className="text-left">
-          <h1 className="headline-xl-mobile md:headline-xl text-primary">
-            Créer un compte
-          </h1>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Pour accéder à votre espace personnel et recevoir les rappels de
-            vaccination
+          <form className="flex flex-col gap-2.5" onSubmit={handleSubmit}>
+            {/* 2 colonnes pour tout afficher sans défilement */}
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="col-span-2 flex flex-col gap-1">
+                <label htmlFor="nom-complet" className={etiquette}>
+                  Nom complet
+                </label>
+                <div className={controle}>
+                  <User
+                    className="h-4 w-4 shrink-0 text-[#8a938f]"
+                    aria-hidden="true"
+                  />
+                  <input
+                    id="nom-complet"
+                    type="text"
+                    autoComplete="name"
+                    className={champ}
+                    placeholder="Votre nom et prénom"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* L'API authentifie sur le téléphone : un champ `type="email"`
+                  rejetait le format `+24206...` avant même l'envoi. */}
+              <div className="flex flex-col gap-1">
+                <label htmlFor="telephone" className={etiquette}>
+                  Téléphone
+                </label>
+                <div className={controle}>
+                  <Smartphone
+                    className="h-4 w-4 shrink-0 text-[#8a938f]"
+                    aria-hidden="true"
+                  />
+                  <input
+                    id="telephone"
+                    type="tel"
+                    autoComplete="tel"
+                    className={champ}
+                    placeholder="+242 06 00 00 00"
+                    value={phone}
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="email" className={etiquette}>
+                  Email
+                </label>
+                <div className={controle}>
+                  <Mail
+                    className="h-4 w-4 shrink-0 text-[#8a938f]"
+                    aria-hidden="true"
+                  />
+                  <input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    className={champ}
+                    placeholder="Facultatif"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                    }}
+                  />
+                </div>
+              </div>
+
+              <PasswordInput
+                label="Mot de passe"
+                value={password}
+                onChange={setPassword}
+                placeholder="8 caractères min."
+              />
+
+              <PasswordInput
+                label="Confirmation"
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                placeholder="Confirmer"
+              />
+
+              {/* Le code d'accès est ce qui rattache le compte au dossier de
+                  l'enfant : sans lui, le backend refuse l'inscription. */}
+              <div className="col-span-2 flex flex-col gap-1">
+                <label htmlFor="code-acces" className={etiquette}>
+                  Code d'accès
+                </label>
+                <div className={controle}>
+                  <KeyRound
+                    className="h-4 w-4 shrink-0 text-[#8a938f]"
+                    aria-hidden="true"
+                  />
+                  <input
+                    id="code-acces"
+                    type="text"
+                    className={champ}
+                    placeholder="Code reçu de l'établissement"
+                    value={codeOtp}
+                    onChange={(e) => {
+                      setCodeOtp(e.target.value);
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Checkbox */}
+            <label className="inline-flex w-fit cursor-pointer select-none items-center gap-2 text-[12px] font-medium text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={cgu}
+                onChange={(e) => setCgu(e.target.checked)}
+                className="h-3.5 w-3.5 accent-primary"
+              />
+              J'accepte les conditions générales d'utilisation
+            </label>
+
+            <CustomButton
+              className="w-full py-2.5"
+              isLoading={isLoading}
+              icon={<ArrowRight />}
+              disabled={isLoading}
+            >
+              Créer mon compte
+            </CustomButton>
+
+            {message && (
+              <div
+                role="alert"
+                className="rounded-[10px] border border-[#E53935]/40 bg-[#FDECEA] px-3 py-2 text-[13px] text-[#E53935]"
+              >
+                {message}
+              </div>
+            )}
+          </form>
+
+          <p className="mt-3 rounded-[10px] bg-secondary p-2 text-center text-[11px] leading-relaxed text-muted-foreground">
+            Le code d'accès vous est remis par l'établissement.
           </p>
-        </header>
+        </article>
 
-        <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit}>
-          {/* Inputs */}
-          <div className="form-group">
-            <label htmlFor="nom-complet" className="text-sm font-medium text-primary">
-              Nom complet
-            </label>
-            <input
-              id="nom-complet"
-              type="text"
-              autoComplete="name"
-              className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
-              placeholder="Votre nom et prénom"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-              }}
-              required
-            />
-          </div>
-
-          {/* L'API authentifie sur le téléphone : un champ `type="email"`
-              rejetait le format `+24206...` avant même l'envoi. */}
-          <div className="form-group">
-            <label htmlFor="telephone" className="text-sm font-medium text-primary">
-              Numéro de téléphone
-            </label>
-            <input
-              id="telephone"
-              type="tel"
-              autoComplete="tel"
-              className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
-              placeholder="+242 06 00 00 00"
-              value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value);
-              }}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="email" className="text-sm font-medium text-primary">Email</label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
-              placeholder="Votre adresse mail (facultatif)"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-              }}
-            />
-          </div>
-
-          <PasswordInput
-            label="Mot de passe"
-            value={password}
-            onChange={setPassword}
-            placeholder="8 caractères minimum"
-          />
-
-          <PasswordInput
-            label="Confirmation mot de passe"
-            value={confirmPassword}
-            onChange={setConfirmPassword}
-            placeholder="Confirmer le mot de passe"
-          />
-
-          {/* Le code d'accès est ce qui rattache le compte au dossier de
-              l'enfant : sans lui, le backend refuse l'inscription. */}
-          <div className="form-group">
-            <label htmlFor="code-acces" className="text-sm font-medium text-primary">
-              Code d'accès
-            </label>
-            <input
-              id="code-acces"
-              type="text"
-              className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
-              placeholder="Code reçu de l'établissement"
-              value={codeOtp}
-              onChange={(e) => {
-                setCodeOtp(e.target.value);
-              }}
-              required
-            />
-          </div>
-
-          {/* Checkbox */}
-          <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={cgu}
-              onChange={(e) => setCgu(e.target.checked)}
-              className="h-4 w-4 rounded border-primary/30 text-primary focus:ring-primary/50"
-            />
-            J'accepte les conditions générales d'utilisation
-          </label>
-
-          <CustomButton
-            className="w-full py-3 mt-1"
-            isLoading={isLoading}
-            icon={<ArrowRight />}
-            disabled={isLoading}
-          >
-            Créer mon compte
-          </CustomButton>
-
-          <div className="text-accent rounded-xl p-2 font-semibold">
-            {message}
-          </div>
-        </form>
-
-        {/* Footer link */}
-        <p className="mt-6 text-center text-sm text-muted-foreground">
+        <p className="mt-3 text-center text-xs text-white/85">
           Déjà un compte ?{" "}
           <Link
             to="/login"
-            className="text-primary font-semibold hover:underline"
+            className="font-semibold text-white underline"
           >
             Se connecter
           </Link>

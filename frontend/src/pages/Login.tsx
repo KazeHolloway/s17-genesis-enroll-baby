@@ -1,5 +1,5 @@
 import CustomButton from "../components/ui/CustomButton";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthForm } from "../hooks/useAuthForm";
 import { PasswordInput } from "../components/ui/auth/PasswordInput";
@@ -7,6 +7,20 @@ import { useAuth } from "@/contexts/useAuth";
 import { routePourRole } from "@/lib/dashboard/routes";
 import { ApiError } from "@/services/api";
 import logo from "../assets/logo.png";
+import visuel from "../assets/hero-maternity.jpg";
+
+/* Palette verte de l'application, scopée sur la section (les utilitaires
+   Tailwind compilent en `var(--color-*)`). */
+const PALETTE = {
+  ["--color-primary" as string]: "#1b5e52",
+  ["--color-secondary" as string]: "#d2e7dc",
+} as React.CSSProperties;
+
+const champ =
+  "min-w-0 flex-1 border-0 bg-transparent px-0 py-2 text-[13px] text-anthracite outline-none placeholder:text-[#8a938f]";
+const controle =
+  "flex items-center gap-2 rounded-[10px] border border-gris bg-white px-2.5 transition focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(27,94,82,0.12)]";
+const etiquette = "text-[12px] font-medium text-muted-foreground";
 
 const Login = () => {
 const {
@@ -60,115 +74,112 @@ const {
     }
   };
   return (
-    <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#faf9f5] p-4">
-      {/* Décor végétal — coin supérieur droit (pure illustration, non cliquable) */}
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 200 200"
-        fill="none"
-        className="pointer-events-none absolute -top-10 -right-10 h-56 w-56 text-[#1b5e52] opacity-[0.13]"
-      >
-        <path
-          d="M196 4C150 28 118 66 104 118"
-          stroke="currentColor"
-          strokeWidth="4"
-          strokeLinecap="round"
-        />
-        <path d="M170 24c-20 4-33 20-33 40 22 0 38-18 33-40z" fill="currentColor" />
-        <path d="M131 61c-19 6-30 23-28 43 21-2 35-21 28-43z" fill="currentColor" />
-        <path d="M186 64c-17 9-25 27-21 46 20-5 31-26 21-46z" fill="currentColor" />
-        <path d="M110 104c-17 9-25 27-21 46 20-5 31-26 21-46z" fill="currentColor" />
-      </svg>
-
-      {/* Retour à la landing. `fixed` et non `absolute` : le parent est un
-          conteneur `flex` sans hauteur propre, un lien en absolute se
-          positionnerait par rapport à la page entière et disparaissait au
-          défilement sur mobile. */}
-      <div className="relative w-full max-w-[440px] rounded-[28px] border border-[#144c42]/10 bg-white p-6 sm:p-8 shadow-[0_20px_60px_-30px_rgba(16,61,52,0.45)]">
-        {/* Retour à la landing, ancré dans la carte : en `fixed`, il flottait
-            au-dessus du logo et sortait de la carte sur mobile. */}
+    /* Fond photo + dégradé vert sur toute la page : le formulaire compact est
+       entièrement visible dès l'arrivée, sans défilement. */
+    <section
+      style={
+        {
+          backgroundImage: `linear-gradient(160deg, rgba(16, 61, 52, 0.85), rgba(27, 94, 82, 0.55)), url(${visuel})`,
+          ...PALETTE,
+        } as React.CSSProperties
+      }
+      className="flex min-h-screen w-full items-center justify-center bg-cover bg-center p-4"
+    >
+      <div className="w-full max-w-[400px]">
         <Link
           to="/"
-          className="mb-5 inline-flex w-fit min-h-[36px] items-center gap-1.5 rounded-full border border-primary/15 bg-white px-3 py-1.5 text-xs font-semibold text-primary btn-interaction hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="mb-3 inline-flex min-h-[30px] w-fit items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold text-white btn-interaction hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
         >
           <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
           Retour
         </Link>
 
-        <img src={logo} alt="Enroll Baby" className="mb-6 h-12 w-auto" />
+        <article className="rounded-2xl border border-gris bg-white p-5 shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
+          {/* Header compact */}
+          <header className="mb-4 text-center">
+            <img
+              src={logo}
+              alt="Logo Enroll Baby"
+              className="mx-auto mb-1.5 h-auto w-14 object-contain"
+            />
+            <h1 className="text-lg font-bold text-primary">Se connecter</h1>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Recevez les rappels de vaccination de votre enfant
+            </p>
+          </header>
 
-        {/* Header */}
-        <header className="text-left">
-          <h1 className="headline-xl-mobile md:headline-xl text-primary">
-            Se connecter
-          </h1>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Pour accéder à votre espace personnel et recevoir les rappels de
-            vaccination
-          </p>
-        </header>
+          <form className="flex flex-col gap-2.5" onSubmit={handleSubmit}>
+            {/* L'API authentifie sur le téléphone (`POST /auth/login` attend
+                `telephone`) : le champ reste `type="tel"` malgré le libellé. */}
+            <div className="flex flex-col gap-1">
+              <label htmlFor="identifiant" className={etiquette}>
+                Email ou numéro de téléphone
+              </label>
+              <div className={controle}>
+                <User
+                  className="h-4 w-4 shrink-0 text-[#8a938f]"
+                  aria-hidden="true"
+                />
+                <input
+                  id="identifiant"
+                  type="tel"
+                  autoComplete="tel"
+                  className={champ}
+                  placeholder="+242 06 00 00 00"
+                  value={phone}
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                  }}
+                  required
+                />
+              </div>
+            </div>
 
-        <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit}>
-          {/* Inputs */}
+            <PasswordInput
+              label="Mot de passe"
+              value={password}
+              onChange={setPassword}
+              placeholder="Votre mot de passe"
+            />
 
-          {/* L'API authentifie sur le téléphone (`POST /auth/login` attend
-              `telephone`), pas sur une adresse mail : un `type="email"`
-              rejetait le format `+24206...` avant même l'envoi. Le libellé
-              peut promettre l'email, le champ reste `type="tel"`. */}
-          <div className="form-group">
-            <label htmlFor="identifiant" className="text-sm font-medium text-primary">
-              Email ou numéro de téléphone
+            {/* Visuel uniquement : aucune persistance (voir `handleSubmit`). */}
+            <label className="inline-flex w-fit cursor-pointer select-none items-center gap-2 text-[12px] font-medium text-muted-foreground">
+              <input
+                type="checkbox"
+                className="h-3.5 w-3.5 accent-primary"
+              />
+              Se souvenir de moi
             </label>
-            <input
-              id="identifiant"
-              type="tel"
-              autoComplete="tel"
-              className="w-full rounded-lg border border-primary/20 bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
-              placeholder="+242 06 00 00 00"
-              value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value);
-              }}
-              required
-            />
-          </div>
 
-          <PasswordInput
-            label="Mot de passe"
-            value={password}
-            onChange={setPassword}
-            placeholder="Votre mot de passe"
-          />
+            <CustomButton
+              className="w-full py-2.5"
+              isLoading={isLoading}
+              icon={<ArrowRight />}
+              disabled={isLoading}
+            >
+              Se connecter
+            </CustomButton>
 
-          {/* Visuel uniquement : aucune persistance (voir `handleSubmit`). */}
-          <label className="flex w-fit cursor-pointer select-none items-center gap-2 text-sm text-muted-foreground">
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-primary/30 text-primary focus:ring-primary/50"
-            />
-            Se souvenir de moi
-          </label>
+            {message && (
+              <div
+                role="alert"
+                className="rounded-[10px] border border-[#E53935]/40 bg-[#FDECEA] px-3 py-2 text-[13px] text-[#E53935]"
+              >
+                {message}
+              </div>
+            )}
+          </form>
 
-          <CustomButton
-            className="w-full py-3 mt-1"
-            isLoading={isLoading}
-            icon={<ArrowRight />}
-            disabled={isLoading}
-          >
-            Se connecter
-          </CustomButton>
+          <p className="mt-3 rounded-[10px] bg-secondary p-2 text-center text-[11px] leading-relaxed text-muted-foreground">
+            Utilisez les identifiants fournis par l'établissement.
+          </p>
+        </article>
 
-          <div className="text-accent rounded-xl p-2 font-semibold">
-            {message}
-          </div>
-        </form>
-
-        {/* Footer link */}
-        <p className="mt-6 text-center text-sm text-muted-foreground">
+        <p className="mt-3 text-center text-xs text-white/85">
           Vous n'avez pas de compte ?{" "}
           <Link
             to="/signup"
-            className="text-primary font-semibold hover:underline"
+            className="font-semibold text-white underline"
           >
             Créer un compte
           </Link>
