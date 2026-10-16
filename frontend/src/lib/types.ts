@@ -1,3 +1,17 @@
+import type { MouseEventHandler } from "react";
+
+/* ---------- Compte à rebours de déclaration ---------- */
+
+export type StatutCountdown = "en_cours" | "delai_expire" | "declaree";
+
+export interface CountdownDeclaration {
+  statut: StatutCountdown;
+  jours_restants: number;
+  message: string;
+}
+
+/* ---------- Formulaire d'enregistrement du nouveau-né ---------- */
+
 export type BabyData = {
   id:number;
   nom: string;
@@ -11,12 +25,12 @@ export type BabyData = {
 };
 
 export type dataParent = {
-    nom: string;
-    prenom: string;
-    telephone: string;
-    email: string;
-    adresse: string;
-    lien: "mere" | "pere" | "tuteur";
+  nom: string;
+  prenom: string;
+  telephone: string;
+  email: string;
+  adresse: string;
+  lien: "mere" | "pere" | "tuteur";
 };
 
 export type EnregistrementBaby = {

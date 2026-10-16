@@ -1,0 +1,648 @@
+/* ==========================================================================
+   Dashboards Parent & Agent — design Velora / Enroll Baby
+   --------------------------------------------------------------------------
+   Palette reprise de la maquette de référence (Enroll-Baby-2026) :
+     · sidebar Parent  #123830   (vert forêt)
+     · sidebar Agent   #0c2822   (vert forêt foncé, ton « portail pro »)
+     · vert action     #1b5e52 / #1b4d42
+     · texte           #103d34
+     · vert émeraude   #1b7e5c (accents, icônes de navigation)
+
+   Les couleurs passent par des variables CSS pilotées par `[data-theme]`,
+   posé sur <html> par le ThemeProvider existant. Les composants n'emploient
+   donc jamais `dark:` : le mode sombre fonctionne dès le premier jour, et un
+   simple ajustement de ce bloc reteint les deux dashboards.
+
+   Aucune de ces règles ne touche App.css ni les pages existantes.
+   ========================================================================== */
+
+.app-root {
+  /* Fonds */
+  --app-bg: #f4f7f5;
+  --app-surface: #ffffff;
+  --app-surface-2: #f9fcfa;
+  --app-surface-3: #ebf5f0;
+
+  /* Texte */
+  --app-text: #103d34;
+  --app-heading: #103d34;
+  --app-muted: #526f67;
+  --app-faint: #94a3b8;
+
+  /* Marque */
+  --app-brand: #134e43;
+  --app-action: #1b5e52;
+  --app-action-hover: #144b41;
+  --app-emerald: #1b7e5c;
+  --app-sage-soft: #edf5f1;
+
+  /* Traits */
+  --app-border: rgba(19, 78, 67, 0.15);
+  --app-border-soft: rgba(19, 78, 67, 0.08);
+
+  /* Alerte */
+  --app-danger: #dc2626;
+
+  /* Barre basse : translucide, floutee au-dessus du contenu */
+  --app-bottom-nav-bg: rgba(255, 255, 255, 0.88);
+  --app-bottom-nav-border: rgba(19, 78, 67, 0.1);
+
+  /* Sidebar : toujours sombre, même en thème clair */
+  --app-sidebar: #123830;
+  --app-sidebar-active: #1b4d42;
+  --app-sidebar-text: rgba(209, 250, 229, 0.7);
+  --app-sidebar-text-strong: #ffffff;
+  --app-sidebar-icon: #6ee7b7;
+  --app-sidebar-border: rgba(25, 76, 65, 0.5);
+
+  /* Ombres (lgres, identite medicale) */
+  --app-shadow: 0 1px 2px rgba(16, 61, 52, 0.04);
+  --app-shadow-hover: 0 8px 24px -6px rgba(16, 61, 52, 0.12);
+  --app-shadow-action: 0 1px 2px rgba(16, 61, 52, 0.08);
+
+  --app-radius: 1.5rem;
+  --app-radius-sm: 0.75rem;
+
+  background-color: var(--app-bg);
+  color: var(--app-text);
+  /* Neutralise tout débordement horizontal : cartes empilées sur mobile. */
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* ---------- Theme sombre : fonds noirs, accents menthe ---------- */
+[data-theme="dark"] .app-root {
+  --app-bg: #000000;
+  --app-surface: #0a0a0a;
+  --app-surface-2: #121c19;
+  --app-surface-3: #1a2b27;
+
+  --app-text: #e6f4f1;
+  --app-heading: #f0fdf9;
+  --app-muted: rgba(110, 231, 183, 0.7);
+  --app-faint: #64748b;
+
+  --app-brand: #5eead4;
+  --app-action: #10b981;
+  --app-action-hover: #34d399;
+  --app-emerald: #34d399;
+  --app-sage-soft: #121c19;
+
+  --app-border: rgba(16, 185, 129, 0.25);
+  --app-border-soft: rgba(16, 185, 129, 0.15);
+
+  --app-danger: #f87171;
+
+  /* La barre basse reste translucide sur fond noir : le contenu doit
+     transparaître, pas la bande opaque. */
+  --app-bottom-nav-bg: rgba(10, 10, 10, 0.88);
+  --app-bottom-nav-border: rgba(16, 185, 129, 0.16);
+
+  --app-sidebar: #070707;
+  --app-sidebar-active: #1a2b27;
+  --app-sidebar-text: rgba(167, 243, 208, 0.7);
+  --app-sidebar-text-strong: #ecfdf5;
+  --app-sidebar-icon: #34d399;
+  --app-sidebar-border: rgba(255, 255, 255, 0.1);
+
+  --app-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --app-shadow-hover: 0 8px 24px -6px rgba(0, 0, 0, 0.7);
+  --app-shadow-action: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   Coquille : sidebar + header + contenu
+   ========================================================================== */
+
+.app-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.app-main {
+  min-width: 0;
+}
+
+/* L'en-tête colle au haut : il doit laisser passer le halo de la barre d'état
+   iOS plutôt que de la recouvrir. */
+.app-header {
+  padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+  padding-bottom: 0.75rem;
+  padding-left: max(1rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1rem, env(safe-area-inset-right, 0px));
+}
+
+@media (min-width: 640px) {
+  .app-header {
+    padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+    padding-bottom: 1rem;
+    padding-left: max(1.5rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.5rem, env(safe-area-inset-right, 0px));
+  }
+}
+
+/* En-tête du tiroir : même gouttière que les liens de navigation (px-5), pour
+   que le logo et les entrées partagent une même colonne. */
+.app-sidebar-top {
+  padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+  padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+}
+
+/* Le bas du tiroir doit rester au-dessus de la barre de gestes iOS. */
+.app-footer-safe {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* ==========================================================================
+   Barre de navigation basse (smartphones)
+   ========================================================================== */
+
+.app-bottom-nav {
+  background-color: var(--app-bottom-nav-bg);
+  border-top: 1px solid var(--app-bottom-nav-border);
+  box-shadow: 0 -8px 24px rgba(16, 45, 38, 0.08);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+/* Safe-area iOS : la barre de gestes (trait horizontal) ne doit pas manger le
+   dernier onglet. `env()` vaut 0 sur Android et desktop, donc l'ecart est nul
+   la ou il n'y a pas de barre systeme. */
+.app-bottom-nav-list {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 0.125rem;
+  padding: 0.25rem 0.25rem 0.375rem;
+  padding-bottom: calc(0.375rem + env(safe-area-inset-bottom, 0px));
+}
+
+.app-bottom-nav-item {
+  display: flex;
+  flex: 1 1 0%;
+  min-width: 0;
+  justify-content: center;
+}
+
+/* Cible tactile : 48px de haut minimum, recommendation materiel pour le pouce. */
+.app-bottom-nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
+  min-height: 48px;
+  border-radius: 0.75rem;
+  padding: 0.375rem 0.25rem;
+  color: var(--app-faint);
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.18s ease;
+}
+
+.app-bottom-nav-link.is-active {
+  color: var(--app-brand);
+}
+
+.app-bottom-nav-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1rem;
+}
+
+/* Pastille de compteur sur l'icone. */
+.app-bottom-nav-badge {
+  position: absolute;
+  top: -0.3125rem;
+  right: -0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.0625rem;
+  height: 1.0625rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background-color: var(--app-emerald);
+  color: #ffffff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.app-bottom-nav-badge-alert {
+  background-color: var(--app-danger);
+}
+
+/* Action rapide Agent : bouton surélevé au centre de la barre. */
+.app-bottom-nav-fab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  margin-top: -1.375rem;
+  border-radius: 999px;
+  background-color: var(--app-emerald);
+  color: #ffffff;
+  box-shadow:
+    0 6px 16px rgba(16, 185, 129, 0.35),
+    0 0 0 4px var(--app-bottom-nav-bg);
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.18s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app-bottom-nav-fab:hover {
+    background-color: var(--app-action);
+  }
+}
+
+/* ==========================================================================
+   Sidebar
+   ========================================================================== */
+
+.app-sidebar {
+  background-color: var(--app-sidebar);
+  color: var(--app-sidebar-text-strong);
+  border-color: var(--app-sidebar-border);
+}
+
+/* Lien de navigation : fond transparent, texte menthe discret au repos.
+   Hauteur minimale de 44px : c'est la taille de cible tactile recommandée, et
+   sur mobile la navigation se fait au doigt, pas au curseur. */
+.app-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--app-sidebar-text);
+  text-decoration: none;
+  /* Safari iOS : evite le surlignage bleu au tap. */
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.app-nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--app-sidebar-text-strong);
+}
+
+.app-nav-link[aria-current="page"] {
+  background-color: var(--app-sidebar-active);
+  color: var(--app-sidebar-text-strong);
+  font-weight: 600;
+}
+
+.app-nav-link svg {
+  color: var(--app-sidebar-icon);
+}
+
+.app-nav-link .truncate {
+  min-width: 0;
+}
+
+/* Pastille de compteur à droite du libellé. */
+.app-nav-badge {
+  margin-left: auto;
+  display: inline-flex;
+  min-width: 1.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0 0.5rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.375rem;
+  color: var(--app-sidebar-text-strong);
+}
+
+/* Compteur d'alerte (notifications non lues) : rouge, comme sur la maquette. */
+.app-nav-badge-alert {
+  background-color: #ef4444;
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: 700;
+  min-width: 1.25rem;
+  line-height: 1.25rem;
+}
+
+/* Carte d'identité de l'agent, en pied de sidebar. */
+.app-sidebar-card {
+  border-radius: 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.75rem;
+}
+
+/* Bouton discret (déconnexion). */
+.app-sidebar-ghost {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--app-sidebar-text);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.app-sidebar-ghost:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--app-sidebar-text-strong);
+}
+
+.app-sidebar-ghost svg {
+  color: var(--app-sidebar-icon);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Cartes et surfaces
+   ========================================================================== */
+
+.app-card {
+  border-radius: var(--app-radius);
+  border: 1px solid var(--app-border);
+  background-color: var(--app-surface);
+  box-shadow: var(--app-shadow);
+}
+
+.app-card-interactive {
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Survol uniquement sur pointeur fin : évite le « soulèvement » sticky au tap
+   mobile, qui reste collé après le clic. */
+@media (hover: hover) and (pointer: fine) {
+  .app-card-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--app-shadow-hover);
+  }
+}
+
+.app-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 999px;
+  background-color: var(--app-sage-soft);
+  border: 1px solid var(--app-border);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--app-emerald);
+}
+
+.app-section-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--app-faint);
+}
+
+/* Pastille d'icone utilisee par les tuiles de synthese. */
+.app-icon-tile {
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background-color: var(--app-sage-soft);
+  color: var(--app-brand);
+}
+
+/* Bouton d'action principal (vert forêt).
+   Cible tactile : 44px de haut sur mobile, hauteur compacte à partir de 640px
+   pour rester aligné sur les boutons de l'en-tête. */
+.app-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  border-radius: 0.75rem;
+  background-color: var(--app-action);
+  padding: 0.625rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: var(--app-shadow-action);
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.18s ease;
+}
+
+.app-action:hover {
+  background-color: var(--app-action-hover);
+}
+
+[data-theme="dark"] .app-action {
+  color: #04211a;
+}
+
+/* Lien d'action sobre, utilisé en pied de carte. */
+.app-link-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--app-action);
+  text-decoration: none;
+}
+
+.app-link-action:hover {
+  text-decoration: underline;
+}
+
+[data-theme="dark"] .app-link-action {
+  color: var(--app-brand);
+}
+
+/* Bouton secondaire (contour). */
+.app-action-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--app-border);
+  background-color: var(--app-sage-soft);
+  padding: 0.375rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--app-brand);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.18s ease;
+}
+
+.app-action-outline:hover {
+  background-color: var(--app-surface-3);
+}
+
+/* Bandeau d'alerte ambre (dossiers à régulariser côté agent). */
+.app-alert {
+  border-radius: 1rem;
+  border: 1px solid #fde68a;
+  background-color: #fffbeb;
+  padding: 1rem 1.25rem;
+}
+
+[data-theme="dark"] .app-alert {
+  border-color: rgba(251, 191, 36, 0.25);
+  background-color: rgba(120, 53, 15, 0.25);
+}
+
+.app-alert-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #78350f;
+}
+
+[data-theme="dark"] .app-alert-title {
+  color: #fde68a;
+}
+
+.app-alert-text {
+  font-size: 0.75rem;
+  color: rgba(120, 53, 15, 0.8);
+}
+
+[data-theme="dark"] .app-alert-text {
+  color: rgba(253, 230, 138, 0.8);
+}
+
+/* ==========================================================================
+   Tableaux
+   ========================================================================== */
+
+.app-table {
+  width: 100%;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.app-table thead th {
+  padding: 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--app-faint);
+  border-bottom: 1px solid var(--app-border-soft);
+  white-space: nowrap;
+}
+
+.app-table tbody td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--app-border-soft);
+}
+
+.app-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app-table tbody tr:hover {
+    background-color: var(--app-surface-2);
+  }
+}
+
+/* ---------- Cartes ---------- */
+
+/* Au-delà de 640px, les tableaux gagnent des gouttières : sur téléphone la
+   place est comptée, et la liste empilée prend le relais. */
+@media (min-width: 640px) {
+  .app-table thead th,
+  .app-table tbody td {
+    padding: 0.875rem 0.75rem;
+  }
+}
+
+/* Chiffres longs (noms longs, matricules) : la cellule se coupe plutôt que de
+   faire déborder la carte. */
+.app-table td {
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================================
+   Cartes de dossier (registre Agent, sous 1024px)
+   ========================================================================== */
+
+/* Remplace le tableau à 6 colonnes sur téléphone et tablette.
+   Bordure translucide plutôt qu'une ombre : empilées sur mobile, les ombres
+   s'accumulent en un halo gris illisible. */
+.app-record-card {
+  display: block;
+  border-radius: 1rem;
+  border: 1px solid var(--app-border-soft);
+  background-color: var(--app-surface-2);
+  padding: 0.75rem;
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.18s ease;
+}
+
+/* Action tactile de la carte : 44px minimum, pleine largeur de la carte. */
+.app-record-card-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
+  margin-top: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--app-border);
+  background-color: var(--app-sage-soft);
+  color: var(--app-brand);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app-record-card:hover {
+    border-color: var(--app-emerald);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-root *,
+  .app-root *::before,
+  .app-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

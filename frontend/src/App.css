@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+/* Le thème sombre est piloté par l'attribut `data-theme` posé sur <html> :
+   il suit le choix de l'utilisateur, pas la seule préférence du système.
+   Ce fichier est le point d'entrée Tailwind de l'application, c'est donc
+   ici que la variante doit être déclarée. Aucune page hors landing
+   n'utilise la variante `dark:`, Login/Signup restent inchangées. */
+@custom-variant dark (&:where([data-theme="dark"] *));
+
+@theme {
+  --color-primary: #1b4d3e; /*titre icone CTA navlink active*/
+  --color-secondary: #d2e7dc; /*arriere plan carte tag puces modal*/
+  --color-fond: #f4f6f5; /*arriere plan global*/
+  --color-anthracite: #2b2b2b; /*texte principal*/
+  --color-accent: #d9534f;
+  --color-gris: #eaeeec; /*bordures*/
+}
+
+@utility light-shadow {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+@utility headline-xl {
+  font-family: var(--font-jakarta);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 40px;
+  letter-spacing: -0.02em;
+}
+@utility headline-xl-mobile {
+  font-family: var(--font-jakarta);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 34px;
+  letter-spacing: -0.01em;
+}
+@utility headline-lg {
+  font-family: var(--font-jakarta);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+  letter-spacing: -0.015em;
+}
+@utility headline-lg-mobile {
+  font-family: var(--font-jakarta);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+}
+@utility headline-md {
+  font-family: var(--font-jakarta);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 26px;
+}
+@utility body-lg {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+@utility body-md {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+@utility body-sm {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+}
+@utility label-lg {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.01em;
+}
+@utility label-md {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.02em;
+}
+@utility label-sm {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0.05em;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center font-semibold rounded-xl btn-interaction select-none cursor-pointer;
+  @variant disabled {
+    background-color: var(--color-disabled-bg);
+    color: var(--color-disabled-text);
+    cursor: not-allowed;
+  }
+}
+
+@utility btn-interaction {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  &:active {
+    transform: scale(0.98);
+  }
+  &:focus-visible {
+    outline: 3px solid rgba(0, 69, 50, 0.4);
+    outline-offset: 2px;
+  }
+}
+@utility padding-section {
+  padding: 48px 16px;
+
+  @variant sm {
+    padding: 80px 32px;
+  }
+}
+@utility padding-x {
+  @apply sm:px-16 px-6;
+}
+@utility padding-y {
+  @apply py-4;
+}
+
+@utility form-group {
+  @apply flex flex-col gap-4;
+}
+@utility bg-login {
+  background-image: url("./assets/auth.webp");
+  background-size: cover;
+  /* background-position: center; */
+}
