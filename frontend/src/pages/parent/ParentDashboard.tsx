@@ -13,20 +13,64 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import babyHandsParent from "@/assets/baby-hand-parent2.jpg";
-import { parentDashboardMock } from "@/lib/dashboard/mockParentData";
+import { useEspaceParent } from "@/lib/dashboard/useEspaceParent";
+import { versParentDashboard } from "@/lib/dashboard/adapterParent";
+import { useAuth } from "@/contexts/useAuth";
+import { identiteUtilisateur } from "@/services/api";
 import type { StepStatus } from "@/lib/dashboard/types";
 
 /**
  * Accueil du dashboard Parent.
  *
- * Reprend la maquette de référence : carte enfant, prochaine vaccination,
- * dernières étapes, puis une carte d'affirmation et un bandeau d'action.
- * Les pages filles (enfants, vaccinations, documents...) restent des
- * placeholders : ce lot livre la coquille et l'accueil, pas les formulaires.
+ * Les données viennent de `GET /api/parents/espace`, via `useEspaceParent`, puis
+ * sont traduites par `versParentDashboard` vers la forme de présentation attendue
+ * ici. Sans session ou sans enfant, l'écran affiche un état vide explicite
+ * plutôt que des valeurs mockées : afficher « Moussa Moussa » alors que l'API a
+ * rendu le vide serait pire que de ne rien montrer.
  */
 export default function ParentDashboard() {
-  const { child, nextVaccination, lastSteps, quickActions } =
-    parentDashboardMock;
+  const { utilisateur } = useAuth();
+  const { enfants, chargement, erreur } = useEspaceParent(
+    utilisateur?.role === "parent",
+  );
+
+  const donnees = versParentDashboard(enfants[0], identiteUtilisateur(utilisateur));
+  const { child, nextVaccination, lastSteps, quickActions } = donnees;
+
+  if (chargement) {
+    return (
+      <p className="text-sm text-[var(--app-muted)]" role="status">
+        Chargement de votre espace…
+      </p>
+    );
+  }
+
+  if (erreur) {
+    return (
+      <div className="app-card space-y-3 p-6" role="alert">
+        <h2 className="text-base font-bold text-[var(--app-heading)]">
+          Impossible de charger votre espace
+        </h2>
+        <p className="text-sm text-[var(--app-muted)]">{erreur}</p>
+      </div>
+    );
+  }
+
+  /* Parent sans enfant rattaché : il n'a pas encore utilisé un code d'accès,
+     ou son compte n'est lié à aucun dossier. */
+  if (enfants.length === 0) {
+    return (
+      <div className="app-card space-y-3 p-6">
+        <h2 className="text-base font-bold text-[var(--app-heading)]">
+          Aucun enfant dans votre dossier
+        </h2>
+        <p className="text-sm text-[var(--app-muted)]">
+          Si vous avez reçu un code d’accès de la maternité, contactez l’agent pour
+          rattacher votre compte à votre dossier.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -46,8 +90,12 @@ export default function ParentDashboard() {
               <h2 className="truncate font-serif text-xl font-bold text-[var(--app-heading)]">
                 {child.firstName} {child.lastName}
               </h2>
+              {/* Poids et taille ne sont pas fournis par l'espace parent :
+                  la ligne n'affiche que ce qui est connu, sans « null kg ». */}
               <p className="mt-0.5 text-xs text-[var(--app-muted)]">
-                Né le {child.birthDate} · {child.weightKg} kg · {child.heightCm} cm
+                Né le {child.birthDate} · {child.ageLabel}
+                {child.weightKg !== null ? ` · ${child.weightKg} kg` : ""}
+                {child.heightCm !== null ? ` · ${child.heightCm} cm` : ""}
               </p>
             </div>
 

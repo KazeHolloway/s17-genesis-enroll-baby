@@ -14,6 +14,20 @@
   --color-anthracite: #2b2b2b; /*texte principal*/
   --color-accent: #d9534f;
   --color-gris: #eaeeec; /*bordures*/
+
+  /* Jetons utilisés par Login et Signup (composants `ui/`). Sans eux, Tailwind
+     ignore les classes correspondantes et les champs comme les boutons
+     s'affichent sans fond ni arrondi. */
+  --color-background: #ffffff; /*fond des champs de formulaire*/
+  --color-muted-foreground: #5f6b66; /*texte secondaire, libellés, placeholders*/
+  --color-disabled-bg: #eaeeec; /*bouton désactivé*/
+  --color-disabled-text: #8a938f; /*texte du bouton désactivé*/
+  --color-on-secondary: #1b4d3e; /*texte sur fond `secondary`*/
+  --color-error-container: #fdecea; /*fond du bouton `danger`*/
+  --color-on-error-container: #8a1c1a; /*texte sur fond `danger`*/
+
+  /* rayon des boutons, cf. `.rounded-btn` dans CustomButton */
+  --radius-btn: 10px;
 }
 
 @utility light-shadow {

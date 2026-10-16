@@ -40,9 +40,13 @@ export interface ChildSummary {
   sex: "F" | "M";
   /** Identifiant du dossier, tel qu'affiche dans l'interface. */
   recordNumber: string;
-  /** Poids et taille, uniquement pour la presentation. */
-  weightKg: number;
-  heightCm: number;
+  /**
+   * Poids et taille, uniquement pour la présentation.
+   * `null` quand l'API ne les fournit pas : l'espace parent ne renvoie que les
+   * informations de naissance, pas la courbe de croissance.
+   */
+  weightKg: number | null;
+  heightCm: number | null;
 }
 
 export interface VaccinationSummary {
@@ -53,6 +57,7 @@ export interface VaccinationSummary {
   date: string;
   /** Nombre de jours restants avant la date cible. */
   daysUntil: number;
+  /** `en_retard` côté API devient `retard` ici. */
   status: "a-venir" | "effectuee" | "retard";
 }
 

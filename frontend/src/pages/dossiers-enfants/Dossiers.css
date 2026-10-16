@@ -1,0 +1,138 @@
+.bb-barre {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.bb-bouton {
+  display: inline-block;
+  background: #1f6f8b;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 16px;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.bb-retour {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: #1f6f8b;
+  text-decoration: none;
+}
+
+.bb-liste {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.bb-enfant {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  border: 1px solid #d5e1e7;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.bb-enfant h2 {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+  color: #1f3a4d;
+}
+
+.bb-enfant p {
+  margin: 0 0 6px;
+  color: #5f7380;
+  font-size: 0.9rem;
+}
+
+.bb-badge {
+  display: inline-block;
+  background: #e3f1f5;
+  color: #1f6f8b;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.8rem;
+}
+
+.bb-numero {
+  margin: 0;
+  color: #5f7380;
+}
+
+.bb-titre-section {
+  margin: 20px 0 8px;
+  font-size: 1.1rem;
+  color: #1f3a4d;
+  border-bottom: 1px solid #d5e1e7;
+  padding-bottom: 4px;
+}
+
+.bb-infos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 16px;
+  margin: 0;
+}
+
+.bb-ligne dt {
+  font-size: 0.8rem;
+  color: #5f7380;
+}
+
+.bb-ligne dd {
+  margin: 0;
+  font-weight: 500;
+  color: #1f3a4d;
+}
+
+.bb-parent {
+  background: #f6fafb;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.bb-parent h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  color: #1f3a4d;
+}
+
+/* Page de connexion */
+.bb-connexion {
+  max-width: 420px;
+  align-self: center;
+}
+
+.bb-une-colonne {
+  grid-template-columns: 1fr;
+}
+
+.bb-carte button[type='submit'] {
+  margin-top: 12px;
+}
+
+@media (max-width: 600px) {
+  .bb-infos {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* À l'impression : on cache les boutons */
+@media print {
+  .bb-retour,
+  .bb-bouton,
+  .bb-carte button {
+    display: none;
+  }
+}

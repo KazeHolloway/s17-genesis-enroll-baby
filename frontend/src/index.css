@@ -94,6 +94,13 @@ html {
   line-height: 1.12;
 }
 
+/* La FAQ garde la police du texte courant : le titre y était en serif, comme
+   les hero, alors que le reste de la section est en sans-serif. */
+.landing-root .faq-title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
 .landing-root a:focus-visible,
 .landing-root summary:focus-visible,
 .landing-root button:focus-visible,

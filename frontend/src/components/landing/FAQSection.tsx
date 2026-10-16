@@ -66,7 +66,10 @@ export function FAQSection() {
             <span>Foire aux questions</span>
           </div>
 
-          <h2 className="font-serif text-3xl leading-tight tracking-tight text-[#103d34] sm:text-4xl lg:text-[2.65rem] dark:text-[#fafafa]">
+          {/* `faq-title` prime sur la règle `.landing-root h2` (deux classes contre une
+              classe + un élément) : le titre garde la police du texte de la
+              section au lieu de la serif des hero. */}
+          <h2 className="faq-title text-3xl leading-tight tracking-tight text-[#103d34] sm:text-4xl lg:text-[2.65rem] dark:text-[#fafafa]">
             Questions fréquentes
           </h2>
           <p className="mt-4 text-base text-[#4a6b61] sm:text-lg dark:text-[#a1a1a1]">
@@ -151,6 +154,12 @@ export function FAQSection() {
                   {isOpen && (
                     <div className="animate-in fade-in border-t border-[#134e43]/10 px-5 pb-6 pt-3 text-sm leading-relaxed text-[#46655c] sm:px-6 sm:text-base dark:border-[#ffffff]/12 dark:text-[#a1a1a1]">
                       <p>{entry.answer}</p>
+                      {/* Les réponses sont rédigées par une IA : l'indiquer
+                         ici évite de laisser croire à un avis de professionnel
+                          de santé. */}
+                      <p className="mt-3 text-xs text-[#7d9b92] dark:text-[#737373]">
+                        Réponse générée automatiquement, à titre indicatif.
+                      </p>
                     </div>
                   )}
                 </li>

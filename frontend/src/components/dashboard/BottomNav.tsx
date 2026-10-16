@@ -29,7 +29,8 @@ export function BottomNav({ items, onOpenMenu, roleLabel }: BottomNavProps) {
         {items.map((item) => {
           const Icon = item.icon;
 
-          /* Action rapide surélevée au centre (Agent). */
+          /* Action rapide au centre (Agent) : cercle plein, sans libellé visible,
+             contrairement aux autres onglets. */
           if (item.kind === "action") {
             return (
               <li key={`${item.kind}-${item.to}`} className="app-bottom-nav-item">

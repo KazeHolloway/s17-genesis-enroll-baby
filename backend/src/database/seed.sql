@@ -38,16 +38,26 @@ SELECT pg_catalog.setval('public.etablissements_id_seq', 1, true);
 -- Comptes de test :
 --   Agent de maternité : +242060000001 / Agent123!
 --   Administrateur : +242060000002 / Admin123!
+--   Agents 2 à 10 : +242060000003 à +242060000011 / Agent123! (mêmes comptes que sur Neon)
 --   Parents (Marie Nzaba, Rosine Loubaki, Esther Tati) : +242061000010, +242061000011, +242061000012 / Parent123!
 INSERT INTO public.utilisateurs (id, nom_complet, telephone, mot_de_passe_hash, role, etablissement_id) VALUES
 (1, 'Agent Test', '+242060000001', '$2b$10$TuVGpZKCamvwgVgkyFixZ.BzPwu1Qoy.KmYRT8lHS6Uhd/RcTdriW', 'agent_maternite', 1),
 (2, 'Admin Test', '+242060000002', '$2b$10$FQl3WyfIJR2qJKOcnDQ8QeefCziknGP0CrDzp2mXdP/BPTO9YqdmW', 'admin', NULL),
 (3, 'Marie Nzaba', '+242061000010', '$2b$10$GljS5jhgZfnaCgo5J1b0yuOhymN96y9sUIVs647kwV6992fanKTFi', 'parent', NULL),
 (4, 'Rosine Loubaki', '+242061000011', '$2b$10$GljS5jhgZfnaCgo5J1b0yuOhymN96y9sUIVs647kwV6992fanKTFi', 'parent', NULL),
-(5, 'Esther Tati', '+242061000012', '$2b$10$GljS5jhgZfnaCgo5J1b0yuOhymN96y9sUIVs647kwV6992fanKTFi', 'parent', NULL)
+(5, 'Esther Tati', '+242061000012', '$2b$10$GljS5jhgZfnaCgo5J1b0yuOhymN96y9sUIVs647kwV6992fanKTFi', 'parent', NULL),
+(6, 'Agent 2', '+242060000003', '$2b$10$TuVGpZKCamvwgVgkyFixZ.BzPwu1Qoy.KmYRT8lHS6Uhd/RcTdriW', 'agent_maternite', 1),
+(7, 'Agent 3', '+242060000004', '$2b$10$TuVGpZKCamvwgVgkyFixZ.BzPwu1Qoy.KmYRT8lHS6Uhd/RcTdriW', 'agent_maternite', 1),
+(8, 'Agent 4', '+242060000005', '$2b$10$TuVGpZKCamvwgVgkyFixZ.BzPwu1Qoy.KmYRT8lHS6Uhd/RcTdriW', 'agent_maternite', 1),
+(9, 'Agent 5', '+242060000006', '$2b$10$TuVGpZKCamvwgVgkyFixZ.BzPwu1Qoy.KmYRT8lHS6Uhd/RcTdriW', 'agent_maternite', 1),
+(10, 'Agent 6', '+242060000007', '$2b$10$TuVGpZKCamvwgVgkyFixZ.BzPwu1Qoy.KmYRT8lHS6Uhd/RcTdriW', 'agent_maternite', 1),
+(11, 'Agent 7', '+242060000008', '$2b$10$TuVGpZKCamvwgVgkyFixZ.BzPwu1Qoy.KmYRT8lHS6Uhd/RcTdriW', 'agent_maternite', 1),
+(12, 'Agent 8', '+242060000009', '$2b$10$TuVGpZKCamvwgVgkyFixZ.BzPwu1Qoy.KmYRT8lHS6Uhd/RcTdriW', 'agent_maternite', 1),
+(13, 'Agent 9', '+242060000010', '$2b$10$TuVGpZKCamvwgVgkyFixZ.BzPwu1Qoy.KmYRT8lHS6Uhd/RcTdriW', 'agent_maternite', 1),
+(14, 'Agent 10', '+242060000011', '$2b$10$TuVGpZKCamvwgVgkyFixZ.BzPwu1Qoy.KmYRT8lHS6Uhd/RcTdriW', 'agent_maternite', 1)
 ON CONFLICT (id) DO NOTHING;
 
-SELECT pg_catalog.setval('public.utilisateurs_id_seq', 5, true);
+SELECT pg_catalog.setval('public.utilisateurs_id_seq', 14, true);
 
 -- 3. DONNÉES DE TEST MÉTIER (10 nouveau-nés enregistrés par l'agent 1)
 
